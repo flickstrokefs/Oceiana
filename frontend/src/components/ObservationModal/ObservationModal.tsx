@@ -8,10 +8,14 @@ export const ObservationModal: React.FC = () => {
     type: 'argo' | 'glider';
     data: ArgoProfile | GliderTrajectory;
   } | null>(null);
+  const [activeDepth, setActiveDepth] = useState<number>(0);
+  const [isUnderwater, setIsUnderwater] = useState<boolean>(false);
 
   useEffect(() => {
     const unsub = OceanState.getInstance().subscribe((snapshot) => {
       setSelectedObs(snapshot.selectedObservation);
+      setActiveDepth(snapshot.parameters.depth);
+      setIsUnderwater(snapshot.mode === 'underwater');
     });
     return unsub;
   }, []);
@@ -65,13 +69,16 @@ export const ObservationModal: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {argoData.nodes.map((n, idx) => (
-                    <tr key={idx}>
-                      <td className="depth-col">{n.depth} m</td>
-                      <td className="temp-col">{n.temperature.toFixed(1)} °C</td>
-                      <td className="sal-col">{n.salinity.toFixed(1)} PSU</td>
-                    </tr>
-                  ))}
+                  {argoData.nodes.map((n, idx) => {
+                    const isStratumActive = isUnderwater && Math.abs(n.depth - activeDepth) <= 50;
+                    return (
+                      <tr key={idx} className={isStratumActive ? 'row-active-depth' : ''} style={isStratumActive ? { background: 'rgba(0, 240, 255, 0.2)', fontWeight: 'bold' } : {}}>
+                        <td className="depth-col">{n.depth} m {isStratumActive && '◀ ACTIVE'}</td>
+                        <td className="temp-col">{n.temperature.toFixed(1)} °C</td>
+                        <td className="sal-col">{n.salinity.toFixed(1)} PSU</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

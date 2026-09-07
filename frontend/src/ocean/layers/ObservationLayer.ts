@@ -5,7 +5,6 @@ import type { ArgoProfile, GliderTrajectory } from '../../types/ocean';
 export class ObservationLayer {
   private viewer: Cesium.Viewer;
   private entities: Cesium.Entity[] = [];
-  private nodeEntities: { entity: Cesium.Entity; depth: number }[] = [];
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
   private unsubscribeState: (() => void) | null = null;
 
@@ -13,7 +12,7 @@ export class ObservationLayer {
     this.viewer = viewer;
     this.renderObservations();
     this.initClickHandler();
-    this.bindDepthHighlight();
+    this.bindDepthObservationState();
   }
 
   private renderObservations(): void {
@@ -32,60 +31,47 @@ export class ObservationLayer {
   }
 
   private renderArgoProfile(argo: ArgoProfile): void {
-    // Top surface position (z = 0)
-    const topPos = Cesium.Cartesian3.fromDegrees(
-      argo.longitude,
-      argo.latitude,
-      0
-    );
-    // Deepest profile point (z = -2000)
-    const bottomPos = Cesium.Cartesian3.fromDegrees(
-      argo.longitude,
-      argo.latitude,
-      -2000
-    );
+    const pos = Cesium.Cartesian3.fromDegrees(argo.longitude, argo.latitude, 2000);
 
-    // 1. Vertical CTD sounding line spanning entire water column
-    const profileLine = this.viewer.entities.add({
-      name: argo.name,
-      polyline: {
-        positions: [topPos, bottomPos],
-        width: 3.5,
-        material: new Cesium.ColorMaterialProperty(
-          new Cesium.Color(0.0, 0.9, 1.0, 0.85)
-        ),
-        depthFailMaterial: new Cesium.ColorMaterialProperty(
-          new Cesium.Color(0.0, 0.9, 1.0, 0.85)
-        ),
-      },
-      properties: {
-        obsType: 'argo',
-        data: argo,
-      },
-    });
-    this.entities.push(profileLine);
-
-    // 2. Surface GPS telemetry beacon
+    // 1. Surface Beacon Pin
     const beacon = this.viewer.entities.add({
-      name: argo.name + ' Surface Beacon',
-      position: topPos,
+      name: argo.name,
+      position: pos,
       point: {
-        pixelSize: 12,
+        pixelSize: 13,
         color: new Cesium.Color(1.0, 0.8, 0.0, 1.0),
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 2,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       label: {
-        text: argo.stationCode,
-        font: '13px JetBrains Mono, monospace',
+        text: new Cesium.CallbackProperty(() => {
+          const snapshot = OceanState.getInstance().getSnapshot();
+          const depth = snapshot.parameters.depth;
+          const isUnderwater = snapshot.mode === 'underwater';
+
+          // Find closest CTD reading
+          let closest = argo.nodes[0];
+          let minDiff = Math.abs(closest.depth - depth);
+          for (const node of argo.nodes) {
+            const diff = Math.abs(node.depth - depth);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = node;
+            }
+          }
+
+          if (isUnderwater) {
+            return `${argo.stationCode}\n[-${closest.depth}m: ${closest.temperature.toFixed(1)}°C | ${closest.salinity.toFixed(1)} PSU]`;
+          }
+          return `${argo.stationCode} (ARGO)`;
+        }, false),
+        font: 'bold 11px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         fillColor: Cesium.Color.WHITE,
         outlineColor: Cesium.Color.BLACK,
         outlineWidth: 3,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -12),
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        pixelOffset: new Cesium.Cartesian2(0, -14),
       },
       properties: {
         obsType: 'argo',
@@ -94,51 +80,37 @@ export class ObservationLayer {
     });
     this.entities.push(beacon);
 
-    // 3. Discrete CTD Sensor depth nodes at their exact physical depths
-    for (const node of argo.nodes) {
-      const nodePos = Cesium.Cartesian3.fromDegrees(
-        argo.longitude,
-        argo.latitude,
-        -node.depth
-      );
-
-      const nodeEntity = this.viewer.entities.add({
-        position: nodePos,
-        point: {
-          pixelSize: 7,
-          color: new Cesium.Color(0.0, 1.0, 0.8, 0.9),
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 1,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        },
-        properties: {
-          obsType: 'argo',
-          data: argo,
-          nodeData: node,
-        },
-      });
-      this.entities.push(nodeEntity);
-      this.nodeEntities.push({ entity: nodeEntity, depth: node.depth });
-    }
+    // 2. Pulsing Radio Range Ring
+    const rangeRing = this.viewer.entities.add({
+      name: argo.name + ' Telemetry Ring',
+      position: pos,
+      ellipse: {
+        semiMinorAxis: 45000.0,
+        semiMajorAxis: 45000.0,
+        material: new Cesium.ColorMaterialProperty(
+          new Cesium.Color(1.0, 0.8, 0.0, 0.12)
+        ),
+        outline: true,
+        outlineColor: new Cesium.Color(1.0, 0.8, 0.0, 0.5),
+        outlineWidth: 1.5,
+      },
+    });
+    this.entities.push(rangeRing);
   }
 
   private renderGliderTrajectory(glider: GliderTrajectory): void {
-    const positions = glider.waypoints.map((wp) =>
-      Cesium.Cartesian3.fromDegrees(wp.longitude, wp.latitude, -wp.depth)
+    const surfacePositions = glider.waypoints.map((wp) =>
+      Cesium.Cartesian3.fromDegrees(wp.longitude, wp.latitude, 2000)
     );
 
-    // True 3D Sawtooth dive trajectory in the water column
+    // Mission Track Polyline on ocean surface
     const trajectoryLine = this.viewer.entities.add({
-      name: glider.name,
+      name: glider.name + ' Mission Track',
       polyline: {
-        positions,
+        positions: surfacePositions,
         width: 3.0,
         material: new Cesium.PolylineGlowMaterialProperty({
-          glowPower: 0.25,
-          color: new Cesium.Color(1.0, 0.3, 0.8, 0.9),
-        }),
-        depthFailMaterial: new Cesium.PolylineGlowMaterialProperty({
-          glowPower: 0.25,
+          glowPower: 0.3,
           color: new Cesium.Color(1.0, 0.3, 0.8, 0.9),
         }),
       },
@@ -154,28 +126,26 @@ export class ObservationLayer {
       const gliderPos = Cesium.Cartesian3.fromDegrees(
         latest.longitude,
         latest.latitude,
-        -latest.depth
+        3000
       );
 
       const headMarker = this.viewer.entities.add({
         name: glider.name + ' Active Unit',
         position: gliderPos,
         point: {
-          pixelSize: 10,
+          pixelSize: 12,
           color: new Cesium.Color(1.0, 0.0, 0.6, 1.0),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         label: {
-          text: glider.name,
-          font: '12px JetBrains Mono, monospace',
+          text: `${glider.name}\n[ACTIVE SURVEY // ${glider.waypoints.length} WAYPOINTS]`,
+          font: 'bold 11px "JetBrains Mono", monospace',
           fillColor: new Cesium.Color(1.0, 0.4, 0.8, 1.0),
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 3,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -10),
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          pixelOffset: new Cesium.Cartesian2(0, -12),
         },
         properties: {
           obsType: 'glider',
@@ -186,36 +156,10 @@ export class ObservationLayer {
     }
   }
 
-  /**
-   * Visually highlights sensor nodes intersecting with the active scientific depth
-   */
-  private bindDepthHighlight(): void {
+  private bindDepthObservationState(): void {
     const oceanState = OceanState.getInstance();
-    this.unsubscribeState = oceanState.subscribe((snapshot) => {
-      const activeDepth = snapshot.parameters.depth;
-      const isUnderwater = snapshot.mode === 'underwater';
-
-      for (const item of this.nodeEntities) {
-        if (!item.entity.point) continue;
-
-        const isNearActiveDepth = isUnderwater && Math.abs(item.depth - activeDepth) <= 50;
-
-        if (isNearActiveDepth) {
-          item.entity.point.pixelSize = new Cesium.ConstantProperty(12);
-          item.entity.point.color = new Cesium.ConstantProperty(
-            new Cesium.Color(1.0, 0.9, 0.0, 1.0) // Glowing amber highlight
-          );
-          item.entity.point.outlineWidth = new Cesium.ConstantProperty(2);
-          item.entity.point.outlineColor = new Cesium.ConstantProperty(Cesium.Color.WHITE);
-        } else {
-          item.entity.point.pixelSize = new Cesium.ConstantProperty(7);
-          item.entity.point.color = new Cesium.ConstantProperty(
-            new Cesium.Color(0.0, 1.0, 0.8, 0.9)
-          );
-          item.entity.point.outlineWidth = new Cesium.ConstantProperty(1);
-          item.entity.point.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK);
-        }
-      }
+    this.unsubscribeState = oceanState.subscribe(() => {
+      // Re-trigger label properties on depth update
     });
   }
 
@@ -256,6 +200,6 @@ export class ObservationLayer {
       }
     }
     this.entities = [];
-    this.nodeEntities = [];
   }
 }
+

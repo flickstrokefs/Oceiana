@@ -123,10 +123,11 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
       console.error('[Cesium Scene Render Error]:', err?.message || error, err?.stack || error);
     });
 
-    viewer.scene.globe.enableLighting = true;
+    viewer.scene.globe.enableLighting = false;
+    viewer.scene.globe.showGroundAtmosphere = true;
     viewer.scene.globe.depthTestAgainstTerrain = false;
 
-    // Background color for deep ocean look
+    // Base globe ocean styling
     viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#020b1c');
     viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#020617');
 
