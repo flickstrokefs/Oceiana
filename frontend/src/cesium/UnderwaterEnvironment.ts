@@ -2,7 +2,6 @@ import * as Cesium from 'cesium';
 
 export class UnderwaterEnvironment {
   private viewer: Cesium.Viewer;
-  private fogStage: Cesium.PostProcessStage | null = null;
   private marineSnowCollection: Cesium.PointPrimitiveCollection | null = null;
   private marineSnowParticles: {
     primitive: Cesium.PointPrimitive;
@@ -18,41 +17,17 @@ export class UnderwaterEnvironment {
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
-    this.initFogPostProcess();
+    this.initNativeFog();
     this.initMarineSnowParticles();
   }
 
-  private initFogPostProcess(): void {
-    // Standard Cesium PostProcessStage shader
-    const fragmentShader = `
-      uniform sampler2D colorTexture;
-      uniform float fogDensity;
-      uniform vec4 fogColor;
-      uniform float enabled;
-
-      void main() {
-        vec4 origColor = texture(colorTexture, v_textureCoordinates);
-        if (enabled < 0.5) {
-          out_FragColor = origColor;
-          return;
-        }
-        out_FragColor = mix(origColor, fogColor, clamp(fogDensity * 2000.0, 0.0, 0.85));
-      }
-    `;
-
+  private initNativeFog(): void {
     try {
-      this.fogStage = new Cesium.PostProcessStage({
-        fragmentShader,
-        uniforms: {
-          fogDensity: 0.00005,
-          fogColor: new Cesium.Color(0.01, 0.06, 0.14, 1.0),
-          enabled: 0.0,
-        },
-      });
-
-      this.viewer.scene.postProcessStages.add(this.fogStage);
+      this.viewer.scene.fog.enabled = true;
+      this.viewer.scene.fog.density = 0.00008;
+      this.viewer.scene.fog.minimumBrightness = 0.02;
     } catch (err) {
-      console.warn('PostProcessStage fog init fallback:', err);
+      console.warn('Native fog init warning:', err);
     }
   }
 
@@ -63,7 +38,7 @@ export class UnderwaterEnvironment {
 
       const centerLat = 12.0;
       const centerLon = 65.0;
-      const particleCount = 800;
+      const particleCount = 600;
 
       for (let i = 0; i < particleCount; i++) {
         const latOffset = (Math.random() - 0.5) * 8.0;
@@ -136,12 +111,7 @@ export class UnderwaterEnvironment {
       const b = 0.18 * (1.0 - depthFactor * 0.6);
 
       this.viewer.scene.backgroundColor = new Cesium.Color(r, g, b, 1.0);
-
-      if (this.fogStage) {
-        this.fogStage.uniforms.enabled = 1.0;
-        this.fogStage.uniforms.fogDensity = 0.00003 + depthFactor * 0.00012;
-        this.fogStage.uniforms.fogColor = new Cesium.Color(r, g, b, 1.0);
-      }
+      this.viewer.scene.fog.density = 0.00015 + depthFactor * 0.0003;
 
       if (this.marineSnowCollection) {
         this.marineSnowCollection.show = true;
@@ -156,10 +126,7 @@ export class UnderwaterEnvironment {
         this.viewer.scene.skyAtmosphere.show = true;
       }
       this.viewer.scene.backgroundColor = Cesium.Color.BLACK;
-
-      if (this.fogStage) {
-        this.fogStage.uniforms.enabled = 0.0;
-      }
+      this.viewer.scene.fog.density = 0.00008;
 
       if (this.marineSnowCollection) {
         this.marineSnowCollection.show = false;
@@ -170,13 +137,6 @@ export class UnderwaterEnvironment {
   public destroy(): void {
     if (this.removePostRenderListener) {
       this.removePostRenderListener();
-    }
-    if (this.fogStage && !this.viewer.isDestroyed()) {
-      try {
-        this.viewer.scene.postProcessStages.remove(this.fogStage);
-      } catch (err) {
-        console.warn('Fog stage remove error:', err);
-      }
     }
     if (this.marineSnowCollection && !this.viewer.isDestroyed()) {
       try {
