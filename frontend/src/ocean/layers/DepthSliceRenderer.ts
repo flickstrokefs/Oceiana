@@ -2,32 +2,24 @@ import * as Cesium from 'cesium';
 import { OceanState } from '../OceanState';
 import type { OceanVariable, OceanMode } from '../../types/ocean';
 
-export interface DepthSliceConfig {
-  minLat: number;
-  maxLat: number;
-  minLon: number;
-  maxLon: number;
-  resolution: number;
-}
-
 export class DepthSliceRenderer {
   private viewer: Cesium.Viewer;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
-  private minLat = -30.0;
-  private maxLat = 30.0;
-  private minLon = 35.0;
-  private maxLon = 110.0;
-  private resolution = 128;
+  // Ocean Analysis Boundary (Indian Ocean / Arabian Sea / Bay of Bengal)
+  private minLat = -25.0;
+  private maxLat = 28.0;
+  private minLon = 38.0;
+  private maxLon = 105.0;
+  private resolution = 160;
 
-  // Surface mode imagery layer
-  private surfaceImageryLayer: Cesium.ImageryLayer | null = null;
+  // Active Imagery Layer
+  private activeImageryLayer: Cesium.ImageryLayer | null = null;
 
-  // Underwater 3D depth slice entity (positioned at z = -depth)
-  private depthSliceEntity: Cesium.Entity | null = null;
-  private depthBorderEntity: Cesium.Entity | null = null;
-  private depthLabelEntity: Cesium.Entity | null = null;
+  // Underwater Depth-Analysis Frame & HUD Entities
+  private stratumFrameEntity: Cesium.Entity | null = null;
+  private stratumLabelEntity: Cesium.Entity | null = null;
 
   private activeVariable: OceanVariable = 'temperature';
   private currentMode: OceanMode = 'surface';
@@ -41,85 +33,59 @@ export class DepthSliceRenderer {
     this.canvas.height = this.resolution;
     this.ctx = this.canvas.getContext('2d', { willReadFrequently: true })!;
 
-    this.init3DDepthSlice();
+    this.initStratumOverlayEntities();
     this.update();
   }
 
-  private init3DDepthSlice(): void {
-    // 1. Horizontal 3D Depth Slice Polygon positioned in the water column at -depth
-    this.depthSliceEntity = this.viewer.entities.add({
-      name: 'Ocean Depth Stratum Slice',
-      show: false,
-      polygon: {
-        hierarchy: new Cesium.ConstantProperty(
-          new Cesium.PolygonHierarchy(
-            Cesium.Cartesian3.fromDegreesArray([
-              this.minLon, this.minLat,
-              this.maxLon, this.minLat,
-              this.maxLon, this.maxLat,
-              this.minLon, this.maxLat,
-            ])
-          )
-        ),
-        height: new Cesium.CallbackProperty(() => -this.currentDepth, false),
-        material: new Cesium.ImageMaterialProperty({
-          image: new Cesium.CallbackProperty(() => this.canvas, false),
-          transparent: true,
-          color: new Cesium.CallbackProperty(() => {
-            const alpha = this.currentMode === 'underwater' ? 0.85 : 0.0;
-            return new Cesium.Color(1.0, 1.0, 1.0, alpha);
-          }, false),
-        }),
-      },
-    });
-
-    // 2. Glowing bounding frame for spatial depth orientation
-    this.depthBorderEntity = this.viewer.entities.add({
+  private initStratumOverlayEntities(): void {
+    // 1. Glowing boundary frame defining the ocean analysis area
+    this.stratumFrameEntity = this.viewer.entities.add({
       name: 'Depth Stratum Frame',
       show: false,
       polyline: {
-        positions: new Cesium.CallbackProperty(() => {
-          const z = -this.currentDepth;
-          return Cesium.Cartesian3.fromDegreesArrayHeights([
-            this.minLon, this.minLat, z,
-            this.maxLon, this.minLat, z,
-            this.maxLon, this.maxLat, z,
-            this.minLon, this.maxLat, z,
-            this.minLon, this.minLat, z,
-          ]);
-        }, false),
-        width: 2.0,
+        positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+          this.minLon, this.minLat, 3000,
+          this.maxLon, this.minLat, 3000,
+          this.maxLon, this.maxLat, 3000,
+          this.minLon, this.maxLat, 3000,
+          this.minLon, this.minLat, 3000,
+        ]),
+        width: 2.5,
         material: new Cesium.PolylineGlowMaterialProperty({
-          glowPower: 0.25,
-          color: Cesium.Color.fromCssColorString('#00f0ff').withAlpha(0.6),
+          glowPower: 0.3,
+          color: Cesium.Color.fromCssColorString('#00f0ff').withAlpha(0.75),
         }),
       },
     });
 
-    // 3. Floating depth badge at the edge of the slice
-    this.depthLabelEntity = this.viewer.entities.add({
-      name: 'Depth Stratum Indicator',
+    // 2. Corner HUD Datum Badge
+    this.stratumLabelEntity = this.viewer.entities.add({
+      name: 'Stratum HUD Indicator',
       show: false,
-      position: new Cesium.CallbackPositionProperty(() => {
-        return Cesium.Cartesian3.fromDegrees(this.maxLon, this.maxLat, -this.currentDepth);
-      }, false),
+      position: Cesium.Cartesian3.fromDegrees(this.maxLon - 2.0, this.maxLat - 1.0, 5000),
       label: {
         text: new Cesium.CallbackProperty(() => {
-          return `STRATUM: -${this.currentDepth}m (${this.activeVariable.toUpperCase()})`;
+          let layerType = 'EPIPELAGIC (SURFACE)';
+          if (this.currentDepth > 1000) layerType = 'BATHYPELAGIC (ABYSSAL)';
+          else if (this.currentDepth > 200) layerType = 'MESOPELAGIC (THERMOCLINE)';
+          else if (this.currentDepth > 0) layerType = 'PHOTIC STRATUM';
+
+          return `DEPTH SLICE: -${this.currentDepth}m // ${layerType}\nVARIABLE: ${this.activeVariable.toUpperCase()}`;
         }, false),
-        font: '13px JetBrains Mono, monospace',
+        font: 'bold 12px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         fillColor: Cesium.Color.fromCssColorString('#00f0ff'),
         outlineColor: Cesium.Color.BLACK,
-        outlineWidth: 3,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -10),
+        outlineWidth: 4,
+        verticalOrigin: Cesium.VerticalOrigin.TOP,
+        horizontalOrigin: Cesium.HorizontalOrigin.RIGHT,
+        pixelOffset: new Cesium.Cartesian2(-10, 10),
       },
     });
   }
 
   /**
-   * Renders the scientific scalar field at the exact requested depth
+   * Scientific Colormapping & Spatial Field Generation evaluated at depth
    */
   private renderFieldToCanvas(variable: OceanVariable, depth: number): void {
     const oceanState = OceanState.getInstance();
@@ -133,43 +99,47 @@ export class DepthSliceRenderer {
         const lon = this.minLon + (x / this.resolution) * (this.maxLon - this.minLon);
         const idx = (y * this.resolution + x) * 4;
 
-        // Sample field at physical 3D depth
+        // Sample exact scientific field at (lat, lon, depth)
         const sample = oceanState.sampleSpatialField(lat, lon, depth);
 
         let r = 0;
         let g = 0;
         let b = 0;
-        let a = 180;
+        let a = 185;
 
         if (variable === 'temperature') {
+          // Temperature field: 2°C (deep ocean) to 32°C (warm pool)
           const temp = sample.temperature;
-          const normalized = Math.min(1.0, Math.max(0.0, (temp - 2.0) / 30.0));
-          const hue = (1.0 - normalized) * 240.0;
-          [r, g, b] = this.hslToRgb(hue / 360, 0.9, 0.5);
+          const norm = Math.min(1.0, Math.max(0.0, (temp - 2.0) / 30.0));
+          // Turbo/Rainbow spectrum: blue (0.0) -> cyan (0.35) -> green (0.55) -> yellow (0.75) -> red (1.0)
+          const hue = (1.0 - norm) * 240.0;
+          [r, g, b] = this.hslToRgb(hue / 360, 0.92, 0.48);
         } else if (variable === 'salinity') {
+          // Salinity field: 28 PSU to 38 PSU
           const sal = sample.salinity;
           const norm = Math.min(1.0, Math.max(0.0, (sal - 28.0) / 10.0));
-          r = Math.round(norm * 180);
-          g = Math.round((1.0 - norm) * 220 + norm * 20);
-          b = 255;
+          r = Math.round(norm * 140);
+          g = Math.round((1.0 - norm) * 220 + norm * 50);
+          b = Math.round(230 + norm * 25);
         } else if (variable === 'chlorophyll') {
+          // Chlorophyll field: 0 to 6 mg/m³
           const chl = sample.chlorophyll;
-          const norm = Math.min(1.0, Math.max(0.0, chl / 6.0));
-          r = Math.round(norm * 20);
-          g = Math.round(norm * 245 + (1.0 - norm) * 40);
-          b = Math.round((1.0 - norm) * 200 + norm * 80);
-          // Attenuate chlorophyll alpha below photic zone (>200m)
+          const norm = Math.min(1.0, Math.max(0.0, chl / 5.5));
+          r = Math.round(norm * 30);
+          g = Math.round(norm * 255 + (1.0 - norm) * 35);
+          b = Math.round((1.0 - norm) * 180 + norm * 50);
+          // Attenuate below euphotic zone (> 200m)
           if (depth > 200) {
-            a = Math.max(40, Math.round(180 * Math.exp(-(depth - 200) / 300)));
+            a = Math.max(25, Math.round(185 * Math.exp(-(depth - 200) / 250)));
           }
         } else {
-          // Current variable magnitude
+          // Current speed magnitude
           const speed = Math.sqrt(
             sample.velocity.u * sample.velocity.u + sample.velocity.v * sample.velocity.v
           );
           const norm = Math.min(1.0, speed / 3.0);
           r = Math.round(norm * 255);
-          g = Math.round(norm * 200 + (1 - norm) * 50);
+          g = Math.round(norm * 210 + (1 - norm) * 40);
           b = Math.round((1 - norm) * 255);
         }
 
@@ -184,7 +154,7 @@ export class DepthSliceRenderer {
   }
 
   /**
-   * Synchronizes the slice with active state
+   * Synchronizes the slice with active depth and variable state
    */
   public async update(): Promise<void> {
     if (this.isUpdating || this.viewer.isDestroyed()) return;
@@ -199,56 +169,41 @@ export class DepthSliceRenderer {
       // 1. Render scalar field evaluated at exact depth
       this.renderFieldToCanvas(this.activeVariable, this.currentDepth);
 
-      if (this.currentMode === 'surface') {
-        // Surface Mode: Show on globe surface imagery, hide 3D depth slice
-        if (this.depthSliceEntity) this.depthSliceEntity.show = false;
-        if (this.depthBorderEntity) this.depthBorderEntity.show = false;
-        if (this.depthLabelEntity) this.depthLabelEntity.show = false;
+      // 2. Project canvas onto the ocean basin imagery layer
+      const rectangle = Cesium.Rectangle.fromDegrees(
+        this.minLon,
+        this.minLat,
+        this.maxLon,
+        this.maxLat
+      );
 
-        if (this.activeVariable !== 'current') {
-          const rectangle = Cesium.Rectangle.fromDegrees(
-            this.minLon,
-            this.minLat,
-            this.maxLon,
-            this.maxLat
-          );
+      const providerPromise = Cesium.SingleTileImageryProvider.fromUrl(
+        this.canvas.toDataURL(),
+        { rectangle }
+      );
 
-          const providerPromise = Cesium.SingleTileImageryProvider.fromUrl(
-            this.canvas.toDataURL(),
-            { rectangle }
-          );
+      const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
+      newLayer.alpha = this.currentMode === 'underwater' ? 0.78 : 0.70;
+      newLayer.show = this.activeVariable !== 'current';
 
-          const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
-          newLayer.alpha = 0.72;
-          newLayer.show = true;
+      const oldLayer = this.activeImageryLayer;
+      this.activeImageryLayer = newLayer;
+      this.viewer.imageryLayers.add(newLayer);
 
-          const oldLayer = this.surfaceImageryLayer;
-          this.surfaceImageryLayer = newLayer;
-          this.viewer.imageryLayers.add(newLayer);
+      if (oldLayer && !this.viewer.isDestroyed()) {
+        this.viewer.imageryLayers.remove(oldLayer);
+      }
 
-          if (oldLayer && !this.viewer.isDestroyed()) {
-            this.viewer.imageryLayers.remove(oldLayer);
-          }
-        } else {
-          if (this.surfaceImageryLayer && !this.viewer.isDestroyed()) {
-            this.viewer.imageryLayers.remove(this.surfaceImageryLayer);
-            this.surfaceImageryLayer = null;
-          }
-        }
-      } else {
-        // Underwater Mode: Remove surface imagery drape, display 3D depth slice in water column at -depth
-        if (this.surfaceImageryLayer && !this.viewer.isDestroyed()) {
-          this.viewer.imageryLayers.remove(this.surfaceImageryLayer);
-          this.surfaceImageryLayer = null;
-        }
-
-        const isScalar = this.activeVariable !== 'current';
-        if (this.depthSliceEntity) this.depthSliceEntity.show = isScalar;
-        if (this.depthBorderEntity) this.depthBorderEntity.show = isScalar;
-        if (this.depthLabelEntity) this.depthLabelEntity.show = isScalar;
+      // 3. Underwater Mode: Show Glowing Stratum Boundary & HUD Badge
+      const isUnderwaterAnalysis = this.currentMode === 'underwater';
+      if (this.stratumFrameEntity) {
+        this.stratumFrameEntity.show = isUnderwaterAnalysis;
+      }
+      if (this.stratumLabelEntity) {
+        this.stratumLabelEntity.show = isUnderwaterAnalysis;
       }
     } catch (err) {
-      console.warn('DepthSliceRenderer update error:', err);
+      console.warn('DepthSliceRenderer update warning:', err);
     } finally {
       this.isUpdating = false;
     }
@@ -294,21 +249,18 @@ export class DepthSliceRenderer {
   }
 
   public destroy(): void {
-    if (this.surfaceImageryLayer && !this.viewer.isDestroyed()) {
-      this.viewer.imageryLayers.remove(this.surfaceImageryLayer);
-      this.surfaceImageryLayer = null;
+    if (this.activeImageryLayer && !this.viewer.isDestroyed()) {
+      this.viewer.imageryLayers.remove(this.activeImageryLayer);
+      this.activeImageryLayer = null;
     }
-    if (this.depthSliceEntity && !this.viewer.isDestroyed()) {
-      this.viewer.entities.remove(this.depthSliceEntity);
-      this.depthSliceEntity = null;
+    if (this.stratumFrameEntity && !this.viewer.isDestroyed()) {
+      this.viewer.entities.remove(this.stratumFrameEntity);
+      this.stratumFrameEntity = null;
     }
-    if (this.depthBorderEntity && !this.viewer.isDestroyed()) {
-      this.viewer.entities.remove(this.depthBorderEntity);
-      this.depthBorderEntity = null;
-    }
-    if (this.depthLabelEntity && !this.viewer.isDestroyed()) {
-      this.viewer.entities.remove(this.depthLabelEntity);
-      this.depthLabelEntity = null;
+    if (this.stratumLabelEntity && !this.viewer.isDestroyed()) {
+      this.viewer.entities.remove(this.stratumLabelEntity);
+      this.stratumLabelEntity = null;
     }
   }
 }
+

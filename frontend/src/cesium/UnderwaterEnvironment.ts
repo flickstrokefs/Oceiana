@@ -7,28 +7,30 @@ export class UnderwaterEnvironment {
     primitive: Cesium.PointPrimitive;
     baseLon: number;
     baseLat: number;
-    baseDepth: number;
+    baseAlt: number;
     speed: number;
     phase: number;
   }[] = [];
   private removePostRenderListener: (() => void) | null = null;
 
   private isUnderwater = false;
-  private particleCount = 600; // Intentional, audited particle budget
+  private particleCount = 400; // Subtle, non-distracting atmospheric particle count
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
-    this.initNativeFog();
+    this.initNativeAtmosphere();
     this.initMarineSnowParticles();
   }
 
-  private initNativeFog(): void {
+  private initNativeAtmosphere(): void {
     try {
       this.viewer.scene.fog.enabled = true;
-      this.viewer.scene.fog.density = 0.00008;
-      this.viewer.scene.fog.minimumBrightness = 0.02;
+      this.viewer.scene.fog.density = 0.00004;
+      this.viewer.scene.fog.minimumBrightness = 0.8;
+      this.viewer.scene.globe.showGroundAtmosphere = true;
+      this.viewer.scene.globe.translucency.enabled = false;
     } catch (err) {
-      console.warn('Native fog init warning:', err);
+      console.warn('Atmosphere init warning:', err);
     }
   }
 
@@ -37,24 +39,25 @@ export class UnderwaterEnvironment {
       this.marineSnowCollection = new Cesium.PointPrimitiveCollection();
       this.viewer.scene.primitives.add(this.marineSnowCollection);
 
-      const centerLat = 12.0;
-      const centerLon = 65.0;
+      // Centered over Arabian Sea / Indian Ocean
+      const centerLat = 13.0;
+      const centerLon = 66.0;
 
       for (let i = 0; i < this.particleCount; i++) {
-        const latOffset = (Math.random() - 0.5) * 8.0;
-        const lonOffset = (Math.random() - 0.5) * 8.0;
-        const depth = Math.random() * 3000 + 10;
+        const latOffset = (Math.random() - 0.5) * 22.0;
+        const lonOffset = (Math.random() - 0.5) * 28.0;
+        const alt = Math.random() * 60000 + 10000; // Hovering above ocean surface
 
         const position = Cesium.Cartesian3.fromDegrees(
           centerLon + lonOffset,
           centerLat + latOffset,
-          -depth
+          alt
         );
 
         const p = this.marineSnowCollection.add({
           position,
-          pixelSize: Math.random() * 2.2 + 1.0,
-          color: new Cesium.Color(0.4, 0.85, 1.0, Math.random() * 0.4 + 0.2),
+          pixelSize: Math.random() * 2.0 + 1.2,
+          color: new Cesium.Color(0.2, 0.8, 1.0, Math.random() * 0.4 + 0.15),
           show: false,
         });
 
@@ -62,7 +65,7 @@ export class UnderwaterEnvironment {
           primitive: p,
           baseLon: centerLon + lonOffset,
           baseLat: centerLat + latOffset,
-          baseDepth: depth,
+          baseAlt: alt,
           speed: Math.random() * 0.8 + 0.2,
           phase: Math.random() * Math.PI * 2,
         });
@@ -71,16 +74,16 @@ export class UnderwaterEnvironment {
       let time = 0;
       const onPostRender = () => {
         if (!this.isUnderwater || !this.marineSnowCollection || this.viewer.isDestroyed()) return;
-        time += 0.012;
+        time += 0.015;
         for (let i = 0; i < this.marineSnowParticles.length; i++) {
           const item = this.marineSnowParticles[i];
-          const driftDepth = item.baseDepth + Math.sin(time * item.speed + item.phase) * 12;
-          const driftLon = item.baseLon + Math.cos(time * 0.4 + item.phase) * 0.015;
+          const driftAlt = item.baseAlt + Math.sin(time * item.speed + item.phase) * 3000;
+          const driftLon = item.baseLon + Math.cos(time * 0.3 + item.phase) * 0.04;
 
           item.primitive.position = Cesium.Cartesian3.fromDegrees(
             driftLon,
             item.baseLat,
-            -driftDepth
+            driftAlt
           );
         }
       };
@@ -92,60 +95,25 @@ export class UnderwaterEnvironment {
   }
 
   /**
-   * Updates lighting and atmosphere in a physically believable depth progression
+   * Updates environment parameters without compromising globe visibility
    */
-  public updateEnvironment(isUnderwater: boolean, depth: number): void {
+  public updateEnvironment(isUnderwater: boolean, _depth: number): void {
     if (this.viewer.isDestroyed()) return;
     this.isUnderwater = isUnderwater;
 
     const globe = this.viewer.scene.globe;
+    // Always keep globe fully solid and opaque
+    globe.translucency.enabled = false;
+    globe.showGroundAtmosphere = true;
+
+    if (this.viewer.scene.skyAtmosphere) {
+      this.viewer.scene.skyAtmosphere.show = true;
+    }
 
     if (isUnderwater) {
-      // Enable globe translucency to reveal the 3D water column and subsurface layers
-      globe.translucency.enabled = true;
-      globe.translucency.frontFaceAlpha = 0.70;
-      globe.showGroundAtmosphere = false;
-      if (this.viewer.scene.skyAtmosphere) {
-        this.viewer.scene.skyAtmosphere.show = false;
-      }
-
-      // Depth lighting tiers:
-      // 0 - 200m: Epipelagic (sunlight)
-      // 200 - 1000m: Mesopelagic (twilight)
-      // 1000 - 3000m: Bathypelagic (midnight)
-      // > 3000m: Abyssal
-      let r = 0.015;
-      let g = 0.09;
-      let b = 0.22;
-      let fogDensity = 0.0001;
-
-      if (depth <= 200) {
-        const factor = depth / 200;
-        r = 0.015 * (1.0 - factor * 0.3);
-        g = 0.09 * (1.0 - factor * 0.4);
-        b = 0.22 * (1.0 - factor * 0.4);
-        fogDensity = 0.00008 + factor * 0.00006;
-      } else if (depth <= 1000) {
-        const factor = (depth - 200) / 800;
-        r = 0.010 * (1.0 - factor * 0.6);
-        g = 0.054 * (1.0 - factor * 0.7);
-        b = 0.132 * (1.0 - factor * 0.6);
-        fogDensity = 0.00014 + factor * 0.0001;
-      } else if (depth <= 3000) {
-        const factor = (depth - 1000) / 2000;
-        r = 0.004 * (1.0 - factor * 0.6);
-        g = 0.016 * (1.0 - factor * 0.7);
-        b = 0.052 * (1.0 - factor * 0.6);
-        fogDensity = 0.00024 + factor * 0.0001;
-      } else {
-        r = 0.0008;
-        g = 0.004;
-        b = 0.018;
-        fogDensity = 0.00035;
-      }
-
-      this.viewer.scene.backgroundColor = new Cesium.Color(r, g, b, 1.0);
-      this.viewer.scene.fog.density = fogDensity;
+      // Subtle ocean analysis atmosphere
+      this.viewer.scene.backgroundColor = Cesium.Color.BLACK;
+      this.viewer.scene.fog.density = 0.00006;
 
       if (this.marineSnowCollection) {
         this.marineSnowCollection.show = true;
@@ -154,14 +122,9 @@ export class UnderwaterEnvironment {
         }
       }
     } else {
-      // Clean Surface Mode Reset
-      globe.translucency.enabled = false;
-      globe.showGroundAtmosphere = true;
-      if (this.viewer.scene.skyAtmosphere) {
-        this.viewer.scene.skyAtmosphere.show = true;
-      }
+      // Surface Mode Reset
       this.viewer.scene.backgroundColor = Cesium.Color.BLACK;
-      this.viewer.scene.fog.density = 0.00008;
+      this.viewer.scene.fog.density = 0.00004;
 
       if (this.marineSnowCollection) {
         this.marineSnowCollection.show = false;
@@ -185,3 +148,4 @@ export class UnderwaterEnvironment {
     }
   }
 }
+

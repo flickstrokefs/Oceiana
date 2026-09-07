@@ -5,7 +5,6 @@ interface FlowParticle {
   primitive: Cesium.PointPrimitive;
   lat: number;
   lon: number;
-  depth: number;
   life: number;
   maxLife: number;
 }
@@ -16,11 +15,11 @@ export class CurrentLayer {
   private particles: FlowParticle[] = [];
   private removeRenderListener: (() => void) | null = null;
 
-  private minLat = -25.0;
-  private maxLat = 25.0;
-  private minLon = 40.0;
+  private minLat = -22.0;
+  private maxLat = 24.0;
+  private minLon = 42.0;
   private maxLon = 100.0;
-  private particleCount = 2000; // Intentional, high-performance particle budget
+  private particleCount = 1800; // Optimal particle budget for smooth 60fps rendering
 
   private active = true;
 
@@ -34,17 +33,12 @@ export class CurrentLayer {
   }
 
   private initParticles(): void {
-    const snapshot = OceanState.getInstance().getSnapshot();
-    const baseDepth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : 0;
-
     for (let i = 0; i < this.particleCount; i++) {
       const lat = this.minLat + Math.random() * (this.maxLat - this.minLat);
       const lon = this.minLon + Math.random() * (this.maxLon - this.minLon);
-      const depthOffset = (Math.random() - 0.5) * 50.0;
-      const depth = Math.max(0, baseDepth + depthOffset);
 
       const p = this.particleCollection.add({
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, -depth),
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, 4000), // Hovering cleanly above ocean surface
         pixelSize: Math.random() * 2.2 + 1.2,
         color: new Cesium.Color(0.0, 0.95, 1.0, Math.random() * 0.7 + 0.3),
         show: this.active,
@@ -54,7 +48,6 @@ export class CurrentLayer {
         primitive: p,
         lat,
         lon,
-        depth,
         life: Math.random() * 100,
         maxLife: Math.random() * 120 + 80,
       });
@@ -69,8 +62,8 @@ export class CurrentLayer {
 
       const snapshot = oceanState.getSnapshot();
       const speedMult = snapshot.parameters.currentSpeed;
-      const dt = 0.04 * speedMult;
-      const targetDepth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : 0;
+      const dt = 0.035 * speedMult;
+      const targetDepth = snapshot.parameters.depth;
 
       for (let i = 0; i < this.particles.length; i++) {
         const p = this.particles[i];
@@ -81,31 +74,23 @@ export class CurrentLayer {
           p.lat < this.minLat ||
           p.lat > this.maxLat ||
           p.lon < this.minLon ||
-          p.lon > this.maxLon ||
-          Math.abs(p.depth - targetDepth) > 60
+          p.lon > this.maxLon
         ) {
           p.lat = this.minLat + Math.random() * (this.maxLat - this.minLat);
           p.lon = this.minLon + Math.random() * (this.maxLon - this.minLon);
-          p.depth = Math.max(0, targetDepth + (Math.random() - 0.5) * 40.0);
           p.life = 0;
           p.maxLife = Math.random() * 120 + 80;
         }
 
-        // Evaluate physical current velocity field at the particle's actual depth
-        const field = oceanState.sampleSpatialField(p.lat, p.lon, p.depth);
+        // Evaluate physical current velocity field at the selected scientific depth stratum
+        const field = oceanState.sampleSpatialField(p.lat, p.lon, targetDepth);
         const u = field.velocity.u;
         const v = field.velocity.v;
-        const w = field.velocity.w;
 
-        p.lon += u * 0.05 * dt;
-        p.lat += v * 0.05 * dt;
-        p.depth = Math.max(0, p.depth - w * 10.0 * dt);
+        p.lon += u * 0.045 * dt;
+        p.lat += v * 0.045 * dt;
 
-        p.primitive.position = Cesium.Cartesian3.fromDegrees(
-          p.lon,
-          p.lat,
-          -p.depth
-        );
+        p.primitive.position = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, 4000);
 
         const alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.85;
         p.primitive.color = new Cesium.Color(0.0, 0.95, 1.0, alpha);
@@ -133,3 +118,4 @@ export class CurrentLayer {
     }
   }
 }
+
