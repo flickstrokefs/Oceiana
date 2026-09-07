@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { OceanState } from '../../ocean/OceanState';
 import type { OceanMode, OceanVariable } from '../../types/ocean';
-import { Compass } from 'lucide-react';
+import { Compass, Waves } from 'lucide-react';
 
 interface HeaderControlsProps {
   onResetView?: () => void;
@@ -10,11 +10,13 @@ interface HeaderControlsProps {
 export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) => {
   const [mode, setMode] = useState<OceanMode>('surface');
   const [activeVar, setActiveVar] = useState<OceanVariable>('temperature');
+  const [depth, setDepth] = useState<number>(0);
 
   useEffect(() => {
     const unsub = OceanState.getInstance().subscribe((snapshot) => {
       setMode(snapshot.mode);
       setActiveVar(snapshot.activeVariable);
+      setDepth(snapshot.parameters.depth);
     });
     return unsub;
   }, []);
@@ -36,7 +38,14 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) =
         </div>
         <div className="telemetry-tag">
           <span className="dot-active"></span>
-          INDIAN OCEAN // ARABIAN SEA
+          {mode === 'underwater' ? (
+            <span className="flex items-center gap-1">
+              <Waves size={12} className="inline mr-1" />
+              STRATUM: -{depth}m
+            </span>
+          ) : (
+            'INDIAN OCEAN // ARABIAN SEA'
+          )}
         </div>
       </div>
 
@@ -51,7 +60,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) =
           onClick={() => handleModeChange('underwater')}
           className={`mode-btn ${mode === 'underwater' ? 'mode-active' : ''}`}
         >
-          UNDERWATER
+          {mode === 'underwater' ? `UNDERWATER (${depth}m)` : 'UNDERWATER'}
         </button>
       </div>
 

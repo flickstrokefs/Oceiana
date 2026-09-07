@@ -5,12 +5,15 @@ import type { ArgoProfile, GliderTrajectory } from '../../types/ocean';
 export class ObservationLayer {
   private viewer: Cesium.Viewer;
   private entities: Cesium.Entity[] = [];
+  private nodeEntities: { entity: Cesium.Entity; depth: number }[] = [];
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
+  private unsubscribeState: (() => void) | null = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
     this.renderObservations();
     this.initClickHandler();
+    this.bindDepthHighlight();
   }
 
   private renderObservations(): void {
@@ -29,17 +32,20 @@ export class ObservationLayer {
   }
 
   private renderArgoProfile(argo: ArgoProfile): void {
+    // Top surface position (z = 0)
     const topPos = Cesium.Cartesian3.fromDegrees(
       argo.longitude,
       argo.latitude,
       0
     );
+    // Deepest profile point (z = -2000)
     const bottomPos = Cesium.Cartesian3.fromDegrees(
       argo.longitude,
       argo.latitude,
       -2000
     );
 
+    // 1. Vertical CTD sounding line spanning entire water column
     const profileLine = this.viewer.entities.add({
       name: argo.name,
       polyline: {
@@ -59,6 +65,7 @@ export class ObservationLayer {
     });
     this.entities.push(profileLine);
 
+    // 2. Surface GPS telemetry beacon
     const beacon = this.viewer.entities.add({
       name: argo.name + ' Surface Beacon',
       position: topPos,
@@ -71,7 +78,7 @@ export class ObservationLayer {
       },
       label: {
         text: argo.stationCode,
-        font: '13px JetBrains Mono, sans-serif',
+        font: '13px JetBrains Mono, monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         fillColor: Cesium.Color.WHITE,
         outlineColor: Cesium.Color.BLACK,
@@ -87,6 +94,7 @@ export class ObservationLayer {
     });
     this.entities.push(beacon);
 
+    // 3. Discrete CTD Sensor depth nodes at their exact physical depths
     for (const node of argo.nodes) {
       const nodePos = Cesium.Cartesian3.fromDegrees(
         argo.longitude,
@@ -110,6 +118,7 @@ export class ObservationLayer {
         },
       });
       this.entities.push(nodeEntity);
+      this.nodeEntities.push({ entity: nodeEntity, depth: node.depth });
     }
   }
 
@@ -118,6 +127,7 @@ export class ObservationLayer {
       Cesium.Cartesian3.fromDegrees(wp.longitude, wp.latitude, -wp.depth)
     );
 
+    // True 3D Sawtooth dive trajectory in the water column
     const trajectoryLine = this.viewer.entities.add({
       name: glider.name,
       polyline: {
@@ -159,7 +169,7 @@ export class ObservationLayer {
         },
         label: {
           text: glider.name,
-          font: '12px JetBrains Mono, sans-serif',
+          font: '12px JetBrains Mono, monospace',
           fillColor: new Cesium.Color(1.0, 0.4, 0.8, 1.0),
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 3,
@@ -174,6 +184,39 @@ export class ObservationLayer {
       });
       this.entities.push(headMarker);
     }
+  }
+
+  /**
+   * Visually highlights sensor nodes intersecting with the active scientific depth
+   */
+  private bindDepthHighlight(): void {
+    const oceanState = OceanState.getInstance();
+    this.unsubscribeState = oceanState.subscribe((snapshot) => {
+      const activeDepth = snapshot.parameters.depth;
+      const isUnderwater = snapshot.mode === 'underwater';
+
+      for (const item of this.nodeEntities) {
+        if (!item.entity.point) continue;
+
+        const isNearActiveDepth = isUnderwater && Math.abs(item.depth - activeDepth) <= 50;
+
+        if (isNearActiveDepth) {
+          item.entity.point.pixelSize = new Cesium.ConstantProperty(12);
+          item.entity.point.color = new Cesium.ConstantProperty(
+            new Cesium.Color(1.0, 0.9, 0.0, 1.0) // Glowing amber highlight
+          );
+          item.entity.point.outlineWidth = new Cesium.ConstantProperty(2);
+          item.entity.point.outlineColor = new Cesium.ConstantProperty(Cesium.Color.WHITE);
+        } else {
+          item.entity.point.pixelSize = new Cesium.ConstantProperty(7);
+          item.entity.point.color = new Cesium.ConstantProperty(
+            new Cesium.Color(0.0, 1.0, 0.8, 0.9)
+          );
+          item.entity.point.outlineWidth = new Cesium.ConstantProperty(1);
+          item.entity.point.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLACK);
+        }
+      }
+    });
   }
 
   private initClickHandler(): void {
@@ -201,6 +244,9 @@ export class ObservationLayer {
   }
 
   public destroy(): void {
+    if (this.unsubscribeState) {
+      this.unsubscribeState();
+    }
     if (this.handler) {
       this.handler.destroy();
     }
@@ -210,5 +256,6 @@ export class ObservationLayer {
       }
     }
     this.entities = [];
+    this.nodeEntities = [];
   }
 }

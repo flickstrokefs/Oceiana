@@ -20,7 +20,7 @@ export class CurrentLayer {
   private maxLat = 25.0;
   private minLon = 40.0;
   private maxLon = 100.0;
-  private particleCount = 2200;
+  private particleCount = 2000; // Intentional, high-performance particle budget
 
   private active = true;
 
@@ -34,16 +34,19 @@ export class CurrentLayer {
   }
 
   private initParticles(): void {
+    const snapshot = OceanState.getInstance().getSnapshot();
+    const baseDepth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : 0;
+
     for (let i = 0; i < this.particleCount; i++) {
       const lat = this.minLat + Math.random() * (this.maxLat - this.minLat);
       const lon = this.minLon + Math.random() * (this.maxLon - this.minLon);
-      const depth = Math.random() * 200;
+      const depthOffset = (Math.random() - 0.5) * 50.0;
+      const depth = Math.max(0, baseDepth + depthOffset);
 
       const p = this.particleCollection.add({
         position: Cesium.Cartesian3.fromDegrees(lon, lat, -depth),
         pixelSize: Math.random() * 2.2 + 1.2,
         color: new Cesium.Color(0.0, 0.95, 1.0, Math.random() * 0.7 + 0.3),
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
         show: this.active,
       });
 
@@ -73,34 +76,30 @@ export class CurrentLayer {
         const p = this.particles[i];
         p.life += 1;
 
-        if (snapshot.mode === 'underwater') {
-          if (Math.abs(p.depth - targetDepth) > 60) {
-            p.depth = targetDepth + (Math.random() - 0.5) * 30;
-          }
-        }
-
         if (
           p.life >= p.maxLife ||
           p.lat < this.minLat ||
           p.lat > this.maxLat ||
           p.lon < this.minLon ||
-          p.lon > this.maxLon
+          p.lon > this.maxLon ||
+          Math.abs(p.depth - targetDepth) > 60
         ) {
           p.lat = this.minLat + Math.random() * (this.maxLat - this.minLat);
           p.lon = this.minLon + Math.random() * (this.maxLon - this.minLon);
-          p.depth = snapshot.mode === 'underwater'
-            ? targetDepth + (Math.random() - 0.5) * 30
-            : Math.random() * 60;
+          p.depth = Math.max(0, targetDepth + (Math.random() - 0.5) * 40.0);
           p.life = 0;
           p.maxLife = Math.random() * 120 + 80;
         }
 
+        // Evaluate physical current velocity field at the particle's actual depth
         const field = oceanState.sampleSpatialField(p.lat, p.lon, p.depth);
         const u = field.velocity.u;
         const v = field.velocity.v;
+        const w = field.velocity.w;
 
         p.lon += u * 0.05 * dt;
         p.lat += v * 0.05 * dt;
+        p.depth = Math.max(0, p.depth - w * 10.0 * dt);
 
         p.primitive.position = Cesium.Cartesian3.fromDegrees(
           p.lon,
@@ -126,7 +125,11 @@ export class CurrentLayer {
       this.removeRenderListener();
     }
     if (this.particleCollection && !this.viewer.isDestroyed()) {
-      this.viewer.scene.primitives.remove(this.particleCollection);
+      try {
+        this.viewer.scene.primitives.remove(this.particleCollection);
+      } catch (err) {
+        console.warn('CurrentLayer cleanup warning:', err);
+      }
     }
   }
 }
