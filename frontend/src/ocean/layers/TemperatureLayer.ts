@@ -14,6 +14,7 @@ export class TemperatureLayer {
   private resolution = 128;
 
   private active = true;
+  private isUpdating = false;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -22,8 +23,7 @@ export class TemperatureLayer {
     this.canvas.height = this.resolution;
     this.ctx = this.canvas.getContext('2d')!;
 
-    this.renderCanvas();
-    this.attachImageryLayer();
+    this.update();
   }
 
   private renderCanvas(): void {
@@ -59,56 +59,39 @@ export class TemperatureLayer {
     this.ctx.putImageData(imgData, 0, 0);
   }
 
-  private attachImageryLayer(): void {
-    try {
-      if (this.imageryLayer) {
-        this.viewer.imageryLayers.remove(this.imageryLayer);
-      }
+  public async update(): Promise<void> {
+    if (!this.active || this.isUpdating || this.viewer.isDestroyed()) return;
+    this.isUpdating = true;
 
-      const provider = new Cesium.SingleTileImageryProvider({
-        url: this.canvas.toDataURL(),
-        rectangle: Cesium.Rectangle.fromDegrees(
-          this.minLon,
-          this.minLat,
-          this.maxLon,
-          this.maxLat
-        ),
-        tileWidth: this.resolution,
-        tileHeight: this.resolution,
+    try {
+      this.renderCanvas();
+      const dataUrl = this.canvas.toDataURL();
+      const rectangle = Cesium.Rectangle.fromDegrees(
+        this.minLon,
+        this.minLat,
+        this.maxLon,
+        this.maxLat
+      );
+
+      const providerPromise = Cesium.SingleTileImageryProvider.fromUrl(dataUrl, {
+        rectangle,
       });
 
-      this.imageryLayer = this.viewer.imageryLayers.addImageryProvider(provider);
-      this.imageryLayer.alpha = 0.72;
-      this.imageryLayer.show = this.active;
-    } catch (err) {
-      console.warn('TemperatureLayer attach exception:', err);
-    }
-  }
+      const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
+      newLayer.alpha = 0.72;
+      newLayer.show = this.active;
 
-  public update(): void {
-    if (!this.active) return;
-    this.renderCanvas();
-    try {
-      const provider = new Cesium.SingleTileImageryProvider({
-        url: this.canvas.toDataURL(),
-        rectangle: Cesium.Rectangle.fromDegrees(
-          this.minLon,
-          this.minLat,
-          this.maxLon,
-          this.maxLat
-        ),
-        tileWidth: this.resolution,
-        tileHeight: this.resolution,
-      });
       const oldLayer = this.imageryLayer;
-      this.imageryLayer = this.viewer.imageryLayers.addImageryProvider(provider);
-      this.imageryLayer.alpha = 0.72;
-      this.imageryLayer.show = this.active;
-      if (oldLayer) {
+      this.imageryLayer = newLayer;
+      this.viewer.imageryLayers.add(newLayer);
+
+      if (oldLayer && !this.viewer.isDestroyed()) {
         this.viewer.imageryLayers.remove(oldLayer);
       }
     } catch (err) {
-      console.warn('TemperatureLayer update exception:', err);
+      console.warn('TemperatureLayer async update error:', err);
+    } finally {
+      this.isUpdating = false;
     }
   }
 

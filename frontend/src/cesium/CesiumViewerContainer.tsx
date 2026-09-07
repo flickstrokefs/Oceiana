@@ -1,9 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
+import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { OceanEngine } from '../ocean/OceanEngine';
 
-if (typeof window !== 'undefined' && !(window as unknown as { CESIUM_BASE_URL: string }).CESIUM_BASE_URL) {
-  (window as unknown as { CESIUM_BASE_URL: string }).CESIUM_BASE_URL = '/';
+// Ensure Cesium base URL is valid
+if (typeof window !== 'undefined') {
+  const win = window as unknown as { CESIUM_BASE_URL?: string };
+  if (!win.CESIUM_BASE_URL) {
+    win.CESIUM_BASE_URL = '/';
+  }
 }
 
 Cesium.Ion.defaultAccessToken = '';
@@ -21,16 +26,15 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const esriProvider = new Cesium.UrlTemplateImageryProvider({
-      url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      maximumLevel: 19,
-    });
-
     let viewer: Cesium.Viewer;
 
     try {
+      const baseImageryProvider = Cesium.TileMapServiceImageryProvider.fromUrl(
+        Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
+      );
+
       viewer = new Cesium.Viewer(containerRef.current, {
-        baseLayer: new Cesium.ImageryLayer(esriProvider),
+        baseLayer: Cesium.ImageryLayer.fromProviderAsync(baseImageryProvider),
         animation: false,
         timeline: false,
         geocoder: false,
@@ -44,10 +48,12 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
         vrButton: false,
         useDefaultRenderLoop: true,
         shadows: false,
+        creditContainer: document.createElement('div'),
       });
     } catch (err) {
       console.warn('Fallback viewer initialization:', err);
       viewer = new Cesium.Viewer(containerRef.current, {
+        baseLayer: false,
         animation: false,
         timeline: false,
         geocoder: false,
@@ -61,6 +67,7 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
         vrButton: false,
         useDefaultRenderLoop: true,
         shadows: false,
+        creditContainer: document.createElement('div'),
       });
     }
 
@@ -69,7 +76,11 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
     });
 
     viewer.scene.globe.enableLighting = true;
-    viewer.scene.globe.depthTestAgainstTerrain = true;
+    viewer.scene.globe.depthTestAgainstTerrain = false;
+
+    // Background color for deep ocean look
+    viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#020b1c');
+    viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#020617');
 
     const engine = new OceanEngine(viewer);
     engineRef.current = engine;
@@ -84,7 +95,7 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
         viewer.destroy();
       }
     };
-  }, []);
+  }, [onEngineReady]);
 
   return (
     <div

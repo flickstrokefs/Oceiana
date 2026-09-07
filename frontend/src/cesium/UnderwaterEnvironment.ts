@@ -23,11 +23,9 @@ export class UnderwaterEnvironment {
   }
 
   private initFogPostProcess(): void {
-    // WebGL 2 GLSL 3.0 syntax for Cesium 1.145
+    // Standard Cesium PostProcessStage shader
     const fragmentShader = `
-      in vec2 v_textureCoordinates;
       uniform sampler2D colorTexture;
-      uniform sampler2D depthTexture;
       uniform float fogDensity;
       uniform vec4 fogColor;
       uniform float enabled;
@@ -38,20 +36,7 @@ export class UnderwaterEnvironment {
           out_FragColor = origColor;
           return;
         }
-
-        float rawDepth = czm_readDepth(depthTexture, v_textureCoordinates);
-        if (rawDepth >= 1.0) {
-          out_FragColor = mix(origColor, fogColor, 0.85);
-          return;
-        }
-
-        vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, rawDepth);
-        float eyeDistance = -eyeCoordinate.z / eyeCoordinate.w;
-
-        float fogFactor = 1.0 - exp(-eyeDistance * fogDensity);
-        fogFactor = clamp(fogFactor, 0.0, 0.95);
-
-        out_FragColor = mix(origColor, fogColor, fogFactor);
+        out_FragColor = mix(origColor, fogColor, clamp(fogDensity * 2000.0, 0.0, 0.85));
       }
     `;
 
@@ -72,62 +57,67 @@ export class UnderwaterEnvironment {
   }
 
   private initMarineSnowParticles(): void {
-    this.marineSnowCollection = new Cesium.PointPrimitiveCollection();
-    this.viewer.scene.primitives.add(this.marineSnowCollection);
+    try {
+      this.marineSnowCollection = new Cesium.PointPrimitiveCollection();
+      this.viewer.scene.primitives.add(this.marineSnowCollection);
 
-    const centerLat = 12.0;
-    const centerLon = 65.0;
-    const particleCount = 1200;
+      const centerLat = 12.0;
+      const centerLon = 65.0;
+      const particleCount = 800;
 
-    for (let i = 0; i < particleCount; i++) {
-      const latOffset = (Math.random() - 0.5) * 8.0;
-      const lonOffset = (Math.random() - 0.5) * 8.0;
-      const depth = Math.random() * 2500 + 10;
+      for (let i = 0; i < particleCount; i++) {
+        const latOffset = (Math.random() - 0.5) * 8.0;
+        const lonOffset = (Math.random() - 0.5) * 8.0;
+        const depth = Math.random() * 2500 + 10;
 
-      const position = Cesium.Cartesian3.fromDegrees(
-        centerLon + lonOffset,
-        centerLat + latOffset,
-        -depth
-      );
-
-      const p = this.marineSnowCollection.add({
-        position,
-        pixelSize: Math.random() * 2.5 + 1.0,
-        color: new Cesium.Color(0.4, 0.85, 1.0, Math.random() * 0.5 + 0.2),
-        show: false,
-      });
-
-      this.marineSnowParticles.push({
-        primitive: p,
-        baseLon: centerLon + lonOffset,
-        baseLat: centerLat + latOffset,
-        baseDepth: depth,
-        speed: Math.random() * 0.8 + 0.2,
-        phase: Math.random() * Math.PI * 2,
-      });
-    }
-
-    let time = 0;
-    const onPostRender = () => {
-      if (!this.isUnderwater) return;
-      time += 0.015;
-      for (let i = 0; i < this.marineSnowParticles.length; i++) {
-        const item = this.marineSnowParticles[i];
-        const driftDepth = item.baseDepth + Math.sin(time * item.speed + item.phase) * 15;
-        const driftLon = item.baseLon + Math.cos(time * 0.5 + item.phase) * 0.02;
-
-        item.primitive.position = Cesium.Cartesian3.fromDegrees(
-          driftLon,
-          item.baseLat,
-          -driftDepth
+        const position = Cesium.Cartesian3.fromDegrees(
+          centerLon + lonOffset,
+          centerLat + latOffset,
+          -depth
         );
-      }
-    };
 
-    this.removePostRenderListener = this.viewer.scene.postRender.addEventListener(onPostRender);
+        const p = this.marineSnowCollection.add({
+          position,
+          pixelSize: Math.random() * 2.5 + 1.0,
+          color: new Cesium.Color(0.4, 0.85, 1.0, Math.random() * 0.5 + 0.2),
+          show: false,
+        });
+
+        this.marineSnowParticles.push({
+          primitive: p,
+          baseLon: centerLon + lonOffset,
+          baseLat: centerLat + latOffset,
+          baseDepth: depth,
+          speed: Math.random() * 0.8 + 0.2,
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
+
+      let time = 0;
+      const onPostRender = () => {
+        if (!this.isUnderwater || !this.marineSnowCollection || this.viewer.isDestroyed()) return;
+        time += 0.015;
+        for (let i = 0; i < this.marineSnowParticles.length; i++) {
+          const item = this.marineSnowParticles[i];
+          const driftDepth = item.baseDepth + Math.sin(time * item.speed + item.phase) * 15;
+          const driftLon = item.baseLon + Math.cos(time * 0.5 + item.phase) * 0.02;
+
+          item.primitive.position = Cesium.Cartesian3.fromDegrees(
+            driftLon,
+            item.baseLat,
+            -driftDepth
+          );
+        }
+      };
+
+      this.removePostRenderListener = this.viewer.scene.postRender.addEventListener(onPostRender);
+    } catch (err) {
+      console.warn('Marine snow particle init fallback:', err);
+    }
   }
 
   public updateEnvironment(isUnderwater: boolean, depth: number): void {
+    if (this.viewer.isDestroyed()) return;
     this.isUnderwater = isUnderwater;
 
     const globe = this.viewer.scene.globe;
@@ -182,10 +172,18 @@ export class UnderwaterEnvironment {
       this.removePostRenderListener();
     }
     if (this.fogStage && !this.viewer.isDestroyed()) {
-      this.viewer.scene.postProcessStages.remove(this.fogStage);
+      try {
+        this.viewer.scene.postProcessStages.remove(this.fogStage);
+      } catch (err) {
+        console.warn('Fog stage remove error:', err);
+      }
     }
     if (this.marineSnowCollection && !this.viewer.isDestroyed()) {
-      this.viewer.scene.primitives.remove(this.marineSnowCollection);
+      try {
+        this.viewer.scene.primitives.remove(this.marineSnowCollection);
+      } catch (err) {
+        console.warn('Marine snow remove error:', err);
+      }
     }
   }
 }
