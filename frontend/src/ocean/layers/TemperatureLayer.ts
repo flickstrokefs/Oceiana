@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { OceanState } from '../OceanState';
+import { isLand } from '../utils/landMask';
 
 export class TemperatureLayer {
   private viewer: Cesium.Viewer;
@@ -11,7 +12,7 @@ export class TemperatureLayer {
   private maxLat = 30.0;
   private minLon = 35.0;
   private maxLon = 110.0;
-  private resolution = 128;
+  private resolution = 256;
 
   private active = true;
   private isUpdating = false;
@@ -39,6 +40,22 @@ export class TemperatureLayer {
 
       for (let x = 0; x < this.resolution; x++) {
         const lon = this.minLon + (x / this.resolution) * (this.maxLon - this.minLon);
+        const idx = (y * this.resolution + x) * 4;
+
+        // Mask out landmasses (100% transparent on land so satellite map shows through cleanly)
+        if (isLand(lat, lon)) {
+          data[idx] = 0;
+          data[idx + 1] = 0;
+          data[idx + 2] = 0;
+          data[idx + 3] = 0;
+          continue;
+        }
+
+        // Boundary edge feathering to eliminate harsh rectangular borders
+        const distLon = Math.min(lon - this.minLon, this.maxLon - lon);
+        const distLat = Math.min(lat - this.minLat, this.maxLat - lat);
+        const edgeDist = Math.min(distLon, distLat);
+        const edgeFactor = Math.min(1.0, Math.max(0.0, edgeDist / 3.5));
 
         const sample = oceanState.sampleSpatialField(lat, lon, depth);
         const temp = sample.temperature;
@@ -48,11 +65,10 @@ export class TemperatureLayer {
 
         const [r, g, b] = this.hslToRgb(hue / 360, 0.9, 0.5);
 
-        const idx = (y * this.resolution + x) * 4;
         data[idx] = r;
         data[idx + 1] = g;
         data[idx + 2] = b;
-        data[idx + 3] = 160;
+        data[idx + 3] = Math.round(115 * edgeFactor);
       }
     }
 
@@ -78,7 +94,7 @@ export class TemperatureLayer {
       });
 
       const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
-      newLayer.alpha = 0.72;
+      newLayer.alpha = 0.6;
       newLayer.show = this.active;
 
       const oldLayer = this.imageryLayer;

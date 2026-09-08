@@ -43,6 +43,7 @@ export class CurrentLayer {
         position: Cesium.Cartesian3.fromDegrees(lon, lat, -depth),
         pixelSize: Math.random() * 2.2 + 1.2,
         color: new Cesium.Color(0.0, 0.95, 1.0, Math.random() * 0.7 + 0.3),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
         show: this.active,
       });
 
@@ -61,15 +62,22 @@ export class CurrentLayer {
     const oceanState = OceanState.getInstance();
 
     const onPostRender = () => {
-      if (!this.active) return;
+      if (!this.active || this.viewer.isDestroyed()) return;
 
       const snapshot = oceanState.getSnapshot();
       const speedMult = snapshot.parameters.currentSpeed;
       const dt = 0.04 * speedMult;
+      const targetDepth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : 0;
 
       for (let i = 0; i < this.particles.length; i++) {
         const p = this.particles[i];
         p.life += 1;
+
+        if (snapshot.mode === 'underwater') {
+          if (Math.abs(p.depth - targetDepth) > 60) {
+            p.depth = targetDepth + (Math.random() - 0.5) * 30;
+          }
+        }
 
         if (
           p.life >= p.maxLife ||
@@ -80,7 +88,9 @@ export class CurrentLayer {
         ) {
           p.lat = this.minLat + Math.random() * (this.maxLat - this.minLat);
           p.lon = this.minLon + Math.random() * (this.maxLon - this.minLon);
-          p.depth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : Math.random() * 100;
+          p.depth = snapshot.mode === 'underwater'
+            ? targetDepth + (Math.random() - 0.5) * 30
+            : Math.random() * 60;
           p.life = 0;
           p.maxLife = Math.random() * 120 + 80;
         }

@@ -6,7 +6,10 @@ import type {
   ArgoProfile,
   GliderTrajectory,
   SpatialFieldValue,
+  UnderwaterRegionId,
+  UnderwaterRegion,
 } from '../types/ocean';
+import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
 import { MockOceanProvider } from './provider/MockOceanProvider';
 
@@ -25,6 +28,7 @@ export class OceanState {
 
   private mode: OceanMode = 'surface';
   private activeVariable: OceanVariable = 'temperature';
+  private underwaterRegion: UnderwaterRegionId | null = null;
   private selectedObservation: {
     type: 'argo' | 'glider';
     data: ArgoProfile | GliderTrajectory;
@@ -59,6 +63,7 @@ export class OceanState {
       parameters: { ...this.parameters },
       mode: this.mode,
       activeVariable: this.activeVariable,
+      underwaterRegion: this.underwaterRegion,
       selectedObservation: this.selectedObservation,
       time: new Date(this.time),
     };
@@ -89,6 +94,38 @@ export class OceanState {
       this.activeVariable = variable;
       this.notify();
     }
+  }
+
+  public setUnderwaterRegion(region: UnderwaterRegionId | null): void {
+    if (this.underwaterRegion !== region) {
+      this.underwaterRegion = region;
+      this.notify();
+    }
+  }
+
+  public getUnderwaterRegion(): UnderwaterRegionId | null {
+    return this.underwaterRegion;
+  }
+
+  public getActiveRegion(): UnderwaterRegion | null {
+    if (!this.underwaterRegion) return null;
+    return (
+      UNDERWATER_REGIONS.find((r) => r.id === this.underwaterRegion) || null
+    );
+  }
+
+  public getNextRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion {
+    const targetId = currentId ?? this.underwaterRegion ?? UNDERWATER_REGIONS[0].id;
+    const currentIndex = UNDERWATER_REGIONS.findIndex((r) => r.id === targetId);
+    const nextIndex = (currentIndex + 1) % UNDERWATER_REGIONS.length;
+    return UNDERWATER_REGIONS[nextIndex];
+  }
+
+  public getPrevRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion {
+    const targetId = currentId ?? this.underwaterRegion ?? UNDERWATER_REGIONS[0].id;
+    const currentIndex = UNDERWATER_REGIONS.findIndex((r) => r.id === targetId);
+    const prevIndex = (currentIndex - 1 + UNDERWATER_REGIONS.length) % UNDERWATER_REGIONS.length;
+    return UNDERWATER_REGIONS[prevIndex];
   }
 
   public setDepth(depth: number): void {

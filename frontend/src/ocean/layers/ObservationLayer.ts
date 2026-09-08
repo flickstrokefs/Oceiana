@@ -48,6 +48,9 @@ export class ObservationLayer {
         material: new Cesium.ColorMaterialProperty(
           new Cesium.Color(0.0, 0.9, 1.0, 0.85)
         ),
+        depthFailMaterial: new Cesium.ColorMaterialProperty(
+          new Cesium.Color(0.0, 0.9, 1.0, 0.85)
+        ),
       },
       properties: {
         obsType: 'argo',
@@ -64,6 +67,7 @@ export class ObservationLayer {
         color: new Cesium.Color(1.0, 0.8, 0.0, 1.0),
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 2,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       label: {
         text: argo.stationCode,
@@ -74,6 +78,7 @@ export class ObservationLayer {
         outlineWidth: 3,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -12),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       properties: {
         obsType: 'argo',
@@ -96,6 +101,7 @@ export class ObservationLayer {
           color: new Cesium.Color(0.0, 1.0, 0.8, 0.9),
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 1,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         properties: {
           obsType: 'argo',
@@ -118,6 +124,10 @@ export class ObservationLayer {
         positions,
         width: 3.0,
         material: new Cesium.PolylineGlowMaterialProperty({
+          glowPower: 0.25,
+          color: new Cesium.Color(1.0, 0.3, 0.8, 0.9),
+        }),
+        depthFailMaterial: new Cesium.PolylineGlowMaterialProperty({
           glowPower: 0.25,
           color: new Cesium.Color(1.0, 0.3, 0.8, 0.9),
         }),
@@ -145,6 +155,7 @@ export class ObservationLayer {
           color: new Cesium.Color(1.0, 0.0, 0.6, 1.0),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         label: {
           text: glider.name,
@@ -154,6 +165,7 @@ export class ObservationLayer {
           outlineWidth: 3,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -10),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         properties: {
           obsType: 'glider',

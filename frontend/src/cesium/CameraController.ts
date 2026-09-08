@@ -1,6 +1,7 @@
 import * as Cesium from 'cesium';
-import type { OceanMode } from '../types/ocean';
+import type { OceanMode, UnderwaterRegionId } from '../types/ocean';
 import { UnderwaterEnvironment } from './UnderwaterEnvironment';
+import { localToWorld } from '../ocean/utils/underwaterCoords';
 
 export class CameraController {
   private viewer: Cesium.Viewer;
@@ -8,9 +9,9 @@ export class CameraController {
 
   private currentMode: OceanMode = 'surface';
 
-  // Center on Indian Ocean / Arabian Sea
-  private targetLon = 65.0;
-  private targetLat = 10.0;
+  // Center on Indian Ocean / Arabian Sea analysis domain (72°E, 14.5°N)
+  private targetLon = 72.0;
+  private targetLat = 14.5;
 
   constructor(viewer: Cesium.Viewer, underwaterEnv: UnderwaterEnvironment) {
     this.viewer = viewer;
@@ -32,7 +33,7 @@ export class CameraController {
     });
   }
 
-  public setMode(mode: OceanMode, depth = 0): void {
+  public setMode(mode: OceanMode, depth = 0, regionId?: UnderwaterRegionId | null): void {
     this.currentMode = mode;
 
     if (mode === 'surface') {
@@ -42,59 +43,80 @@ export class CameraController {
         destination: Cesium.Cartesian3.fromDegrees(
           this.targetLon,
           this.targetLat,
-          2200000
+          2800000
         ),
         orientation: {
           heading: Cesium.Math.toRadians(0.0),
           pitch: Cesium.Math.toRadians(-65.0),
           roll: 0.0,
         },
-        duration: 2.2,
+        duration: 2.0,
       });
     } else {
-      const targetAltitude = -Math.max(10, depth);
-      this.underwaterEnv.updateEnvironment(true, depth);
+      this.focusOnRegion(regionId ?? null, depth, 2.0);
+    }
+  }
 
+  /**
+   * Smoothly transitions the camera to focus directly on a single 3D region box,
+   * making it fill most of the central analysis viewport.
+   * If regionId is null, transitions to the 4-region domain overview perspective.
+   */
+  public focusOnRegion(
+    regionId: UnderwaterRegionId | null,
+    depth = 0,
+    duration = 1.6
+  ): void {
+    if (this.viewer.isDestroyed()) return;
+    this.underwaterEnv.updateEnvironment(true, depth);
+
+    if (!regionId) {
+      // Wide overview framing all 4 regions in the Indian Ocean domain
       this.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-          this.targetLon,
-          this.targetLat,
-          targetAltitude
-        ),
+        destination: Cesium.Cartesian3.fromDegrees(72.0, 5.0, 1350000),
         orientation: {
-          heading: Cesium.Math.toRadians(15.0),
-          pitch: Cesium.Math.toRadians(-12.0),
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(-40.0),
           roll: 0.0,
         },
-        duration: 2.5,
+        duration,
         complete: () => {
           this.underwaterEnv.updateEnvironment(true, depth);
         },
       });
+      return;
     }
+
+    // Local center offsets for each of the 4 independent 3D boxes
+    const regionOffsets: Record<UnderwaterRegionId, { cx: number; cy: number }> = {
+      'arabian-sea': { cx: -278571, cy: 192000 },
+      'central-indian-ocean': { cx: 278571, cy: 192000 },
+      'eastern-indian-ocean': { cx: 278571, cy: -192000 },
+      'western-indian-ocean': { cx: -278571, cy: -192000 },
+    };
+
+    const coords = regionOffsets[regionId] || regionOffsets['arabian-sea'];
+    // Position camera south of box center by 380km and up by 310km looking north at -38°
+    const destination = localToWorld(coords.cx, coords.cy - 380000, 310000);
+
+    this.viewer.camera.flyTo({
+      destination,
+      orientation: {
+        heading: Cesium.Math.toRadians(0.0),
+        pitch: Cesium.Math.toRadians(-38.0),
+        roll: 0.0,
+      },
+      duration,
+      complete: () => {
+        this.underwaterEnv.updateEnvironment(true, depth);
+      },
+    });
   }
 
   public setDepth(depth: number): void {
     if (this.currentMode === 'underwater') {
+      // Camera position remains fixed while depth slice moves inside the box
       this.underwaterEnv.updateEnvironment(true, depth);
-
-      const cameraPos = this.viewer.camera.positionCartographic;
-      const targetLon = Cesium.Math.toDegrees(cameraPos.longitude);
-      const targetLat = Cesium.Math.toDegrees(cameraPos.latitude);
-
-      this.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-          targetLon,
-          targetLat,
-          -Math.max(10, depth)
-        ),
-        orientation: {
-          heading: this.viewer.camera.heading,
-          pitch: this.viewer.camera.pitch,
-          roll: this.viewer.camera.roll,
-        },
-        duration: 1.5,
-      });
     }
   }
 }

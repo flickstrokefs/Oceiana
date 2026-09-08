@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { OceanState } from '../OceanState';
+import { isLand } from '../utils/landMask';
 
 export class SalinityLayer {
   private viewer: Cesium.Viewer;
@@ -11,7 +12,7 @@ export class SalinityLayer {
   private maxLat = 30.0;
   private minLon = 35.0;
   private maxLon = 110.0;
-  private resolution = 128;
+  private resolution = 256;
 
   private active = false;
   private isUpdating = false;
@@ -39,6 +40,22 @@ export class SalinityLayer {
 
       for (let x = 0; x < this.resolution; x++) {
         const lon = this.minLon + (x / this.resolution) * (this.maxLon - this.minLon);
+        const idx = (y * this.resolution + x) * 4;
+
+        // Mask out landmasses (100% transparent on land so satellite map shows through cleanly)
+        if (isLand(lat, lon)) {
+          data[idx] = 0;
+          data[idx + 1] = 0;
+          data[idx + 2] = 0;
+          data[idx + 3] = 0;
+          continue;
+        }
+
+        // Boundary edge feathering to eliminate harsh rectangular borders
+        const distLon = Math.min(lon - this.minLon, this.maxLon - lon);
+        const distLat = Math.min(lat - this.minLat, this.maxLat - lat);
+        const edgeDist = Math.min(distLon, distLat);
+        const edgeFactor = Math.min(1.0, Math.max(0.0, edgeDist / 3.5));
 
         const sample = oceanState.sampleSpatialField(lat, lon, depth);
         const salinity = sample.salinity;
@@ -49,11 +66,10 @@ export class SalinityLayer {
         const g = Math.round((1.0 - norm) * 220 + norm * 20);
         const b = Math.round(255);
 
-        const idx = (y * this.resolution + x) * 4;
         data[idx] = r;
         data[idx + 1] = g;
         data[idx + 2] = b;
-        data[idx + 3] = 160;
+        data[idx + 3] = Math.round(125 * edgeFactor);
       }
     }
 
