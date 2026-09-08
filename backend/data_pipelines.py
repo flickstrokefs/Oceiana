@@ -1,4 +1,8 @@
-
+import os
+import xarray as xr
+import pandas as pd
+import numpy as np
+import argopy
 # data_pipelines.py
 # Fetch ocean model data (CMEMS), Argo profiles, and INCOIS ERDDAP data
 # for a common region/time window and save into data/raw/
@@ -16,7 +20,8 @@ LAT_MIN, LAT_MAX = 10.0, 20.0
 
 # Time window (5 days)
 START_DATE = "2020-01-01"
-END_DATE = "2020-01-05"
+# END_DATE = "2020-01-05"
+END_DATE = "2020-02-01"
 
 # Depth range for model data (m)
 DEPTH_MIN, DEPTH_MAX = 0.0, 30.0
@@ -108,12 +113,19 @@ def fetch_argo():
 
     ds_core = ds[keep_vars]
 
-    output_filename = f"argo_bay_of_bengal_{START_DATE}_{END_DATE}.csv"
+    # output_filename = f"argo_bay_of_bengal_{START_DATE}_{END_DATE}.csv"
+    # output_path = os.path.join(RAW_DIR, output_filename)
+
+    # df = ds_core.to_dataframe()
+    # df.to_csv(output_path)
+    # print("Argo profiles saved to:", output_path)  --- as committed i have changed it to netcdf format to check the data is being extracted or not after final test i will do chng it !
+
+    output_filename = f"argo_bay_of_bengal_{START_DATE}_{END_DATE}.nc"
     output_path = os.path.join(RAW_DIR, output_filename)
 
-    df = ds_core.to_dataframe()
-    df.to_csv(output_path)
+    ds_core.to_netcdf(output_path)
     print("Argo profiles saved to:", output_path)
+
 
 
 # -----------------------------
@@ -184,7 +196,7 @@ def run_all():
     print()
 
     # Pipeline 1: CMEMS model data
-    fetch_cmems()
+    # fetch_cmems() # -- AS i have chng it to check that the data is being extracted or not after final test i will do chng it 
 
     # Pipeline 2: Argo profiles
     fetch_argo()
