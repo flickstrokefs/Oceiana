@@ -1,0 +1,6 @@
+copernicusmarine
+argopy
+xarray
+requests
+netCDF4
+pandas
