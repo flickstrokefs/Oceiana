@@ -40,7 +40,7 @@ def fetch_cmems():
     Download a small subset of global ocean physics reanalysis from CMEMS.
     Requires:
         pip install copernicusmarine
-        copernicusmarine login   (run once in terminal)
+        copernicusmarine login   (run once in terminal) 
     """
     import copernicusmarine
 

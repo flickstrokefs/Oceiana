@@ -1,5 +1,6 @@
 copernicusmarine
 argopy
+erddapy
 xarray
 requests
 netCDF4
