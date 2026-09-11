@@ -6,16 +6,16 @@ __pycache__/
 venv/
 .venv/
 
-# Environment
+# Environment variables
 .env
 .env.*
-
-# Generated processed data
-data/processed/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# Python tooling
+# Generated processed data
+data/processed/
+
+# Python cache / tooling
 .pytest_cache/
 .mypy_cache/

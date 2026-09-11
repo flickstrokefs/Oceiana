@@ -27,9 +27,23 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
     let viewer: Cesium.Viewer;
 
     try {
-      const baseImageryProvider = Cesium.TileMapServiceImageryProvider.fromUrl(
-        Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
-      );
+      // Check for Cesium Ion Token
+      const ionToken =
+        import.meta.env.VITE_CESIUM_ION_TOKEN ||
+        (typeof window !== 'undefined' && (window as unknown as { CESIUM_ION_TOKEN?: string }).CESIUM_ION_TOKEN);
+
+      let baseImageryProvider: Promise<Cesium.ImageryProvider>;
+
+      if (ionToken) {
+        Cesium.Ion.defaultAccessToken = ionToken;
+        baseImageryProvider = Cesium.createWorldImageryAsync();
+      } else {
+        // High-resolution public satellite imagery (Esri World Imagery)
+        baseImageryProvider = Cesium.ArcGisMapServerImageryProvider.fromUrl(
+          'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+          { enablePickFeatures: false }
+        );
+      }
 
       viewer = new Cesium.Viewer(containerRef.current, {
         baseLayer: Cesium.ImageryLayer.fromProviderAsync(baseImageryProvider),
