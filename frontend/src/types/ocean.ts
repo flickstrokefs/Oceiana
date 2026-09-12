@@ -245,10 +245,21 @@ export interface ObservationProfilePayload {
   availableVariables: ProfileVariable[];
 }
 
+export type ArielPage =
+  | '3d-ocean'
+  | 'obs-profile'
+  | 'data-manager'
+  | 'search'
+  | 'hazard'
+  | 'fishery'
+  | 'settings'
+  | 'public-view';
+
 export interface OceanStateSnapshot {
   parameters: OceanParameters;
   mode: OceanMode;
   activeVariable: OceanVariable;
+  activePage: ArielPage;
   underwaterRegion: UnderwaterRegionId | null;
   selectedObservation: SelectedObservation | null;
   /** Large Observation Profile modal over the 3D Ocean (Webpage 2). */
@@ -260,3 +271,4 @@ export interface OceanStateSnapshot {
   flyToObservationToken: number;
   time: Date;
 }
+

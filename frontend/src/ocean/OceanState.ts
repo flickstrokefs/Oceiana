@@ -2,6 +2,7 @@ import type {
   OceanParameters,
   OceanMode,
   OceanVariable,
+  ArielPage,
   OceanStateSnapshot,
   SelectedObservation,
   SpatialFieldValue,
@@ -27,6 +28,7 @@ export class OceanState {
 
   private mode: OceanMode = 'surface';
   private activeVariable: OceanVariable = 'temperature';
+  private activePage: ArielPage = '3d-ocean';
   private underwaterRegion: UnderwaterRegionId | null = null;
   private selectedObservation: SelectedObservation | null = null;
   private observationModalOpen = false;
@@ -61,6 +63,7 @@ export class OceanState {
       parameters: { ...this.parameters },
       mode: this.mode,
       activeVariable: this.activeVariable,
+      activePage: this.activePage,
       underwaterRegion: this.underwaterRegion,
       selectedObservation: this.selectedObservation,
       observationModalOpen: this.observationModalOpen,
@@ -68,6 +71,30 @@ export class OceanState {
       time: new Date(this.time),
     };
   }
+
+  public setActivePage(page: ArielPage): void {
+    if (page === 'obs-profile') {
+      // If no observation is selected, default to the first glider
+      if (!this.selectedObservation) {
+        const gliders = this.provider.getGliderTrajectories();
+        if (gliders.length > 0) {
+          this.selectedObservation = { type: 'glider', data: gliders[0] };
+        }
+      }
+      this.observationModalOpen = true;
+      this.notify();
+      return;
+    }
+    if (this.activePage !== page) {
+      this.activePage = page;
+      this.notify();
+    }
+  }
+
+  public getActivePage(): ArielPage {
+    return this.activePage;
+  }
+
 
   public updateParameters(partial: Partial<OceanParameters>): void {
     let changed = false;

@@ -1,94 +1,131 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { OceanState } from '../../ocean/OceanState';
-import type { OceanMode, OceanVariable } from '../../types/ocean';
-import { Compass, Waves } from 'lucide-react';
+import { Search, Menu, User } from 'lucide-react';
 
 interface HeaderControlsProps {
+  onToggleSidebar?: () => void;
   onResetView?: () => void;
 }
 
-export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) => {
-  const [mode, setMode] = useState<OceanMode>('surface');
-  const [activeVar, setActiveVar] = useState<OceanVariable>('temperature');
-  const [depth, setDepth] = useState<number>(0);
+export const HeaderControls: React.FC<HeaderControlsProps> = ({
+  onToggleSidebar,
+}) => {
+  const [viewMode, setViewMode] = useState<'3d-ocean' | 'depth-slice' | 'isosurface'>('3d-ocean');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const unsub = OceanState.getInstance().subscribe((snapshot) => {
-      setMode(snapshot.mode);
-      setActiveVar(snapshot.activeVariable);
-      setDepth(snapshot.parameters.depth);
-    });
-    return unsub;
-  }, []);
-
-  const handleModeChange = (newMode: OceanMode) => {
-    OceanState.getInstance().setMode(newMode);
+  const handleModeClick = (mode: '3d-ocean' | 'depth-slice' | 'isosurface') => {
+    setViewMode(mode);
+    if (mode === 'depth-slice') {
+      OceanState.getInstance().setMode('underwater');
+    } else {
+      OceanState.getInstance().setMode('surface');
+    }
   };
 
-  const handleVarChange = (v: OceanVariable) => {
-    OceanState.getInstance().setActiveVariable(v);
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery) return;
+    // Provide instant feedback for search
+    alert(`Navigating to region: "${searchQuery}"`);
   };
 
   return (
-    <header className="header-controls">
-      <div className="brand-group">
-        <div className="brand-title">
-          <span className="brand-primary">OCEAN-X</span>
-          <span className="brand-sub">DIGITAL OCEAN ENGINE</span>
+    <header className="ariel-top-header">
+      {/* Brand Group */}
+      <div className="top-brand-group">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            className="header-menu-toggle"
+            onClick={onToggleSidebar}
+            title="Toggle ARIEL Sidebar"
+          >
+            <Menu size={16} />
+          </button>
+        )}
+        <div className="brand-logo-text-horiz">
+          <span className="brand-org-tag">INCOIS</span>
+          <div className="brand-titles-wrap">
+            <span className="brand-main-title">OCEIANA</span>
+            <span className="brand-sub-title">3D Ocean Data Visualization</span>
+          </div>
         </div>
-        <div className="telemetry-tag">
-          <span className="dot-active"></span>
-          {mode === 'underwater' ? (
-            <span className="flex items-center gap-1">
-              <Waves size={12} className="inline mr-1" />
-              STRATUM: -{depth}m
-            </span>
-          ) : (
-            'INDIAN OCEAN // ARABIAN SEA'
-          )}
+      </div>
+
+      {/* Center Search Bar */}
+      <form className="top-search-form" onSubmit={handleSearchSubmit}>
+        <div className="search-input-container">
+          <Search size={14} className="search-icon" />
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search location (e.g., Arabian Sea or 15.6 N, 72.2 E)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </form>
+
+      {/* Center Mode Selector Buttons */}
+      <div className="top-mode-pills">
+        <button
+          type="button"
+          className={`mode-pill-btn ${viewMode === '3d-ocean' ? 'mode-pill-active' : ''}`}
+          onClick={() => handleModeClick('3d-ocean')}
+        >
+          3D Ocean
+        </button>
+        <button
+          type="button"
+          className={`mode-pill-btn ${viewMode === 'depth-slice' ? 'mode-pill-active' : ''}`}
+          onClick={() => handleModeClick('depth-slice')}
+        >
+          Depth Slice
+        </button>
+        <button
+          type="button"
+          className={`mode-pill-btn ${viewMode === 'isosurface' ? 'mode-pill-active' : ''}`}
+          onClick={() => handleModeClick('isosurface')}
+        >
+          Isosurface
+        </button>
+      </div>
+
+      {/* Right Navigation & Avatar */}
+      <div className="top-right-nav">
+        <button
+          type="button"
+          className="top-nav-link"
+          onClick={() => OceanState.getInstance().setActivePage('3d-ocean')}
+        >
+          Home
+        </button>
+        <button
+          type="button"
+          className="top-nav-link"
+          onClick={() => OceanState.getInstance().setActivePage('data-manager')}
+        >
+          Datasets
+        </button>
+        <button
+          type="button"
+          className="top-nav-link"
+          onClick={() => OceanState.getInstance().setActivePage('settings')}
+        >
+          Settings
+        </button>
+        <button
+          type="button"
+          className="top-nav-link"
+          onClick={() => alert('ARIEL Documentation & Help Center')}
+        >
+          Help
+        </button>
+
+        <div className="user-avatar-badge" title="Forecaster Session (Active)">
+          <User size={14} />
         </div>
       </div>
-
-      <div className="mode-switch-container">
-        <button
-          onClick={() => handleModeChange('surface')}
-          className={`mode-btn ${mode === 'surface' ? 'mode-active' : ''}`}
-        >
-          SURFACE
-        </button>
-        <button
-          onClick={() => handleModeChange('underwater')}
-          className={`mode-btn ${mode === 'underwater' ? 'mode-active' : ''}`}
-        >
-          {mode === 'underwater' ? `UNDERWATER (${depth}m)` : 'UNDERWATER'}
-        </button>
-      </div>
-
-      <div className="variable-selector-group">
-        <button
-          onClick={() => handleVarChange('temperature')}
-          className={`var-btn ${activeVar === 'temperature' ? 'var-active' : ''}`}
-        >
-          TEMP (°C)
-        </button>
-        <button
-          onClick={() => handleVarChange('salinity')}
-          className={`var-btn ${activeVar === 'salinity' ? 'var-active' : ''}`}
-        >
-          SALINITY
-        </button>
-        <button
-          onClick={() => handleVarChange('chlorophyll')}
-          className={`var-btn ${activeVar === 'chlorophyll' ? 'var-active' : ''}`}
-        >
-          CHLOROPHYLL
-        </button>
-      </div>
-
-      <button onClick={onResetView} className="icon-action-btn" title="Reset View">
-        <Compass size={16} />
-        RESET
-      </button>
     </header>
   );
 };
