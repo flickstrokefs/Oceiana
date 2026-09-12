@@ -147,6 +147,10 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
   }, [onEngineReady]);
 
   return (
+    // INTEGRATION — Underwater 3D structure / ocean volume mesh:
+    // Mount future Cesium primitives (tileset, custom geometry, isosurfaces)
+    // via OceanEngine / UnderwaterEnvironment. Observation Profile overlays
+    // this live viewer — never replace it with a static mock screenshot.
     <div
       ref={containerRef}
       className="cesium-container"

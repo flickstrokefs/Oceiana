@@ -19,3 +19,10 @@ data/processed/
 # Python tooling
 .pytest_cache/
 .mypy_cache/
+
+# Node
+node_modules/
+dist/
+
+# Python virtual environment
+.venv/

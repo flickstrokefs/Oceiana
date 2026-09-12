@@ -83,5 +83,25 @@ export class CameraController {
       this.underwaterEnv.updateEnvironment(true, depth);
     }
   }
-}
 
+  /**
+   * Fly existing Cesium camera to an observation (Show on Globe).
+   * Does NOT recreate the viewer or reset ocean layers / exaggeration / time.
+   *
+   * INTEGRATION: When the full underwater 3D structure mesh is ready,
+   * optionally offset altitude / pitch here to frame the structure + marker.
+   */
+  public flyToObservation(longitude: number, latitude: number, duration = 1.6): void {
+    const altitude = this.currentMode === 'underwater' ? 420000 : 900000;
+
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(longitude, latitude - 1.2, altitude),
+      orientation: {
+        heading: Cesium.Math.toRadians(0.0),
+        pitch: Cesium.Math.toRadians(this.currentMode === 'underwater' ? -42.0 : -55.0),
+        roll: 0.0,
+      },
+      duration,
+    });
+  }
+}

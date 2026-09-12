@@ -3,8 +3,7 @@ import type {
   OceanMode,
   OceanVariable,
   OceanStateSnapshot,
-  ArgoProfile,
-  GliderTrajectory,
+  SelectedObservation,
   SpatialFieldValue,
   UnderwaterRegionId,
   UnderwaterRegion,
@@ -29,10 +28,9 @@ export class OceanState {
   private mode: OceanMode = 'surface';
   private activeVariable: OceanVariable = 'temperature';
   private underwaterRegion: UnderwaterRegionId | null = null;
-  private selectedObservation: {
-    type: 'argo' | 'glider';
-    data: ArgoProfile | GliderTrajectory;
-  } | null = null;
+  private selectedObservation: SelectedObservation | null = null;
+  private observationModalOpen = false;
+  private flyToObservationToken = 0;
   private time: Date = new Date();
 
   private provider: OceanDataProvider;
@@ -65,6 +63,8 @@ export class OceanState {
       activeVariable: this.activeVariable,
       underwaterRegion: this.underwaterRegion,
       selectedObservation: this.selectedObservation,
+      observationModalOpen: this.observationModalOpen,
+      flyToObservationToken: this.flyToObservationToken,
       time: new Date(this.time),
     };
   }
@@ -132,10 +132,38 @@ export class OceanState {
     this.updateParameters({ depth });
   }
 
-  public selectObservation(
-    obs: { type: 'argo' | 'glider'; data: ArgoProfile | GliderTrajectory } | null
-  ): void {
+  /**
+   * Select an in-situ observation (Argo / Glider).
+   * Non-null selection opens the Observation Profile modal over the 3D Ocean.
+   * Null clears selection and closes the modal.
+   */
+  public selectObservation(obs: SelectedObservation | null): void {
     this.selectedObservation = obs;
+    this.observationModalOpen = obs !== null;
+    this.notify();
+  }
+
+  public setObservationModalOpen(open: boolean): void {
+    if (this.observationModalOpen === open) return;
+    this.observationModalOpen = open;
+    this.notify();
+  }
+
+  public closeObservationModal(): void {
+    if (!this.observationModalOpen) return;
+    this.observationModalOpen = false;
+    this.notify();
+  }
+
+  /**
+   * Show on Globe: keep selection + highlight, close/minimize modal,
+   * and request OceanEngine to fly the existing Cesium camera.
+   * Does NOT recreate the viewer or reset ocean visualization state.
+   */
+  public requestShowOnGlobe(): void {
+    if (!this.selectedObservation) return;
+    this.observationModalOpen = false;
+    this.flyToObservationToken += 1;
     this.notify();
   }
 

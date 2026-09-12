@@ -40,7 +40,7 @@ export const App: React.FC = () => {
         <UnderwaterWorkspace onResetView={handleResetView} />
       )}
 
-      {/* Shared In-situ Profile Modal */}
+      {/* Shared Observation Profile (Webpage 2) — modal over live Cesium globe */}
       <ObservationModal />
     </div>
   );

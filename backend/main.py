@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Query, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
 from data_service import (
@@ -8,6 +9,7 @@ from data_service import (
     add_density_products,
     add_vertical_gradients,
 )
+from ariel_observations import router as ariel_observations_router
 
 
 # ============================================================
@@ -19,10 +21,21 @@ app = FastAPI(
     description=(
         "Backend API for Argo ocean observations, "
         "standardized profiles, seawater density products, "
-        "and vertical oceanographic gradients."
+        "vertical oceanographic gradients, and ARIEL Observation Profile."
     ),
     version="2.0.0",
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ARIEL Webpage 2 — Observation Profile (Model / Glider / Argo)
+app.include_router(ariel_observations_router)
 
 
 # ============================================================
@@ -74,6 +87,9 @@ def root():
             "/api/argo/profiles",
             "/api/argo/profile/{profile_id}",
             "/api/argo/depth",
+            "/api/observations",
+            "/api/observations/{id}",
+            "/api/observations/{id}/profile",
         ],
     }
 

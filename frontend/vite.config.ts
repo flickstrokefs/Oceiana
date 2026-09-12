@@ -13,5 +13,12 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    proxy: {
+      // Forward Observation Profile + Argo API calls to FastAPI backend
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
 });

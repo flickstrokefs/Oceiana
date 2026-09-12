@@ -1,7 +1,9 @@
+fastapi
+uvicorn[standard]
+pandas
 copernicusmarine
 argopy
 erddapy
 xarray
 requests
 netCDF4
-pandas

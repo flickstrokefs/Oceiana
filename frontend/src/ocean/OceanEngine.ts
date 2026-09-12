@@ -5,6 +5,7 @@ import { UnderwaterEnvironment } from '../cesium/UnderwaterEnvironment';
 import { DepthSliceRenderer } from './layers/DepthSliceRenderer';
 import { CurrentLayer } from './layers/CurrentLayer';
 import { ObservationLayer } from './layers/ObservationLayer';
+import { getObservationFocusCoords } from '../services/observationService';
 import type { OceanMode, OceanVariable } from '../types/ocean';
 
 export class OceanEngine {
@@ -18,6 +19,7 @@ export class OceanEngine {
   private lastVariable: OceanVariable = 'temperature';
   private lastMode: OceanMode = 'surface';
   private lastDepth = 0;
+  private lastFlyToken = 0;
 
   constructor(viewer: Cesium.Viewer) {
     this.underwaterEnv = new UnderwaterEnvironment(viewer);
@@ -54,6 +56,16 @@ export class OceanEngine {
         this.depthSliceRenderer.setVariable(snapshot.activeVariable);
         this.currentLayer.setVisible(true);
         this.lastVariable = snapshot.activeVariable;
+      }
+
+      // Show on Globe — fly existing camera; do not recreate Cesium / reset layers
+      if (snapshot.flyToObservationToken !== this.lastFlyToken) {
+        this.lastFlyToken = snapshot.flyToObservationToken;
+        if (snapshot.selectedObservation) {
+          const focus = getObservationFocusCoords(snapshot.selectedObservation);
+          this.cameraController.flyToObservation(focus.longitude, focus.latitude);
+          this.obsLayer.applyHighlight(focus.id);
+        }
       }
 
       // Trigger update on depth slice renderer

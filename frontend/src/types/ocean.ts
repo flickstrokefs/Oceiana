@@ -185,14 +185,78 @@ export const UNDERWATER_REGIONS: UnderwaterRegionDefinition[] = [
   },
 ];
 
+export type SelectedObservation = {
+  type: 'argo' | 'glider';
+  data: ArgoProfile | GliderTrajectory;
+};
+
+/** Profile variable keys used by Observation Profile comparison UI */
+export type ProfileVariable =
+  | 'temperature'
+  | 'salinity'
+  | 'currentSpeed'
+  | 'chlorophyll'
+  | 'oxygen';
+
+export interface ProfileDepthSample {
+  depth: number;
+  temperature?: number | null;
+  salinity?: number | null;
+  currentSpeed?: number | null;
+  chlorophyll?: number | null;
+  oxygen?: number | null;
+}
+
+export interface ObservationSourceCard {
+  id: string;
+  label: string;
+  sourceType: 'model' | 'glider' | 'argo';
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+  depth: number | null;
+  status?: string;
+  metadata?: Record<string, string | number | null | undefined>;
+  surfaceValues: {
+    temperature?: number | null;
+    salinity?: number | null;
+    currentSpeed?: number | null;
+    chlorophyll?: number | null;
+    oxygen?: number | null;
+  };
+}
+
+/**
+ * Unified observation profile payload for Webpage 2 (Observation Profile).
+ * Built by observationService — mock now, real Argo/Glider/NetCDF later.
+ */
+export interface ObservationProfilePayload {
+  selectedId: string;
+  selectedType: 'argo' | 'glider';
+  model: ObservationSourceCard;
+  glider: ObservationSourceCard | null;
+  argo: ObservationSourceCard | null;
+  profile: {
+    depths: number[];
+    model: ProfileDepthSample[];
+    glider: ProfileDepthSample[];
+    argo: ProfileDepthSample[];
+  };
+  availableVariables: ProfileVariable[];
+}
+
 export interface OceanStateSnapshot {
   parameters: OceanParameters;
   mode: OceanMode;
   activeVariable: OceanVariable;
   underwaterRegion: UnderwaterRegionId | null;
-  selectedObservation: {
-    type: 'argo' | 'glider';
-    data: ArgoProfile | GliderTrajectory;
-  } | null;
+  selectedObservation: SelectedObservation | null;
+  /** Large Observation Profile modal over the 3D Ocean (Webpage 2). */
+  observationModalOpen: boolean;
+  /**
+   * Incremented when UI requests camera fly-to selected observation.
+   * OceanEngine watches this token; does not recreate the Cesium viewer.
+   */
+  flyToObservationToken: number;
   time: Date;
 }
