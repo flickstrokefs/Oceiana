@@ -11,7 +11,7 @@ from data_service import (
 # ============================================================
 
 app = FastAPI(
-    title="Oceiana Ocean Data API",
+    title="Ariel Ocean Data API",
     description=(
         "Backend API for Argo ocean observations "
         "and scientific filtering."
@@ -28,7 +28,7 @@ app = FastAPI(
 def root():
     return {
         "status": "online",
-        "service": "Oceiana Ocean Data API",
+        "service": "Ariel Ocean Data API",
         "version": "1.1.0",
     }
 

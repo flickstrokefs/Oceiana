@@ -9,7 +9,7 @@ from data_service import (
 
 
 def main():
-    print("=== OCEIANA DATA PREPROCESSING PIPELINE ===")
+    print("=== Ariel DATA PREPROCESSING PIPELINE ===")
 
     print("\n[1/4] Standardizing Argo profiles...")
     standardized = standardize_profiles()

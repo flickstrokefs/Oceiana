@@ -1,7 +1,7 @@
 /**
  * Observation Profile service layer.
  *
- * Tries the Oceiana backend (`/api/observations/...`) first.
+ * Tries the Ariel backend (`/api/observations/...`) first.
  * Falls back to composing profiles from OceanState / MockOceanProvider
  * so the UI works without a running API.
  *

@@ -17,7 +17,7 @@ from ariel_observations import router as ariel_observations_router
 # ============================================================
 
 app = FastAPI(
-    title="Oceiana Ocean Data API",
+    title="Ariel Ocean Data API",
     description=(
         "Backend API for Argo ocean observations, "
         "standardized profiles, seawater density products, "
@@ -73,7 +73,7 @@ def get_scientific_data():
 def root():
     return {
         "status": "online",
-        "service": "Oceiana Ocean Data API",
+        "service": "Ariel Ocean Data API",
         "version": "2.0.0",
         "data": {
             "source": "Argo",
@@ -102,7 +102,7 @@ def root():
 def health():
     return {
         "status": "healthy",
-        "service": "Oceiana Ocean Data API",
+        "service": "Ariel Ocean Data API",
     }
 
 
