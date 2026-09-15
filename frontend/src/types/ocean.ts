@@ -73,9 +73,16 @@ export interface GliderTrajectory {
 
 export type UnderwaterRegionId =
   | 'arabian-sea'
-  | 'western-indian-ocean'
-  | 'central-indian-ocean'
-  | 'eastern-indian-ocean';
+  | 'bay-of-bengal'
+  | 'andaman-sea'
+  | 'laccadive-sea'
+  | 'java-sea'
+  | 'southern-ocean';
+
+export type OceanDomainId =
+  | 'indian-ocean'
+  | 'southern-ocean';
+
 
 export interface UnderwaterRegionDefinition {
   id: UnderwaterRegionId;
@@ -83,12 +90,36 @@ export interface UnderwaterRegionDefinition {
   label: string;
   description: string;
   boundsLabel: string;
+
   west: number;
   east: number;
   south: number;
   north: number;
+
   depthMin: number;
   depthMax: number;
+
+  /**
+   * Approximate visualization footprint.
+   * [longitude, latitude]
+   *
+   * Replace with authoritative GIS polygons later.
+   */
+  footprint: [number, number][];
+}
+
+export interface OceanDomainDefinition {
+  id: OceanDomainId;
+  name: string;
+  label: string;
+  description: string;
+  footprint: [number, number][];
+  children: UnderwaterRegionId[];
+}
+
+export interface UnderwaterRegionPolygon {
+  longitude: number;
+  latitude: number;
 }
 
 export type UnderwaterRegion = UnderwaterRegionDefinition;
@@ -135,53 +166,177 @@ export const UNDERWATER_REGIONS: UnderwaterRegionDefinition[] = [
     id: 'arabian-sea',
     name: 'Arabian Sea',
     label: 'Arabian Sea',
-    description: 'High-salinity evaporative basin influenced by seasonal monsoon gyres and prominent oxygen minimum zones.',
-    boundsLabel: '58°–71°E · 15°–22°N',
-    west: 58.0,
-    east: 71.0,
-    south: 15.0,
-    north: 22.0,
+    description:
+      'Western Indian Ocean marginal sea containing Argo and underwater glider observations.',
+    boundsLabel: '50°–72°E · 5°–25°N',
+    west: 50,
+    east: 72,
+    south: 5,
+    north: 25,
     depthMin: 0,
     depthMax: 2000,
+    footprint: [
+      [50, 25],
+      [72, 25],
+      [72, 8],
+      [65, 5],
+      [55, 8],
+      [50, 15],
+    ],
   },
+
   {
-    id: 'central-indian-ocean',
-    name: 'Central Indian Ocean',
-    label: 'Central Indian Ocean',
-    description: 'Central equatorial basin featuring deep internal waves, equatorial jets, and dynamic thermocline stratification.',
-    boundsLabel: '73°–86°E · 15°–22°N',
-    west: 73.0,
-    east: 86.0,
-    south: 15.0,
-    north: 22.0,
+    id: 'bay-of-bengal',
+    name: 'Bay of Bengal',
+    label: 'Bay of Bengal',
+    description:
+      'Northern Indian Ocean marginal sea containing Argo and underwater glider observations.',
+    boundsLabel: '80°–100°E · 5°–22°N',
+    west: 80,
+    east: 100,
+    south: 5,
+    north: 22,
     depthMin: 0,
     depthMax: 2000,
+    footprint: [
+      [80, 22],
+      [91, 22],
+      [96, 17],
+      [94, 10],
+      [87, 6],
+      [80, 10],
+    ],
   },
+
   {
-    id: 'eastern-indian-ocean',
-    name: 'Eastern Indian Ocean',
-    label: 'Eastern Indian Ocean',
-    description: 'Freshwater-influenced tropical region driven by monsoonal precipitation and equatorial upwelling pulses.',
-    boundsLabel: '73°–86°E · 7°–14°N',
-    west: 73.0,
-    east: 86.0,
-    south: 7.0,
-    north: 14.0,
+    id: 'andaman-sea',
+    name: 'Andaman Sea',
+    label: 'Andaman Sea',
+    description:
+      'Eastern Indian Ocean marginal sea east of the Bay of Bengal.',
+    boundsLabel: '92°–100°E · 2°–15°N',
+    west: 92,
+    east: 100,
+    south: 2,
+    north: 15,
     depthMin: 0,
     depthMax: 2000,
+    footprint: [
+      [92, 15],
+      [100, 15],
+      [100, 6],
+      [97, 2],
+      [93, 5],
+    ],
   },
+
   {
-    id: 'western-indian-ocean',
-    name: 'Western Indian Ocean',
-    label: 'Western Indian Ocean',
-    description: 'Dynamic Somali current boundary zone exhibiting intense seasonal coastal upwelling and mesoscale eddies.',
-    boundsLabel: '58°–71°E · 7°–14°N',
-    west: 58.0,
-    east: 71.0,
-    south: 7.0,
-    north: 14.0,
+    id: 'laccadive-sea',
+    name: 'Laccadive Sea',
+    label: 'Laccadive Sea',
+    description:
+      'Sea between southern India, the Maldives and Sri Lanka.',
+    boundsLabel: '72°–81°E · 0°–15°N',
+    west: 72,
+    east: 81,
+    south: 0,
+    north: 15,
     depthMin: 0,
     depthMax: 2000,
+    footprint: [
+      [72, 15],
+      [79, 15],
+      [81, 9],
+      [79, 2],
+      [73, 0],
+      [72, 7],
+    ],
+  },
+
+  {
+    id: 'java-sea',
+    name: 'Java Sea',
+    label: 'Java Sea',
+    description:
+      'Shallow sea of the Indonesian archipelago.',
+    boundsLabel: '104°–120°E · 8°S–2°N',
+    west: 104,
+    east: 120,
+    south: -8,
+    north: 2,
+    depthMin: 0,
+    depthMax: 2000,
+    footprint: [
+      [104, 2],
+      [120, 2],
+      [120, -5],
+      [116, -8],
+      [106, -7],
+      [104, -3],
+    ],
+  },
+
+  {
+    id: 'southern-ocean',
+    name: 'Southern Ocean',
+    label: 'Southern Ocean',
+    description:
+      'Southern Ocean observation domain surrounding Antarctica.',
+    boundsLabel: '20°E–147°E · 60°–90°S',
+    west: 20,
+    east: 147,
+    south: -90,
+    north: -60,
+    depthMin: 0,
+    depthMax: 2000,
+    footprint: [
+      [20, -60],
+      [147, -60],
+      [147, -90],
+      [20, -90],
+    ],
+  },
+];
+
+export const OCEAN_DOMAINS: OceanDomainDefinition[] = [
+  {
+    id: 'indian-ocean',
+    name: 'Indian Ocean',
+    label: 'Indian Ocean',
+    description:
+      'Indian Ocean analytical domain containing its selected marginal seas.',
+    footprint: [
+      [20, 30],
+      [80, 30],
+      [110, 25],
+      [147, 0],
+      [147, -60],
+      [20, -60],
+    ],
+    children: [
+      'arabian-sea',
+      'bay-of-bengal',
+      'andaman-sea',
+      'laccadive-sea',
+      'java-sea',
+    ],
+  },
+
+  {
+    id: 'southern-ocean',
+    name: 'Southern Ocean',
+    label: 'Southern Ocean',
+    description:
+      'Southern Ocean analytical domain surrounding Antarctica.',
+    footprint: [
+      [20, -60],
+      [147, -60],
+      [147, -90],
+      [20, -90],
+    ],
+    children: [
+      'southern-ocean',
+    ],
   },
 ];
 
@@ -262,13 +417,11 @@ export interface OceanStateSnapshot {
   activePage: ArielPage;
   underwaterRegion: UnderwaterRegionId | null;
   selectedObservation: SelectedObservation | null;
-  /** Large Observation Profile modal over the 3D Ocean (Webpage 2). */
   observationModalOpen: boolean;
-  /**
-   * Incremented when UI requests camera fly-to selected observation.
-   * OceanEngine watches this token; does not recreate the Cesium viewer.
-   */
   flyToObservationToken: number;
   time: Date;
+
+  selectedOceanDomain:
+    'indian-ocean' | 'southern-ocean' | null;
 }
 
