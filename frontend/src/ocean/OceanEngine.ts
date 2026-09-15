@@ -150,7 +150,7 @@ export class OceanEngine {
           );
 
           this.currentLayer.setVisible(
-            true,
+            false,
           );
 
           this.lastVariable =

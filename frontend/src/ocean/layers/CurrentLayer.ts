@@ -21,7 +21,7 @@ export class CurrentLayer {
   private maxLon = 100.0;
   private particleCount = 1800; // Optimal particle budget for smooth 60fps rendering
 
-  private active = true;
+  private active = false;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;

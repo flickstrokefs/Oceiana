@@ -169,30 +169,15 @@ export class DepthSliceRenderer {
       // 1. Render scalar field evaluated at exact depth
       this.renderFieldToCanvas(this.activeVariable, this.currentDepth);
 
-      // 2. Project canvas onto the ocean basin imagery layer
-      const rectangle = Cesium.Rectangle.fromDegrees(
-        this.minLon,
-        this.minLat,
-        this.maxLon,
-        this.maxLat
-      );
-
-      const providerPromise = Cesium.SingleTileImageryProvider.fromUrl(
-        this.canvas.toDataURL(),
-        { rectangle }
-      );
-
-      const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
-      newLayer.alpha = this.currentMode === 'underwater' ? 0.78 : 0.70;
-      newLayer.show = this.activeVariable !== 'current';
-
+// 2. Hide the generated depth-slice imagery.
+// The globe remains visible without the large colored analysis rectangle.
       const oldLayer = this.activeImageryLayer;
-      this.activeImageryLayer = newLayer;
-      this.viewer.imageryLayers.add(newLayer);
 
       if (oldLayer && !this.viewer.isDestroyed()) {
         this.viewer.imageryLayers.remove(oldLayer);
       }
+
+      this.activeImageryLayer = null;
 
       // 3. Underwater Mode: Show Glowing Stratum Boundary & HUD Badge
       const isUnderwaterAnalysis = this.currentMode === 'underwater';
