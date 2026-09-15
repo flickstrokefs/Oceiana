@@ -25,8 +25,28 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery) return;
-    // Provide instant feedback for search
-    alert(`Navigating to region: "${searchQuery}"`);
+    const q = searchQuery.toLowerCase().trim();
+
+    if (q.includes('bengal') || q === 'bob') {
+      OceanState.getInstance().requestFlyToLocation(15.0, 88.0, 1850000);
+    } else if (q.includes('arabian') || q === 'as') {
+      OceanState.getInstance().requestFlyToLocation(16.0, 65.0, 1850000);
+    } else if (q.includes('southern') || q.includes('antarct') || q === 'so') {
+      OceanState.getInstance().requestFlyToLocation(-58.0, 70.0, 3200000);
+    } else {
+      // Coordinate regex parser for "15.4 N, 72.2 E" or "15.4, 72.2"
+      const match = q.match(/(-?\d+\.?\d*)\s*[nNsS]?,?\s*(-?\d+\.?\d*)\s*[eEwW]?/);
+      if (match) {
+        const lat = parseFloat(match[1]);
+        const lon = parseFloat(match[2]);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          OceanState.getInstance().requestFlyToLocation(lat, lon, 850000);
+          return;
+        }
+      }
+      // Default to central region overview
+      OceanState.getInstance().requestFlyToLocation(14.0, 75.0, 2500000);
+    }
   };
 
   return (

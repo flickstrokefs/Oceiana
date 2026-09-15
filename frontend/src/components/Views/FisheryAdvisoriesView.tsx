@@ -6,10 +6,34 @@ export const FisheryAdvisoriesView: React.FC = () => {
   const [region, setRegion] = useState('Indian Ocean');
   const [timeRange, setTimeRange] = useState('Next 7 days');
   const [generating, setGenerating] = useState(false);
+  const [advisoryDate, setAdvisoryDate] = useState('12 Sep 2024');
+  const [zones, setZones] = useState([
+    { name: 'Eastern Arabian Sea', status: 'High productivity (thermal front)', dot: 'dot-green' },
+    { name: 'Persian Bay of Bengal', status: 'Good conditions', dot: 'dot-green' },
+    { name: 'Western Bay of Bengal', status: 'Good conditions', dot: 'dot-green' },
+    { name: 'Equatorial Indian Ocean', status: 'Moderate conditions', dot: 'dot-teal' },
+  ]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setGenerating(true);
-    setTimeout(() => setGenerating(false), 500);
+    try {
+      const res = await fetch(`/api/fishery/advisory?region=${encodeURIComponent(region)}&variable=${encodeURIComponent(variable)}&time_range=${encodeURIComponent(timeRange)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.generated_date) setAdvisoryDate(data.generated_date);
+        if (Array.isArray(data.recommended_zones)) {
+          setZones(data.recommended_zones.map((z: { name: string; status: string; rating: string }) => ({
+            name: z.name,
+            status: z.status,
+            dot: z.rating === 'FAVOURABLE' || z.rating === 'GOOD' ? 'dot-green' : 'dot-teal',
+          })));
+        }
+      }
+    } catch {
+      // Fall back smoothly
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -37,9 +61,10 @@ export const FisheryAdvisoriesView: React.FC = () => {
             value={region}
             onChange={(e) => setRegion(e.target.value)}
           >
-            <option value="Indian Ocean">Indian Ocean</option>
-            <option value="Arabian Sea (West Coast)">Arabian Sea (West Coast)</option>
-            <option value="Bay of Bengal (East Coast)">Bay of Bengal (East Coast)</option>
+            <option value="All Regions">All Regions (3 Basins)</option>
+            <option value="Arabian Sea">Arabian Sea (West Coast)</option>
+            <option value="Bay of Bengal">Bay of Bengal (East Coast)</option>
+            <option value="Southern Ocean">Southern Ocean (Subantarctic Front)</option>
           </select>
         </div>
 
@@ -155,8 +180,8 @@ export const FisheryAdvisoriesView: React.FC = () => {
         <div className="advisory-summary-panel">
           <div className="panel-head-between">
             <div className="adv-head-title">
-              <h3 className="panel-title">Advisory for Indian Ocean</h3>
-              <span className="adv-gen-date font-mono">Generated: 12 Sep 2024</span>
+              <h3 className="panel-title">Advisory for {region}</h3>
+              <span className="adv-gen-date font-mono">Generated: {advisoryDate}</span>
             </div>
             <Fish size={16} className="text-teal" />
           </div>
@@ -192,37 +217,15 @@ export const FisheryAdvisoriesView: React.FC = () => {
           <div className="recommended-zones-block">
             <span className="block-title">Recommended Zones</span>
             <div className="zones-list">
-              <div className="zone-item">
-                <span className="zone-bullet dot-green" />
-                <div className="zone-desc">
-                  <strong className="zone-name">Eastern Arabian Sea</strong>
-                  <span className="zone-status-text">High productivity (thermal front)</span>
+              {zones.map((z) => (
+                <div key={z.name} className="zone-item">
+                  <span className={`zone-bullet ${z.dot}`} />
+                  <div className="zone-desc">
+                    <strong className="zone-name">{z.name}</strong>
+                    <span className="zone-status-text">{z.status}</span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="zone-item">
-                <span className="zone-bullet dot-green" />
-                <div className="zone-desc">
-                  <strong className="zone-name">Persian Bay of Bengal</strong>
-                  <span className="zone-status-text">Good conditions</span>
-                </div>
-              </div>
-
-              <div className="zone-item">
-                <span className="zone-bullet dot-green" />
-                <div className="zone-desc">
-                  <strong className="zone-name">Western Bay of Bengal</strong>
-                  <span className="zone-status-text">Good conditions</span>
-                </div>
-              </div>
-
-              <div className="zone-item">
-                <span className="zone-bullet dot-teal" />
-                <div className="zone-desc">
-                  <strong className="zone-name">Equatorial Indian Ocean</strong>
-                  <span className="zone-status-text">Moderate conditions</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

@@ -55,11 +55,30 @@ export const SearchResourcesView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'search' | 'resources' | 'saved'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [datasetType, setDatasetType] = useState('All');
-  const [region, setRegion] = useState('Indian Ocean');
+  const [region, setRegion] = useState('All Regions');
   const [instrument, setInstrument] = useState('All');
   const [depthRange, setDepthRange] = useState('0 - 2000 m');
   const [timeRange, setTimeRange] = useState('2009 - 2024');
   const [source, setSource] = useState('All');
+  const [results, setResults] = useState<SearchResultItem[]>(SEARCH_ITEMS);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (datasetType && datasetType !== 'All') params.set('type', datasetType);
+    if (region) params.set('region', region);
+
+    fetch(`/api/search?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setResults(data);
+        }
+      })
+      .catch(() => {
+        // Fall back to static items
+      });
+  }, [searchQuery, datasetType, region]);
 
   const handleView = (item: SearchResultItem) => {
     if (item.type === 'Argo' || item.type === 'Glider') {
@@ -140,10 +159,10 @@ export const SearchResourcesView: React.FC = () => {
             value={region}
             onChange={(e) => setRegion(e.target.value)}
           >
-            <option value="Indian Ocean">Indian Ocean</option>
-            <option value="Arabian Sea">Arabian Sea</option>
+            <option value="All Regions">All Regions (3 Basins)</option>
             <option value="Bay of Bengal">Bay of Bengal</option>
-            <option value="Equatorial IO">Equatorial IO</option>
+            <option value="Arabian Sea">Arabian Sea</option>
+            <option value="Southern Ocean">Southern Ocean</option>
           </select>
         </div>
 
@@ -213,7 +232,7 @@ export const SearchResourcesView: React.FC = () => {
         </div>
 
         <div className="results-cards-grid">
-          {SEARCH_ITEMS.map((item) => (
+          {results.map((item) => (
             <div key={item.id} className="resource-result-card">
               <div className="res-card-top">
                 <div className="res-title-group">

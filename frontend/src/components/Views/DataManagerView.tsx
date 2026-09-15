@@ -64,6 +64,28 @@ export const DataManagerView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'upload' | 'sources' | 'configured'>('upload');
   const [datasets, setDatasets] = useState<DatasetEntry[]>(INITIAL_DATASETS);
   const [isDragging, setIsDragging] = useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/datasets')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((d: { id: string; name: string; type: string; variables: string; date_range: string; status: string }) => ({
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            variables: d.variables,
+            dateRange: d.date_range,
+            status: d.status as 'Loaded' | 'Processing' | 'Ready',
+          }));
+          setDatasets(mapped);
+        }
+      })
+      .catch(() => {
+        // Keep initial datasets fallback
+      });
+  }, []);
+
   const [detectedVars, setDetectedVars] = useState({
     lat: true,
     lon: true,

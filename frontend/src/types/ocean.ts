@@ -72,10 +72,9 @@ export interface GliderTrajectory {
 }
 
 export type UnderwaterRegionId =
+  | 'bay-of-bengal'
   | 'arabian-sea'
-  | 'western-indian-ocean'
-  | 'central-indian-ocean'
-  | 'eastern-indian-ocean';
+  | 'southern-ocean';
 
 export interface UnderwaterRegionDefinition {
   id: UnderwaterRegionId;
@@ -132,54 +131,41 @@ export interface UnderwaterRegionData {
 
 export const UNDERWATER_REGIONS: UnderwaterRegionDefinition[] = [
   {
+    id: 'bay-of-bengal',
+    name: 'Bay of Bengal',
+    label: 'Bay of Bengal',
+    description: 'Tropical low-salinity basin governed by intense monsoonal precipitation, river plumes, and East India Coastal Current dynamics.',
+    boundsLabel: '80°–94°E · 8°–22°N',
+    west: 80.0,
+    east: 94.0,
+    south: 8.0,
+    north: 22.0,
+    depthMin: 0,
+    depthMax: 2000,
+  },
+  {
     id: 'arabian-sea',
     name: 'Arabian Sea',
     label: 'Arabian Sea',
-    description: 'High-salinity evaporative basin influenced by seasonal monsoon gyres and prominent oxygen minimum zones.',
-    boundsLabel: '58°–71°E · 15°–22°N',
+    description: 'High-salinity evaporative basin influenced by seasonal monsoon gyres, Findlater jet, and prominent oxygen minimum zones.',
+    boundsLabel: '58°–72°E · 10°–22°N',
     west: 58.0,
-    east: 71.0,
-    south: 15.0,
+    east: 72.0,
+    south: 10.0,
     north: 22.0,
     depthMin: 0,
     depthMax: 2000,
   },
   {
-    id: 'central-indian-ocean',
-    name: 'Central Indian Ocean',
-    label: 'Central Indian Ocean',
-    description: 'Central equatorial basin featuring deep internal waves, equatorial jets, and dynamic thermocline stratification.',
-    boundsLabel: '73°–86°E · 15°–22°N',
-    west: 73.0,
-    east: 86.0,
-    south: 15.0,
-    north: 22.0,
-    depthMin: 0,
-    depthMax: 2000,
-  },
-  {
-    id: 'eastern-indian-ocean',
-    name: 'Eastern Indian Ocean',
-    label: 'Eastern Indian Ocean',
-    description: 'Freshwater-influenced tropical region driven by monsoonal precipitation and equatorial upwelling pulses.',
-    boundsLabel: '73°–86°E · 7°–14°N',
-    west: 73.0,
-    east: 86.0,
-    south: 7.0,
-    north: 14.0,
-    depthMin: 0,
-    depthMax: 2000,
-  },
-  {
-    id: 'western-indian-ocean',
-    name: 'Western Indian Ocean',
-    label: 'Western Indian Ocean',
-    description: 'Dynamic Somali current boundary zone exhibiting intense seasonal coastal upwelling and mesoscale eddies.',
-    boundsLabel: '58°–71°E · 7°–14°N',
-    west: 58.0,
-    east: 71.0,
-    south: 7.0,
-    north: 14.0,
+    id: 'southern-ocean',
+    name: 'Southern Ocean',
+    label: 'Southern Ocean',
+    description: 'Circumpolar Antarctic basin governed by the Antarctic Circumpolar Current (ACC), intense cryosphere interactions, and subpolar water masses.',
+    boundsLabel: '40°–90°E · 68°–52°S',
+    west: 40.0,
+    east: 90.0,
+    south: -68.0,
+    north: -52.0,
     depthMin: 0,
     depthMax: 2000,
   },
@@ -269,6 +255,18 @@ export interface OceanStateSnapshot {
    * OceanEngine watches this token; does not recreate the Cesium viewer.
    */
   flyToObservationToken: number;
+  /**
+   * Universal camera fly-to request for searches, regions, and coordinates.
+   */
+  flyToLocationRequest?: {
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    heading?: number;
+    pitch?: number;
+    duration?: number;
+    token: number;
+  } | null;
   time: Date;
 }
 

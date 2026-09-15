@@ -67,5 +67,14 @@ export function generateMockOceanDepthPoints(): OceanDepthPoint[] {
  * e.g., return await fetch('/api/ocean-depth-points').then(res => res.json());
  */
 export async function loadOceanDepthData(): Promise<OceanDepthPoint[]> {
+  try {
+    const res = await fetch('/api/ocean-depth-points', { signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) return data;
+    }
+  } catch {
+    // Fall back to local calculation if backend is offline
+  }
   return generateMockOceanDepthPoints();
 }

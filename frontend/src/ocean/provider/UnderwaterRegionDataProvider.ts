@@ -19,6 +19,20 @@ import {
 export async function fetchUnderwaterRegionData(
   query: UnderwaterRegionQuery
 ): Promise<UnderwaterRegionData> {
+  try {
+    const res = await fetch(`/api/regions/${encodeURIComponent(query.regionId)}/slice?depth=${query.depth}&var=${encodeURIComponent(query.variable)}`, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (res.ok) {
+      const liveData = await res.json();
+      if (liveData && Array.isArray(liveData.points) && liveData.points.length > 0) {
+        return liveData;
+      }
+    }
+  } catch {
+    // Fall back to local calculation if offline
+  }
+
   const region =
     UNDERWATER_REGIONS.find((r) => r.id === query.regionId) ||
     UNDERWATER_REGIONS[0];

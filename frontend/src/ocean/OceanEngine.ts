@@ -6,9 +6,10 @@ import { DepthSliceRenderer } from './layers/DepthSliceRenderer';
 import { CurrentLayer } from './layers/CurrentLayer';
 import { ObservationLayer } from './layers/ObservationLayer';
 import { getObservationFocusCoords } from '../services/observationService';
-import type { OceanMode, OceanVariable } from '../types/ocean';
+import type { OceanMode, OceanVariable, UnderwaterRegionId } from '../types/ocean';
 
 export class OceanEngine {
+  private viewer: Cesium.Viewer;
   private cameraController: CameraController;
   private underwaterEnv: UnderwaterEnvironment;
   private depthSliceRenderer: DepthSliceRenderer;
@@ -20,8 +21,11 @@ export class OceanEngine {
   private lastMode: OceanMode = 'surface';
   private lastDepth = 0;
   private lastFlyToken = 0;
+  private lastLocationFlyToken = 0;
+  private lastRegion: UnderwaterRegionId | null = null;
 
   constructor(viewer: Cesium.Viewer) {
+    this.viewer = viewer;
     this.underwaterEnv = new UnderwaterEnvironment(viewer);
     this.cameraController = new CameraController(viewer, this.underwaterEnv);
     this.depthSliceRenderer = new DepthSliceRenderer(viewer);
@@ -39,6 +43,7 @@ export class OceanEngine {
       const modeChanged = snapshot.mode !== this.lastMode;
       const depthChanged = snapshot.parameters.depth !== this.lastDepth;
       const varChanged = snapshot.activeVariable !== this.lastVariable;
+      const regionChanged = snapshot.underwaterRegion !== this.lastRegion;
 
       if (modeChanged || depthChanged) {
         if (modeChanged) {
@@ -58,6 +63,11 @@ export class OceanEngine {
         this.lastVariable = snapshot.activeVariable;
       }
 
+      if (regionChanged && snapshot.underwaterRegion) {
+        this.lastRegion = snapshot.underwaterRegion;
+        this.cameraController.flyToRegion(snapshot.underwaterRegion);
+      }
+
       // Show on Globe — fly existing camera; do not recreate Cesium / reset layers
       if (snapshot.flyToObservationToken !== this.lastFlyToken) {
         this.lastFlyToken = snapshot.flyToObservationToken;
@@ -68,13 +78,34 @@ export class OceanEngine {
         }
       }
 
+      // Universal Location / Region / Coordinate Fly-To
+      if (snapshot.flyToLocationRequest && snapshot.flyToLocationRequest.token !== this.lastLocationFlyToken) {
+        this.lastLocationFlyToken = snapshot.flyToLocationRequest.token;
+        this.cameraController.flyTo({
+          latitude: snapshot.flyToLocationRequest.latitude,
+          longitude: snapshot.flyToLocationRequest.longitude,
+          altitude: snapshot.flyToLocationRequest.altitude,
+          heading: snapshot.flyToLocationRequest.heading,
+          pitch: snapshot.flyToLocationRequest.pitch,
+          duration: snapshot.flyToLocationRequest.duration || 2.0,
+        });
+      }
+
       // Trigger update on depth slice renderer
       this.depthSliceRenderer.update();
     });
   }
 
+  public getCameraController(): CameraController {
+    return this.cameraController;
+  }
+
+  public getViewer(): Cesium.Viewer {
+    return this.viewer;
+  }
+
   public resetView(): void {
-    this.cameraController.setInitialView();
+    this.cameraController.resetCamera();
   }
 
   public destroy(): void {
@@ -84,6 +115,7 @@ export class OceanEngine {
     this.depthSliceRenderer.destroy();
     this.currentLayer.destroy();
     this.obsLayer.destroy();
+    this.cameraController.destroy();
     this.underwaterEnv.destroy();
   }
 }

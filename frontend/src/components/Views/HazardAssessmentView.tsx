@@ -12,17 +12,38 @@ const HAZARD_REGIONS: HazardRegion[] = [
   { name: 'Bay of Bengal', area: '98,000', maxValue: '2.1' },
   { name: 'Lakshadweep', area: '62,000', maxValue: '1.8' },
   { name: 'Andaman Sea', area: '40,000', maxValue: '1.7' },
-  { name: 'Equatorial IO', area: '110,000', maxValue: '2.5' },
+  { name: 'Southern Ocean Polar Front', area: '160,000', maxValue: '2.8' },
 ];
 
 export const HazardAssessmentView: React.FC = () => {
   const [variable, setVariable] = useState('Current Speed (m/s)');
   const [threshold, setThreshold] = useState('1.5');
   const [analyzing, setAnalyzing] = useState(false);
+  const [hazardRegions, setHazardRegions] = useState<HazardRegion[]>(HAZARD_REGIONS);
 
-  const handleRunAnalysis = () => {
+  const handleRunAnalysis = async () => {
     setAnalyzing(true);
-    setTimeout(() => setAnalyzing(false), 600);
+    try {
+      const res = await fetch('/api/hazard/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          variable,
+          threshold: parseFloat(threshold) || 1.5,
+          region: 'Indian Ocean',
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.regions)) {
+          setHazardRegions(data.regions);
+        }
+      }
+    } catch {
+      // Fall back smoothly
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -186,7 +207,7 @@ export const HazardAssessmentView: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {HAZARD_REGIONS.map((r) => (
+              {hazardRegions.map((r) => (
                 <tr key={r.name}>
                   <td className="font-medium text-white">{r.name}</td>
                   <td className="font-mono text-slate-300">{r.area}</td>

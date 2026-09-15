@@ -25,11 +25,20 @@ export const SettingsView: React.FC = () => {
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [savedStatus, setSavedStatus] = useState(false);
 
-  const handleTestConnection = () => {
+  const handleTestConnection = async () => {
     setTestStatus('Testing...');
-    setTimeout(() => {
-      setTestStatus('Connected · Latency 42ms');
-    }, 450);
+    const t0 = performance.now();
+    try {
+      const res = await fetch('/api/health', { signal: AbortSignal.timeout(3000) });
+      const lat = Math.round(performance.now() - t0);
+      if (res.ok) {
+        setTestStatus(`Connected · Latency ${lat}ms (Live Ariel Backend)`);
+      } else {
+        setTestStatus(`Error · HTTP ${res.status}`);
+      }
+    } catch {
+      setTestStatus('Failed · Backend offline on :8000');
+    }
   };
 
   const handleSave = () => {

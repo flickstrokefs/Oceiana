@@ -33,6 +33,16 @@ export class OceanState {
   private selectedObservation: SelectedObservation | null = null;
   private observationModalOpen = false;
   private flyToObservationToken = 0;
+  private flyToLocationRequest: {
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    heading?: number;
+    pitch?: number;
+    duration?: number;
+    token: number;
+  } | null = null;
+  private flyToLocationToken = 0;
   private time: Date = new Date();
 
   private provider: OceanDataProvider;
@@ -68,6 +78,7 @@ export class OceanState {
       selectedObservation: this.selectedObservation,
       observationModalOpen: this.observationModalOpen,
       flyToObservationToken: this.flyToObservationToken,
+      flyToLocationRequest: this.flyToLocationRequest ? { ...this.flyToLocationRequest } : null,
       time: new Date(this.time),
     };
   }
@@ -192,6 +203,31 @@ export class OceanState {
     this.observationModalOpen = false;
     this.flyToObservationToken += 1;
     this.notify();
+  }
+
+  public requestFlyToLocation(
+    latitude: number,
+    longitude: number,
+    altitude?: number,
+    heading?: number,
+    pitch?: number,
+    duration?: number
+  ): void {
+    this.flyToLocationToken += 1;
+    this.flyToLocationRequest = {
+      latitude,
+      longitude,
+      altitude,
+      heading,
+      pitch,
+      duration,
+      token: this.flyToLocationToken,
+    };
+    this.notify();
+  }
+
+  public requestResetCamera(): void {
+    this.requestFlyToLocation(14.0, 75.0, 4200000, 0, -72, 2.0);
   }
 
   public subscribe(listener: OceanStateListener): () => void {

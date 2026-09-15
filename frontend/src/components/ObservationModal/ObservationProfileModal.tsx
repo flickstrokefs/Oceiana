@@ -346,7 +346,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
               >
                 <option value="Arabian Sea">Arabian Sea</option>
                 <option value="Bay of Bengal">Bay of Bengal</option>
-                <option value="Equatorial Indian Ocean">Equatorial Indian Ocean</option>
+                <option value="Southern Ocean">Southern Ocean</option>
               </select>
             </div>
 
