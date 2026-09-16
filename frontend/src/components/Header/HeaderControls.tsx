@@ -10,12 +10,17 @@ interface HeaderControlsProps {
 export const HeaderControls: React.FC<HeaderControlsProps> = ({
   onToggleSidebar,
 }) => {
-  const [viewMode, setViewMode] = useState<'3d-ocean' | 'depth-slice' | 'isosurface'>('3d-ocean');
+  const [viewMode, setViewMode] = useState<
+    '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
+  >('3d-ocean');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleModeClick = (mode: '3d-ocean' | 'depth-slice' | 'isosurface') => {
+  const handleModeClick = (
+    mode: '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
+  ) => {
     setViewMode(mode);
-    if (mode === 'depth-slice') {
+
+    if (mode === 'underwater' || mode === 'depth-slice') {
       OceanState.getInstance().setMode('underwater');
     } else {
       OceanState.getInstance().setMode('surface');
@@ -67,7 +72,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
           <span className="brand-org-tag">INCOIS</span>
           <div className="brand-titles-wrap">
             <span className="brand-main-title">OCEIANA</span>
-            <span className="brand-sub-title">3D Ocean Data Visualization</span>
+            <span className="brand-sub-title">Surface Data Visualization</span>
           </div>
         </div>
       </div>
@@ -90,21 +95,39 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
       <div className="top-mode-pills">
         <button
           type="button"
-          className={`mode-pill-btn ${viewMode === '3d-ocean' ? 'mode-pill-active' : ''}`}
+          className={`mode-pill-btn ${
+            viewMode === '3d-ocean' ? 'mode-pill-active' : ''
+          }`}
           onClick={() => handleModeClick('3d-ocean')}
         >
-          3D Ocean
+          Surface
         </button>
+
         <button
           type="button"
-          className={`mode-pill-btn ${viewMode === 'depth-slice' ? 'mode-pill-active' : ''}`}
+          className={`mode-pill-btn ${
+            viewMode === 'underwater' ? 'mode-pill-active' : ''
+          }`}
+          onClick={() => handleModeClick('underwater')}
+        >
+          Underwater
+        </button>
+
+        <button
+          type="button"
+          className={`mode-pill-btn ${
+            viewMode === 'depth-slice' ? 'mode-pill-active' : ''
+          }`}
           onClick={() => handleModeClick('depth-slice')}
         >
           Depth Slice
         </button>
+
         <button
           type="button"
-          className={`mode-pill-btn ${viewMode === 'isosurface' ? 'mode-pill-active' : ''}`}
+          className={`mode-pill-btn ${
+            viewMode === 'isosurface' ? 'mode-pill-active' : ''
+          }`}
           onClick={() => handleModeClick('isosurface')}
         >
           Isosurface
@@ -120,13 +143,17 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
         >
           Home
         </button>
+
         <button
           type="button"
           className="top-nav-link"
-          onClick={() => OceanState.getInstance().setActivePage('data-manager')}
+          onClick={() =>
+            OceanState.getInstance().setActivePage('data-manager')
+          }
         >
           Datasets
         </button>
+
         <button
           type="button"
           className="top-nav-link"
@@ -134,6 +161,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
         >
           Settings
         </button>
+
         <button
           type="button"
           className="top-nav-link"
@@ -142,7 +170,10 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
           Help
         </button>
 
-        <div className="user-avatar-badge" title="Forecaster Session (Active)">
+        <div
+          className="user-avatar-badge"
+          title="Forecaster Session (Active)"
+        >
           <User size={14} />
         </div>
       </div>

@@ -30,6 +30,8 @@ export class OceanState {
   private activeVariable: OceanVariable = 'temperature';
   private activePage: ArielPage = '3d-ocean';
   private underwaterRegion: UnderwaterRegionId | null = null;
+  private selectedOceanDomain:
+  'indian-ocean' | 'southern-ocean' | null = null;
   private selectedObservation: SelectedObservation | null = null;
   private observationModalOpen = false;
   private flyToObservationToken = 0;
@@ -68,20 +70,34 @@ export class OceanState {
     return this.provider;
   }
 
-  public getSnapshot(): OceanStateSnapshot {
-    return {
-      parameters: { ...this.parameters },
-      mode: this.mode,
-      activeVariable: this.activeVariable,
-      activePage: this.activePage,
-      underwaterRegion: this.underwaterRegion,
-      selectedObservation: this.selectedObservation,
-      observationModalOpen: this.observationModalOpen,
-      flyToObservationToken: this.flyToObservationToken,
-      flyToLocationRequest: this.flyToLocationRequest ? { ...this.flyToLocationRequest } : null,
-      time: new Date(this.time),
-    };
-  }
+
+private meshResolution: 7 | 9 | 12 = 9;
+
+public setMeshResolution(resolution: 7 | 9 | 12): void {
+  if (this.meshResolution === resolution) return;
+
+  this.meshResolution = resolution;
+  this.notify();
+}
+
+public getMeshResolution(): 7 | 9 | 12 {
+  return this.meshResolution;
+}
+
+public getSnapshot(): OceanStateSnapshot {
+return {
+  parameters: { ...this.parameters },
+  mode: this.mode,
+  activeVariable: this.activeVariable,
+  activePage: this.activePage,
+  underwaterRegion: this.underwaterRegion,
+  selectedObservation: this.selectedObservation,
+  observationModalOpen: this.observationModalOpen,
+  flyToObservationToken: this.flyToObservationToken,
+  time: new Date(this.time),
+  selectedOceanDomain: this.selectedOceanDomain,
+};
+}
 
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {
@@ -134,12 +150,44 @@ export class OceanState {
     }
   }
 
-  public setUnderwaterRegion(region: UnderwaterRegionId | null): void {
-    if (this.underwaterRegion !== region) {
-      this.underwaterRegion = region;
-      this.notify();
-    }
+  public setUnderwaterRegion(
+  region: UnderwaterRegionId | null,
+): void {
+  if (this.underwaterRegion === region) {
+    return;
   }
+
+  this.underwaterRegion = region;
+
+  if (region === 'southern-ocean') {
+    this.selectedOceanDomain = 'southern-ocean';
+  } else if (region) {
+    this.selectedOceanDomain = 'indian-ocean';
+  }
+
+  this.notify();
+}
+
+  public setOceanDomain(
+  domain: 'indian-ocean' | 'southern-ocean' | null,
+): void {
+  this.selectedOceanDomain = domain;
+
+  if (domain === 'indian-ocean') {
+    this.underwaterRegion = null;
+  }
+
+  if (domain === 'southern-ocean') {
+    this.underwaterRegion = 'southern-ocean';
+  }
+
+  this.notify();
+}
+
+public getSelectedOceanDomain():
+  'indian-ocean' | 'southern-ocean' | null {
+  return this.selectedOceanDomain;
+}
 
   public getUnderwaterRegion(): UnderwaterRegionId | null {
     return this.underwaterRegion;
