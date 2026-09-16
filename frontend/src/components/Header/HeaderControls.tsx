@@ -1,26 +1,25 @@
 import React, { useState } from 'react';
 import { OceanState } from '../../ocean/OceanState';
-import type { OceanMode, OceanVariable } from '../../types/ocean';
-import { Compass, Waves } from 'lucide-react';
+import { Search, Menu, User } from 'lucide-react';
 
 interface HeaderControlsProps {
   onToggleSidebar?: () => void;
   onResetView?: () => void;
 }
 
-export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) => {
-  const [mode, setMode] = useState<OceanMode>('surface');
-  const [activeVar, setActiveVar] = useState<OceanVariable>('temperature');
-  const [depth, setDepth] = useState<number>(0);
+export const HeaderControls: React.FC<HeaderControlsProps> = ({
+  onToggleSidebar,
+  onResetView,
+}) => {
+  const [viewMode, setViewMode] = useState<
+    '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
+  >('3d-ocean');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const unsub = OceanState.getInstance().subscribe((snapshot) => {
-      setMode(snapshot.mode);
-      setActiveVar(snapshot.activeVariable);
-      setDepth(snapshot.parameters.depth);
-    });
-    return unsub;
-  }, []);
+  const handleModeClick = (
+    mode: '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
+  ) => {
+    setViewMode(mode);
 
     if (mode === 'underwater' || mode === 'depth-slice') {
       OceanState.getInstance().setMode('underwater');
@@ -57,22 +56,25 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) =
   };
 
   return (
-    <header className="header-controls">
-      <div className="brand-group">
-        <div className="brand-title">
-          <span className="brand-primary">OCEAN-X</span>
-          <span className="brand-sub">DIGITAL OCEAN ENGINE</span>
-        </div>
-        <div className="telemetry-tag">
-          <span className="dot-active"></span>
-          {mode === 'underwater' ? (
-            <span className="flex items-center gap-1">
-              <Waves size={12} className="inline mr-1" />
-              STRATUM: -{depth}m
-            </span>
-          ) : (
-            'INDIAN OCEAN // ARABIAN SEA'
-          )}
+    <header className="ariel-top-header">
+      {/* Brand & Menu Bar Group */}
+      <div className="top-brand-group">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            className="header-menu-toggle"
+            onClick={onToggleSidebar}
+            title="Toggle Sidebar"
+            aria-label="Toggle Sidebar"
+          >
+            <Menu size={14} />
+          </button>
+        )}
+        <div className="brand-logo-text-horiz">
+          <span className="brand-org-tag">INCOIS</span>
+          <span className="brand-divider">/</span>
+          <span className="brand-main-title">ARIEL</span>
+          <span className="brand-sub-title">Advanced Ocean Intelligence</span>
         </div>
 
         {/* Desktop Menu Bar (Section 9) */}
@@ -193,7 +195,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({ onResetView }) =
           }`}
           onClick={() => handleModeClick('isosurface')}
         >
-          {mode === 'underwater' ? `UNDERWATER (${depth}m)` : 'UNDERWATER'}
+          Isosurface
         </button>
       </div>
 

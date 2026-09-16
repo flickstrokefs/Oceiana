@@ -52,8 +52,8 @@ export class DepthSliceRenderer {
         ]),
         width: 2.5,
         material: new Cesium.PolylineGlowMaterialProperty({
-          glowPower: 0.1,
-          color: Cesium.Color.fromCssColorString('#2d5e94').withAlpha(0.85),
+          glowPower: 0.3,
+          color: Cesium.Color.fromCssColorString('#00f0ff').withAlpha(0.75),
         }),
       },
     });
@@ -74,7 +74,7 @@ export class DepthSliceRenderer {
         }, false),
         font: 'bold 12px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Cesium.Color.fromCssColorString('#f0f2f6'),
+        fillColor: Cesium.Color.fromCssColorString('#00f0ff'),
         outlineColor: Cesium.Color.BLACK,
         outlineWidth: 4,
         verticalOrigin: Cesium.VerticalOrigin.TOP,
@@ -169,30 +169,15 @@ export class DepthSliceRenderer {
       // 1. Render scalar field evaluated at exact depth
       this.renderFieldToCanvas(this.activeVariable, this.currentDepth);
 
-      // 2. Project canvas onto the ocean basin imagery layer
-      const rectangle = Cesium.Rectangle.fromDegrees(
-        this.minLon,
-        this.minLat,
-        this.maxLon,
-        this.maxLat
-      );
-
-      const providerPromise = Cesium.SingleTileImageryProvider.fromUrl(
-        this.canvas.toDataURL(),
-        { rectangle }
-      );
-
-      const newLayer = Cesium.ImageryLayer.fromProviderAsync(providerPromise);
-      newLayer.alpha = this.currentMode === 'underwater' ? 0.78 : 0.70;
-      newLayer.show = this.activeVariable !== 'current';
-
+// 2. Hide the generated depth-slice imagery.
+// The globe remains visible without the large colored analysis rectangle.
       const oldLayer = this.activeImageryLayer;
-      this.activeImageryLayer = newLayer;
-      this.viewer.imageryLayers.add(newLayer);
 
       if (oldLayer && !this.viewer.isDestroyed()) {
         this.viewer.imageryLayers.remove(oldLayer);
       }
+
+      this.activeImageryLayer = null;
 
       // 3. Underwater Mode: Show Glowing Stratum Boundary & HUD Badge
       const isUnderwaterAnalysis = this.currentMode === 'underwater';
