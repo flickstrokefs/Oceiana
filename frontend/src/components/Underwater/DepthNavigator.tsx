@@ -64,38 +64,32 @@ export const DepthNavigator: React.FC =
 
     const depthPresets = [
       {
-        label:
-          'Surface',
+        label: 'Surface',
         value: 0,
         tag: '0m',
       },
       {
-        label:
-          'Epipelagic',
+        label: 'Epipelagic',
         value: 100,
         tag: '100m',
       },
       {
-        label:
-          'Thermocline',
+        label: 'Thermocline',
         value: 200,
         tag: '200m',
       },
       {
-        label:
-          'Mesopelagic',
+        label: 'Mesopelagic',
         value: 500,
         tag: '500m',
       },
       {
-        label:
-          'Bathypelagic',
+        label: 'Bathypelagic',
         value: 1000,
         tag: '1000m',
       },
       {
-        label:
-          'Abyssal',
+        label: 'Abyssal',
         value: 2000,
         tag: '2000m',
       },
@@ -103,66 +97,40 @@ export const DepthNavigator: React.FC =
 
     return (
       <aside
-        className="ocean-panel depth-navigator-panel"
-        style={{
-          transition:
-            'width 0.25s ease, min-width 0.25s ease',
-
-          width:
-            collapsed
-              ? '44px'
-              : undefined,
-
-          minWidth:
-            collapsed
-              ? '44px'
-              : undefined,
-
-          overflow:
-            'hidden',
-        }}
+        className={`ocean-panel depth-navigator-panel ${
+          collapsed
+            ? 'underwater-side-panel-collapsed'
+            : ''
+        }`}
       >
-
         <div
           className="panel-header"
           style={{
-            position:
-              'relative',
-
-            minWidth:
-              collapsed
-                ? '44px'
-                : undefined,
+            position: 'relative',
           }}
         >
-
           {!collapsed && (
-            <div className="panel-title-group">
-              <Waves
-                className="icon-cyan animate-pulse-slow"
-                size={18}
-              />
+            <>
+              <div className="panel-title-group">
+                <Waves
+                  className="icon-cyan animate-pulse-slow"
+                  size={18}
+                />
 
-              <h2 className="panel-title">
-                DEPTH NAVIGATOR
-              </h2>
-            </div>
+                <h2 className="panel-title">
+                  DEPTH NAVIGATOR
+                </h2>
+              </div>
+
+              <span className="badge-live">
+                3D SLICE
+              </span>
+            </>
           )}
 
-          {collapsed && (
-            <Waves
-              className="icon-cyan"
-              size={17}
-            />
-          )}
-
-          {!collapsed && (
-            <span className="badge-live">
-              3D SLICE
-            </span>
-          )}
-
+          {/* ONLY ONE COLLAPSE BUTTON */}
           <button
+            type="button"
             onClick={() =>
               setCollapsed(
                 (value) =>
@@ -174,71 +142,27 @@ export const DepthNavigator: React.FC =
                 ? 'Expand Depth Navigator'
                 : 'Collapse Depth Navigator'
             }
-            style={{
-              position:
-                'absolute',
-
-              right:
-                collapsed
-                  ? '5px'
-                  : '6px',
-
-              top:
-                '50%',
-
-              transform:
-                'translateY(-50%)',
-
-              width:
-                '24px',
-
-              height:
-                '24px',
-
-              display:
-                'flex',
-
-              alignItems:
-                'center',
-
-              justifyContent:
-                'center',
-
-              border:
-                '1px solid rgba(0,240,255,0.40)',
-
-              borderRadius:
-                '5px',
-
-              background:
-                'rgba(0,20,35,0.90)',
-
-              color:
-                '#00f0ff',
-
-              cursor:
-                'pointer',
-
-              zIndex:
-                20,
-            }}
+            aria-label={
+              collapsed
+                ? 'Expand Depth Navigator'
+                : 'Collapse Depth Navigator'
+            }
+            className="underwater-panel-collapse-button"
           >
             {collapsed ? (
               <ChevronLeft
-                size={13}
+                size={14}
               />
             ) : (
               <ChevronRight
-                size={13}
+                size={14}
               />
             )}
           </button>
-
         </div>
 
         {!collapsed && (
           <>
-
             <div className="depth-readout-card">
 
               <div className="depth-primary-row">
@@ -350,6 +274,7 @@ export const DepthNavigator: React.FC =
               <div className="depth-step-controls">
 
                 <button
+                  type="button"
                   onClick={() =>
                     handleDepthChange(
                       depth -
@@ -370,6 +295,7 @@ export const DepthNavigator: React.FC =
                 </button>
 
                 <button
+                  type="button"
                   onClick={() =>
                     handleDepthChange(
                       depth +
@@ -414,6 +340,7 @@ export const DepthNavigator: React.FC =
 
                     return (
                       <button
+                        type="button"
                         key={
                           preset.value
                         }
@@ -447,10 +374,8 @@ export const DepthNavigator: React.FC =
               </div>
 
             </div>
-
           </>
         )}
-
       </aside>
     );
   };
