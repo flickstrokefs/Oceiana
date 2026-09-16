@@ -4,7 +4,6 @@ import { OceanState } from './OceanState';
 
 import { CameraController } from '../cesium/CameraController';
 import { UnderwaterEnvironment } from '../cesium/UnderwaterEnvironment';
-
 import { DepthSliceRenderer } from './layers/DepthSliceRenderer';
 import { CurrentLayer } from './layers/CurrentLayer';
 import { ObservationLayer } from './layers/ObservationLayer';
@@ -22,7 +21,6 @@ export class OceanEngine {
   private viewer: Cesium.Viewer;
   private cameraController: CameraController;
   private underwaterEnv: UnderwaterEnvironment;
-
   private depthSliceRenderer: DepthSliceRenderer;
   private currentLayer: CurrentLayer;
   private obsLayer: ObservationLayer;
@@ -38,30 +36,11 @@ export class OceanEngine {
   private lastFlyToken = 0;
 
   constructor(viewer: Cesium.Viewer) {
-    this.viewer = viewer;
-    this.underwaterEnv =
-      new UnderwaterEnvironment(viewer);
-
-    this.cameraController =
-      new CameraController(
-        viewer,
-        this.underwaterEnv,
-      );
-
-    this.depthSliceRenderer =
-      new DepthSliceRenderer(viewer);
-
-    this.currentLayer =
-      new CurrentLayer(viewer);
-
-    this.obsLayer =
-      new ObservationLayer(viewer);
-
-    this.underwaterVolumeLayer =
-      new UnderwaterVolumeLayer(viewer);
-
-    this.oceanDomainLayer =
-      new OceanDomainLayer(viewer);
+    this.underwaterEnv = new UnderwaterEnvironment(viewer);
+    this.cameraController = new CameraController(viewer, this.underwaterEnv);
+    this.depthSliceRenderer = new DepthSliceRenderer(viewer);
+    this.currentLayer = new CurrentLayer(viewer);
+    this.obsLayer = new ObservationLayer(viewer);
 
     this.cameraController.setInitialView();
 
@@ -69,145 +48,34 @@ export class OceanEngine {
   }
 
   private bindState(): void {
-    const oceanState =
-      OceanState.getInstance();
+    const oceanState = OceanState.getInstance();
 
-    this.unsubscribeState =
-      oceanState.subscribe((snapshot) => {
-        const modeChanged =
-          snapshot.mode !== this.lastMode;
+    this.unsubscribeState = oceanState.subscribe((snapshot) => {
+      const modeChanged = snapshot.mode !== this.lastMode;
+      const depthChanged = snapshot.parameters.depth !== this.lastDepth;
+      const varChanged = snapshot.activeVariable !== this.lastVariable;
 
-        const depthChanged =
-          snapshot.parameters.depth !==
-          this.lastDepth;
-
-        const varChanged =
-          snapshot.activeVariable !==
-          this.lastVariable;
-
-        // ------------------------------------------------------
-        // MODE / DEPTH
-        // ------------------------------------------------------
-
-        if (modeChanged || depthChanged) {
-          if (modeChanged) {
-            this.cameraController.setMode(
-              snapshot.mode,
-              snapshot.parameters.depth,
-            );
-
-            this.depthSliceRenderer.setMode(
-              snapshot.mode,
-              snapshot.parameters.depth,
-            );
-
-            this.oceanDomainLayer.setVisible(
-              snapshot.mode === 'underwater',
-            );
-
-            this.underwaterVolumeLayer.setVisible(
-              snapshot.mode === 'underwater',
-            );
-          } else {
-            this.cameraController.setDepth(
-              snapshot.parameters.depth,
-            );
-
-            this.depthSliceRenderer.setDepth(
-              snapshot.parameters.depth,
-            );
-          }
-
-          this.lastMode =
-            snapshot.mode;
-
-          this.lastDepth =
-            snapshot.parameters.depth;
+      if (modeChanged || depthChanged) {
+        if (modeChanged) {
+          this.cameraController.setMode(snapshot.mode, snapshot.parameters.depth);
+          this.depthSliceRenderer.setMode(snapshot.mode, snapshot.parameters.depth);
+        } else {
+          this.cameraController.setDepth(snapshot.parameters.depth);
+          this.depthSliceRenderer.setDepth(snapshot.parameters.depth);
         }
+        this.lastMode = snapshot.mode;
+        this.lastDepth = snapshot.parameters.depth;
+      }
 
-        // ------------------------------------------------------
-        // UNDERWATER REGION
-        // ------------------------------------------------------
+      if (varChanged) {
+        this.depthSliceRenderer.setVariable(snapshot.activeVariable);
+        this.currentLayer.setVisible(true);
+        this.lastVariable = snapshot.activeVariable;
+      }
 
-        if (
-          snapshot.mode === 'underwater'
-        ) {
-          this.underwaterVolumeLayer.setRegion(
-            snapshot.underwaterRegion,
-          );
-
-          this.underwaterVolumeLayer.setDepth(
-            snapshot.parameters.depth,
-            snapshot.activeVariable,
-          );
-        }
-
-        // ------------------------------------------------------
-        // VARIABLE
-        // ------------------------------------------------------
-
-        if (varChanged) {
-          this.depthSliceRenderer.setVariable(
-            snapshot.activeVariable,
-          );
-
-          this.currentLayer.setVisible(
-            false,
-          );
-
-          this.lastVariable =
-            snapshot.activeVariable;
-
-          if (
-            snapshot.mode === 'underwater'
-          ) {
-            this.underwaterVolumeLayer.setDepth(
-              snapshot.parameters.depth,
-              snapshot.activeVariable,
-            );
-          }
-        }
-
-        // ------------------------------------------------------
-        // SHOW OBSERVATION ON GLOBE
-        // ------------------------------------------------------
-
-        if (
-          snapshot.flyToObservationToken !==
-          this.lastFlyToken
-        ) {
-          this.lastFlyToken =
-            snapshot.flyToObservationToken;
-
-          if (
-            snapshot.selectedObservation
-          ) {
-            const focus =
-              getObservationFocusCoords(
-                snapshot.selectedObservation,
-              );
-
-            this.cameraController.flyToObservation(
-              focus.longitude,
-              focus.latitude,
-            );
-
-            this.obsLayer.applyHighlight(
-              focus.id,
-            );
-          }
-        }
-
-        this.depthSliceRenderer.update();
-      });
-  }
-
-  public getCameraController(): CameraController {
-    return this.cameraController;
-  }
-
-  public getViewer(): Cesium.Viewer {
-    return this.viewer;
+      // Trigger update on depth slice renderer
+      this.depthSliceRenderer.update();
+    });
   }
 
   public resetView(): void {
@@ -219,10 +87,6 @@ export class OceanEngine {
       this.unsubscribeState();
       this.unsubscribeState = null;
     }
-
-    this.oceanDomainLayer.destroy();
-    this.underwaterVolumeLayer.destroy();
-
     this.depthSliceRenderer.destroy();
     this.currentLayer.destroy();
     this.obsLayer.destroy();
