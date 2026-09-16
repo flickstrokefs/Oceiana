@@ -9,6 +9,7 @@ interface HeaderControlsProps {
 
 export const HeaderControls: React.FC<HeaderControlsProps> = ({
   onToggleSidebar,
+  onResetView,
 }) => {
   const [viewMode, setViewMode] = useState<
     '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
@@ -56,45 +57,103 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
 
   return (
     <header className="ariel-top-header">
-      {/* Brand Group */}
+      {/* Brand & Menu Bar Group */}
       <div className="top-brand-group">
         {onToggleSidebar && (
           <button
             type="button"
             className="header-menu-toggle"
             onClick={onToggleSidebar}
-            title="Toggle ARIEL Sidebar"
+            title="Toggle Sidebar"
+            aria-label="Toggle Sidebar"
           >
-            <Menu size={16} />
+            <Menu size={14} />
           </button>
         )}
         <div className="brand-logo-text-horiz">
           <span className="brand-org-tag">INCOIS</span>
-          <div className="brand-titles-wrap">
-            <span className="brand-main-title">OCEIANA</span>
-            <span className="brand-sub-title">Surface Data Visualization</span>
-          </div>
+          <span className="brand-divider">/</span>
+          <span className="brand-main-title">ARIEL</span>
+          <span className="brand-sub-title">Advanced Ocean Intelligence</span>
         </div>
+
+        {/* Desktop Menu Bar (Section 9) */}
+        <nav className="desktop-menu-bar" aria-label="Application Menu">
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() => onResetView?.()}
+            title="File menu"
+          >
+            File
+          </button>
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() => onResetView?.()}
+            title="Reset Camera View"
+          >
+            View
+          </button>
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() => OceanState.getInstance().setActivePage('3d-ocean')}
+            title="Toggle layers"
+          >
+            Layers
+          </button>
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() => OceanState.getInstance().setActivePage('obs-profile')}
+            title="Open Observation Profile Analysis"
+          >
+            Tools
+          </button>
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() => onResetView?.()}
+            title="Window view"
+          >
+            Window
+          </button>
+          <button
+            type="button"
+            className="menu-bar-item"
+            onClick={() =>
+              alert(
+                'ARIEL Ocean Intelligence Platform\nINCOIS / Ministry of Earth Sciences\nProblem Statement: SIH26067'
+              )
+            }
+            title="Help & Reference"
+          >
+            Help
+          </button>
+        </nav>
       </div>
 
-      {/* Center Search Bar */}
+      {/* Center Search Bar - Rectangular, restrained */}
       <form className="top-search-form" onSubmit={handleSearchSubmit}>
         <div className="search-input-container">
-          <Search size={14} className="search-icon" />
+          <Search size={13} className="search-icon" />
           <input
             type="text"
             className="search-input"
-            placeholder="Search location (e.g., Arabian Sea or 15.6 N, 72.2 E)"
+            placeholder="Search location (e.g. Arabian Sea or 15.4 N, 73.2 E)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </form>
 
-      {/* Center Mode Selector Buttons */}
-      <div className="top-mode-pills">
+      {/* Center Mode Selector Buttons - Compact rectangular */}
+      <div className="top-mode-pills" role="tablist" aria-label="Visualization Mode">
         <button
           type="button"
+          role="tab"
+          aria-selected={viewMode === '3d-ocean'}
           className={`mode-pill-btn ${
             viewMode === '3d-ocean' ? 'mode-pill-active' : ''
           }`}
@@ -105,6 +164,8 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
 
         <button
           type="button"
+          role="tab"
+          aria-selected={viewMode === 'underwater'}
           className={`mode-pill-btn ${
             viewMode === 'underwater' ? 'mode-pill-active' : ''
           }`}
@@ -115,6 +176,8 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
 
         <button
           type="button"
+          role="tab"
+          aria-selected={viewMode === 'depth-slice'}
           className={`mode-pill-btn ${
             viewMode === 'depth-slice' ? 'mode-pill-active' : ''
           }`}
@@ -125,6 +188,8 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
 
         <button
           type="button"
+          role="tab"
+          aria-selected={viewMode === 'isosurface'}
           className={`mode-pill-btn ${
             viewMode === 'isosurface' ? 'mode-pill-active' : ''
           }`}
@@ -165,16 +230,20 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
         <button
           type="button"
           className="top-nav-link"
-          onClick={() => alert('ARIEL Documentation & Help Center')}
+          onClick={() =>
+            alert(
+              'ARIEL Documentation & Help Center\nINCOIS / Ministry of Earth Sciences'
+            )
+          }
         >
           Help
         </button>
 
         <div
           className="user-avatar-badge"
-          title="Forecaster Session (Active)"
+          title="INCOIS Forecaster Session (Operational)"
         >
-          <User size={14} />
+          <User size={13} />
         </div>
       </div>
     </header>

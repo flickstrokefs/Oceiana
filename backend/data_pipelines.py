@@ -1,34 +1,54 @@
+# data_pipelines.py
+# Fetch ocean model data (CMEMS), Argo profiles, and INCOIS ERDDAP data
+# strictly bounded to authorized ocean regions (Indian Ocean & Southern Ocean)
+# and save into data/raw/
+
 import os
+import sys
+from pathlib import Path
+from datetime import datetime, timedelta
 import xarray as xr
 import pandas as pd
 import numpy as np
 import argopy
-# data_pipelines.py
-# Fetch ocean model data (CMEMS), Argo profiles, and INCOIS ERDDAP data
-# for a common region/time window and save into data/raw/
 
-import os
-from datetime import datetime, timedelta
+# Ensure backend root is on sys.path for app imports
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
+from app.core.regions import (
+    REGION_ARABIAN_SEA,
+    REGION_BAY_OF_BENGAL,
+    REGION_SOUTHERN_OCEAN,
+    filter_dataframe_to_authorized_regions,
+    validate_region,
+    get_macro_region,
+    normalize_longitude,
+)
 
 # -----------------------------
-# CONFIGURATION
+# GEOGRAPHIC CONFIGURATION (STRICT SCOPE: INDIAN OCEAN & SOUTHERN OCEAN)
 # -----------------------------
 
-# Region: Bay of Bengal
-LON_MIN, LON_MAX = 80.0, 90.0
-LAT_MIN, LAT_MAX = 10.0, 20.0
+# Region 1: Indian Ocean (encompassing Arabian Sea: 55°E-77.5°E, 5°N-26°N and Bay of Bengal: 80°E-95°E, 5°N-23.5°N)
+IO_LON_MIN, IO_LON_MAX = 55.0, 95.0
+IO_LAT_MIN, IO_LAT_MAX = 5.0, 26.0
 
-# Time window (5 days)
+# Region 2: Southern Ocean (Circumpolar Antarctic waters ACC sector: 40°E-90°E, 65°S-50°S)
+SO_LON_MIN, SO_LON_MAX = 40.0, 90.0
+SO_LAT_MIN, SO_LAT_MAX = -65.0, -50.0
+
+# Time window (5 days default for Argo profile fetch)
 START_DATE = "2020-01-01"
-# END_DATE = "2020-01-05"
-END_DATE = "2020-02-01"
+END_DATE = "2020-01-05"
 
-# Depth range for model data (m)
-DEPTH_MIN, DEPTH_MAX = 0.0, 30.0
+# Depth range for profiles (dbar / m)
+DEPTH_MIN, DEPTH_MAX = 0.0, 2000.0
 
 # Output directory
-RAW_DIR = "data/raw"
-os.makedirs(RAW_DIR, exist_ok=True)
+RAW_DIR = BACKEND_DIR / "data" / "raw"
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # -----------------------------
@@ -49,19 +69,19 @@ def fetch_cmems():
     dataset_id = "cmems_mod_glo_phy_my_0.083deg_P1D-m"
 
     output_filename = f"model_bay_of_bengal_{START_DATE}_{END_DATE}.nc"
-    output_path = os.path.join(RAW_DIR, output_filename)
+    output_path = os.path.join(str(RAW_DIR), output_filename)
 
     copernicusmarine.subset(
         dataset_id=dataset_id,
         variables=["thetao", "so", "uo", "vo"],  # temp, salinity, u/v currents
-        minimum_longitude=LON_MIN,
-        maximum_longitude=LON_MAX,
-        minimum_latitude=LAT_MIN,
-        maximum_latitude=LAT_MAX,
+        minimum_longitude=80.0,
+        maximum_longitude=90.0,
+        minimum_latitude=10.0,
+        maximum_latitude=20.0,
         start_datetime=START_DATE,
         end_datetime=END_DATE,
-        minimum_depth=DEPTH_MIN,
-        maximum_depth=DEPTH_MAX,
+        minimum_depth=0.0,
+        maximum_depth=30.0,
         output_filename=output_path,
         output_directory=".",  # already in RAW_DIR via output_filename
     )
@@ -72,59 +92,86 @@ def fetch_cmems():
 # PIPELINE 2: Argo float profiles (argopy)
 # -----------------------------
 
-def fetch_argo():
+def fetch_argo(
+    start_date: str = START_DATE,
+    end_date: str = END_DATE,
+) -> pd.DataFrame:
     """
-    Download Argo profiles for the same region/time window.
-    Requires:
-        pip install argopy xarray
+    Download Argo profiles strictly for Indian Ocean and Southern Ocean,
+    combine them safely, apply mandatory post-fetch geographic validation,
+    and save both NetCDF and CSV datasets.
     """
-    import argopy
-    import xarray as xr
+    print(f"--> Fetching Argo profiles from IFREMER ERDDAP ({start_date} to {end_date})...")
 
-    # Box: [lon_min, lon_max, lat_min, lat_max, depth_min, depth_max, start_date, end_date]
-    box = [
-        LON_MIN,
-        LON_MAX,
-        LAT_MIN,
-        LAT_MAX,
-        0.0,
-        2000.0,  # Argo profiles go deep; filter later if needed
-        START_DATE,
-        END_DATE,
-    ]
+    # Upstream Box 1: Indian Ocean [lon_min, lon_max, lat_min, lat_max, d_min, d_max, start, end]
+    io_box = [IO_LON_MIN, IO_LON_MAX, IO_LAT_MIN, IO_LAT_MAX, DEPTH_MIN, DEPTH_MAX, start_date, end_date]
+    print(f"    [1/3] Fetching Indian Ocean (box: {io_box[:4]})...")
+    fetcher_io = argopy.DataFetcher(src="erddap", mode="standard").region(io_box)
+    ds_io = fetcher_io.load().data
 
-    fetcher = argopy.DataFetcher(src="erddap", mode="standard")
-    fetcher = fetcher.region(box)
+    # Upstream Box 2: Southern Ocean (Circumpolar Antarctic ACC sector)
+    so_box = [SO_LON_MIN, SO_LON_MAX, SO_LAT_MIN, SO_LAT_MAX, DEPTH_MIN, DEPTH_MAX, start_date, end_date]
+    print(f"    [2/3] Fetching Southern Ocean (box: {so_box[:4]})...")
+    fetcher_so = argopy.DataFetcher(src="erddap", mode="standard").region(so_box)
+    ds_so = fetcher_so.load().data
 
-    ds = fetcher.load().data
+    # Safe combination (xarray concat along N_POINTS)
+    ds_combined = xr.concat([ds_io, ds_so], dim="N_POINTS")
 
-    # Keep core variables typically used for comparison with model
-    keep_vars = [
-        v
-        for v in ds.data_vars
-        if any(
-            k in v.upper()
-            for k in ["TEMP", "PSAL", "DEPTH", "LATITUDE", "LONGITUDE", "DATE", "TIME"]
-        )
-    ]
-    if not keep_vars:
-        # Fallback: keep all if no obvious match
-        keep_vars = list(ds.data_vars)
+    # Mandatory Post-Fetch Geographic Validation and Filtering (Second Layer of Protection)
+    # 1. Filter xarray dataset
+    lats = ds_combined["LATITUDE"].values.astype(float)
+    lons = ds_combined["LONGITUDE"].values.astype(float)
+    valid_mask = np.array([validate_region(lat, lon) is not None for lat, lon in zip(lats, lons)])
+    ds_filtered = ds_combined.isel(N_POINTS=valid_mask)
 
-    ds_core = ds[keep_vars]
+    # 2. Convert to DataFrame and apply DataFrame validation/normalization
+    df_raw = ds_filtered.to_dataframe().reset_index()
+    df_filtered = filter_dataframe_to_authorized_regions(df_raw, lat_col="LATITUDE", lon_col="LONGITUDE")
 
-    # output_filename = f"argo_bay_of_bengal_{START_DATE}_{END_DATE}.csv"
-    # output_path = os.path.join(RAW_DIR, output_filename)
+    # Ensure required columns are present
+    required_cols = ["PRES", "TEMP", "PSAL", "LATITUDE", "LONGITUDE", "TIME"]
+    for c in required_cols:
+        if c not in df_filtered.columns:
+            raise ValueError(f"Required Argo column '{c}' is missing after fetch.")
 
-    # df = ds_core.to_dataframe()
-    # df.to_csv(output_path)
-    # print("Argo profiles saved to:", output_path)  --- as committed i have changed it to netcdf format to check the data is being extracted or not after final test i will do chng it !
+    # Save to disk:
+    # 1. Multi-basin combined raw CSV & NetCDF
+    csv_filename = f"argo_indian_southern_ocean_{start_date}_{end_date}.csv"
+    csv_path = RAW_DIR / csv_filename
+    nc_filename = f"argo_indian_southern_ocean_{start_date}_{end_date}.nc"
+    nc_path = RAW_DIR / nc_filename
 
-    output_filename = f"argo_bay_of_bengal_{START_DATE}_{END_DATE}.nc"
-    output_path = os.path.join(RAW_DIR, output_filename)
+    df_filtered.to_csv(csv_path, index=True, index_label="N_POINTS")
+    ds_filtered.to_netcdf(str(nc_path))
 
-    ds_core.to_netcdf(output_path)
-    print("Argo profiles saved to:", output_path)
+    # 2. Backward-compatibility copies / updates for legacy consumers expecting argo_bay_of_bengal_...
+    legacy_csv_path = RAW_DIR / f"argo_bay_of_bengal_{start_date}_{end_date}.csv"
+    legacy_nc_path = RAW_DIR / f"argo_bay_of_bengal_{start_date}_{end_date}.nc"
+    df_filtered.to_csv(legacy_csv_path, index=True, index_label="N_POINTS")
+    ds_filtered.to_netcdf(str(legacy_nc_path))
+
+    # Verification and Reporting
+    io_count = len(df_filtered[df_filtered["MACRO_REGION"] == "Indian Ocean"])
+    so_count = len(df_filtered[df_filtered["MACRO_REGION"] == "Southern Ocean"])
+    as_count = len(df_filtered[df_filtered["REGION"] == REGION_ARABIAN_SEA])
+    bob_count = len(df_filtered[df_filtered["REGION"] == REGION_BAY_OF_BENGAL])
+    out_of_scope_count = len(df_filtered[df_filtered["MACRO_REGION"].isna()])
+
+    total_combined = ds_combined.sizes["N_POINTS"] if hasattr(ds_combined, "sizes") else ds_combined.dims["N_POINTS"]
+    rejected_count = total_combined - len(df_filtered)
+
+    print(f"\n[OK] Argo Fetch & Geographic Validation Complete:")
+    print(f"     Total Valid Observations: {len(df_filtered)}")
+    print(f"     - Indian Ocean:          {io_count} observations ({as_count} Arabian Sea, {bob_count} Bay of Bengal)")
+    print(f"     - Southern Ocean:        {so_count} observations")
+    print(f"     - Out-of-Scope Drops:    {rejected_count} rows rejected")
+    print(f"     - Out-of-Scope Retained: {out_of_scope_count} (strictly 0)")
+    print(f"     Saved CSV: {csv_path}")
+    print(f"     Saved NC:  {nc_path}")
+
+    assert out_of_scope_count == 0, "Security violation: out-of-scope ocean observations detected!"
+    return df_filtered
 
 
 
@@ -190,13 +237,14 @@ def run_all():
     Comment out any you do not want to run yet.
     """
     print("Starting data pipelines...")
-    print("Region:", LON_MIN, LON_MAX, LAT_MIN, LAT_MAX)
-    print("Time:", START_DATE, "to", END_DATE)
-    print("Depth:", DEPTH_MIN, "to", DEPTH_MAX)
+    print(f"Indian Ocean Box:  [{IO_LON_MIN}, {IO_LON_MAX}, {IO_LAT_MIN}, {IO_LAT_MAX}]")
+    print(f"Southern Ocean Box: [{SO_LON_MIN}, {SO_LON_MAX}, {SO_LAT_MIN}, {SO_LAT_MAX}]")
+    print(f"Time: {START_DATE} to {END_DATE}")
+    print(f"Depth: {DEPTH_MIN} to {DEPTH_MAX} dbar")
     print()
 
     # Pipeline 1: CMEMS model data
-    # fetch_cmems() # -- AS i have chng it to check that the data is being extracted or not after final test i will do chng it 
+    # fetch_cmems()
 
     # Pipeline 2: Argo profiles
     fetch_argo()

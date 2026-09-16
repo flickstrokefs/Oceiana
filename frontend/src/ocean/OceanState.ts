@@ -274,6 +274,10 @@ public getSelectedOceanDomain():
     this.notify();
   }
 
+  public getFlyToLocationRequest() {
+    return this.flyToLocationRequest;
+  }
+
   public requestResetCamera(): void {
     this.requestFlyToLocation(14.0, 75.0, 4200000, 0, -72, 2.0);
   }

@@ -140,3 +140,60 @@ def enforce_region_coordinate(lat: float, lon: float) -> str:
             f"(Bay of Bengal, Arabian Sea, Southern Ocean). All other ocean basins are out of scope."
         )
     return reg
+
+
+def get_macro_region(lat: float, lon: float) -> Optional[str]:
+    """
+    Classify coordinate into macro ocean basins:
+    - 'Indian Ocean' for Bay of Bengal and Arabian Sea.
+    - 'Southern Ocean' for circumpolar Antarctic waters (<= -50°S).
+    - None for all out-of-scope basins (Pacific, Atlantic, Mediterranean, Arctic, etc.).
+    """
+    sub_region = validate_region(lat, lon)
+    if sub_region in [REGION_BAY_OF_BENGAL, REGION_ARABIAN_SEA]:
+        return "Indian Ocean"
+    elif sub_region == REGION_SOUTHERN_OCEAN:
+        return "Southern Ocean"
+    return None
+
+
+def filter_dataframe_to_authorized_regions(
+    df: Any,
+    lat_col: str = "LATITUDE",
+    lon_col: str = "LONGITUDE",
+) -> Any:
+    """
+    Mandatory post-fetch geographic validation and filter for DataFrames.
+    Normalizes longitude across both [-180..180] and [0..360] formats and
+    enforces that every retained observation belongs strictly to the Indian Ocean
+    (Bay of Bengal, Arabian Sea) or Southern Ocean.
+    """
+    if df is None or len(df) == 0:
+        return df
+
+    res = df.copy()
+    # Normalize longitude in-place to standard [-180, +180]
+    res[lon_col] = res[lon_col].astype(float).apply(normalize_longitude)
+
+    def _is_valid(row):
+        try:
+            lat_val = float(row[lat_col])
+            lon_val = float(row[lon_col])
+            return validate_region(lat_val, lon_val) is not None
+        except (ValueError, TypeError):
+            return False
+
+    valid_mask = res.apply(_is_valid, axis=1)
+    filtered = res[valid_mask].copy()
+
+    # Annotate region metadata
+    filtered["REGION"] = filtered.apply(
+        lambda r: validate_region(float(r[lat_col]), float(r[lon_col])),
+        axis=1,
+    )
+    filtered["MACRO_REGION"] = filtered.apply(
+        lambda r: get_macro_region(float(r[lat_col]), float(r[lon_col])),
+        axis=1,
+    )
+
+    return filtered

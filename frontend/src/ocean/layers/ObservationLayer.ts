@@ -41,16 +41,16 @@ export class ObservationLayer {
   private renderArgoProfile(argo: ArgoProfile): void {
     const pos = Cesium.Cartesian3.fromDegrees(argo.longitude, argo.latitude, 2000);
 
-    // 1. Surface Beacon Pin
+    // 1. Surface Beacon Pin - Restrained 8px solid technical dot
     const beacon = this.viewer.entities.add({
       id: `obs-argo-marker-${argo.id}`,
       name: argo.name,
       position: pos,
       point: {
-        pixelSize: 13,
-        color: new Cesium.Color(1.0, 0.8, 0.0, 1.0),
-        outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 2,
+        pixelSize: 8,
+        color: Cesium.Color.fromCssColorString('#c79a5b'), // Restrained instrument amber
+        outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
+        outlineWidth: 1.5,
       },
       label: {
         text: new Cesium.CallbackProperty(() => {
@@ -70,17 +70,17 @@ export class ObservationLayer {
           }
 
           if (isUnderwater) {
-            return `${argo.stationCode}\n[-${closest.depth}m: ${closest.temperature.toFixed(1)}°C | ${closest.salinity.toFixed(1)} PSU]`;
+            return `● ${argo.stationCode} [-${closest.depth}m: ${closest.temperature.toFixed(1)}°C]`;
           }
-          return `${argo.stationCode} (ARGO)`;
+          return `● ${argo.stationCode}`;
         }, false),
-        font: 'bold 11px "JetBrains Mono", monospace',
+        font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Cesium.Color.WHITE,
-        outlineColor: Cesium.Color.BLACK,
-        outlineWidth: 3,
+        fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
+        outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
+        outlineWidth: 2,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -14),
+        pixelOffset: new Cesium.Cartesian2(0, -10),
       },
       properties: {
         obsType: 'argo',
@@ -91,20 +91,20 @@ export class ObservationLayer {
     this.entities.push(beacon);
     this.entityMeta.set(beacon, { obsId: argo.id, obsType: 'argo', role: 'marker' });
 
-    // 2. Pulsing Radio Range Ring
+    // 2. Subtle Coverage Ring
     const rangeRing = this.viewer.entities.add({
       id: `obs-argo-ring-${argo.id}`,
-      name: argo.name + ' Telemetry Ring',
+      name: argo.name + ' Range',
       position: pos,
       ellipse: {
-        semiMinorAxis: 45000.0,
-        semiMajorAxis: 45000.0,
+        semiMinorAxis: 40000.0,
+        semiMajorAxis: 40000.0,
         material: new Cesium.ColorMaterialProperty(
-          new Cesium.Color(1.0, 0.8, 0.0, 0.12)
+          new Cesium.Color(0.2, 0.25, 0.3, 0.04)
         ),
         outline: true,
-        outlineColor: new Cesium.Color(1.0, 0.8, 0.0, 0.5),
-        outlineWidth: 1.5,
+        outlineColor: new Cesium.Color(0.35, 0.4, 0.45, 0.25),
+        outlineWidth: 1.0,
       },
       properties: {
         obsType: 'argo',
@@ -159,19 +159,20 @@ export class ObservationLayer {
         name: glider.name + ' Active Unit',
         position: gliderPos,
         point: {
-          pixelSize: 12,
-          color: new Cesium.Color(0.12, 0.78, 0.59, 1.0),
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
+          pixelSize: 8,
+          color: Cesium.Color.fromCssColorString('#5b8fc7'), // Restrained GIS blue
+          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
+          outlineWidth: 1.5,
         },
         label: {
-          text: `${glider.name}\n[ACTIVE SURVEY // ${glider.waypoints.length} WAYPOINTS]`,
-          font: 'bold 11px "JetBrains Mono", monospace',
-          fillColor: new Cesium.Color(0.2, 0.9, 0.7, 1.0),
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 3,
+          text: `● ${glider.name}`,
+          font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
+          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
+          outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -12),
+          pixelOffset: new Cesium.Cartesian2(0, -10),
         },
         properties: {
           obsType: 'glider',
@@ -211,22 +212,22 @@ export class ObservationLayer {
       const isSelected = obsId !== null && meta.obsId === obsId;
 
       if (meta.role === 'marker' && entity.point) {
-        entity.point.pixelSize = new Cesium.ConstantProperty(isSelected ? 20 : meta.obsType === 'argo' ? 13 : 12);
-        entity.point.outlineWidth = new Cesium.ConstantProperty(isSelected ? 3 : 2);
+        entity.point.pixelSize = new Cesium.ConstantProperty(isSelected ? 11 : 8);
+        entity.point.outlineWidth = new Cesium.ConstantProperty(isSelected ? 2.5 : 1.5);
         entity.point.outlineColor = new Cesium.ConstantProperty(
           isSelected
-            ? Cesium.Color.fromCssColorString('#20c997')
-            : Cesium.Color.WHITE
+            ? Cesium.Color.fromCssColorString('#5b8fc7') // Restrained selection blue
+            : Cesium.Color.fromCssColorString('#1b1e22')
         );
       }
 
       if (meta.role === 'track' && entity.polyline) {
-        entity.polyline.width = new Cesium.ConstantProperty(isSelected ? 6.0 : 3.0);
+        entity.polyline.width = new Cesium.ConstantProperty(isSelected ? 4.0 : 2.0);
       }
 
       if (meta.role === 'ring' && entity.ellipse) {
-        entity.ellipse.semiMajorAxis = new Cesium.ConstantProperty(isSelected ? 70000 : 45000);
-        entity.ellipse.semiMinorAxis = new Cesium.ConstantProperty(isSelected ? 70000 : 45000);
+        entity.ellipse.semiMajorAxis = new Cesium.ConstantProperty(isSelected ? 50000 : 40000);
+        entity.ellipse.semiMinorAxis = new Cesium.ConstantProperty(isSelected ? 50000 : 40000);
       }
     }
   }

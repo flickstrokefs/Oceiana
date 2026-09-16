@@ -36,10 +36,9 @@ export class OceanEngine {
   private lastMode: OceanMode = 'surface';
   private lastDepth = 0;
   private lastFlyToken = 0;
-  private lastLocationFlyToken = 0;
-  private lastRegion: UnderwaterRegionId | null = null;
 
   constructor(viewer: Cesium.Viewer) {
+    this.viewer = viewer;
     this.underwaterEnv =
       new UnderwaterEnvironment(viewer);
 

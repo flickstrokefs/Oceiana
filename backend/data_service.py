@@ -1,21 +1,54 @@
+import sys
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
+
+# Ensure backend directory is in sys.path
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+from app.core.regions import (
+    REGION_ARABIAN_SEA,
+    REGION_BAY_OF_BENGAL,
+    REGION_SOUTHERN_OCEAN,
+    filter_dataframe_to_authorized_regions,
+    validate_region,
+    get_macro_region,
+    resolve_region,
+    normalize_longitude,
+)
 
 
 # ============================================================
 # PATHS / CONSTANTS
 # ============================================================
 
-BASE_DIR = Path(__file__).resolve().parent
+PRIMARY_DATA_PATH = (
+    BASE_DIR
+    / "data"
+    / "raw"
+    / "argo_indian_southern_ocean_2020-01-01_2020-01-05.csv"
+)
 
-DATA_PATH = (
-    Path(__file__).resolve().parent
+LEGACY_DATA_PATH = (
+    BASE_DIR
     / "data"
     / "raw"
     / "argo_bay_of_bengal_2020-01-01_2020-01-05.csv"
 )
+
+
+def get_active_data_path() -> Path:
+    """Return primary multi-basin dataset if available, else legacy fallback."""
+    if PRIMARY_DATA_PATH.exists():
+        return PRIMARY_DATA_PATH
+    return LEGACY_DATA_PATH
+
+
+DATA_PATH = get_active_data_path()
 
 PROCESSED_DIR = (
     BASE_DIR
@@ -54,22 +87,31 @@ REQUIRED_COLUMNS = [
 # RAW ARGO DATA LOADER
 # ============================================================
 
-def load_argo_data() -> pd.DataFrame:
+def load_argo_data(path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load and validate the raw Argo dataset.
+    Load, validate, and geographically restrict the raw Argo dataset.
+    Enforces that 100% of observations belong strictly to authorized ocean
+    regions (Indian Ocean [Arabian Sea, Bay of Bengal] and Southern Ocean).
+
+    Parameters
+    ----------
+    path : Path, optional
+        Path to a specific Argo CSV dataset. Defaults to active dataset.
 
     Returns
     -------
     pandas.DataFrame
-        Validated raw Argo observations.
+        Validated and geographically scoped raw Argo observations.
     """
 
-    if not DATA_PATH.exists():
+    target_path = path or get_active_data_path()
+
+    if not target_path.exists():
         raise FileNotFoundError(
-            f"Argo dataset not found at: {DATA_PATH}"
+            f"Argo dataset not found at: {target_path}"
         )
 
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(target_path)
 
     missing_columns = [
         column
@@ -116,17 +158,6 @@ def load_argo_data() -> pd.DataFrame:
     ).copy()
 
     # --------------------------------------------------------
-    # Validate geographic ranges
-    # --------------------------------------------------------
-
-    df = df[
-        (df["LATITUDE"] >= -90)
-        & (df["LATITUDE"] <= 90)
-        & (df["LONGITUDE"] >= -180)
-        & (df["LONGITUDE"] <= 180)
-    ].copy()
-
-    # --------------------------------------------------------
     # Pressure cannot be negative
     # --------------------------------------------------------
 
@@ -135,17 +166,34 @@ def load_argo_data() -> pd.DataFrame:
     ].copy()
 
     # --------------------------------------------------------
+    # Mandatory Post-Fetch Geographic Validation & Filter
+    # --------------------------------------------------------
+    # Normalizes longitudes [-180..180] and [0..360] and strictly
+    # enforces Indian Ocean and Southern Ocean boundaries.
+    # Eliminates all out-of-scope basins (Pacific, Atlantic, etc.).
+    df = filter_dataframe_to_authorized_regions(
+        df,
+        lat_col="LATITUDE",
+        lon_col="LONGITUDE",
+    )
+
+    if df.empty:
+        raise ValueError(
+            "No valid observations in authorized ocean regions."
+        )
+
+    # --------------------------------------------------------
     # Create profile IDs
-    #
-    # A profile is defined by:
-    # latitude + longitude + timestamp
     # --------------------------------------------------------
 
-    profile_columns = [
-        "LATITUDE",
-        "LONGITUDE",
-        "TIME",
-    ]
+    if "PLATFORM_NUMBER" in df.columns and "CYCLE_NUMBER" in df.columns:
+        profile_columns = ["PLATFORM_NUMBER", "CYCLE_NUMBER"]
+    else:
+        profile_columns = [
+            "LATITUDE",
+            "LONGITUDE",
+            "TIME",
+        ]
 
     df["PROFILE_ID"] = (
         df.groupby(
@@ -167,20 +215,23 @@ def load_argo_data() -> pd.DataFrame:
     ).reset_index(drop=True)
 
     # --------------------------------------------------------
-    # Final column order
+    # Retain core variables and scientific regional tags
     # --------------------------------------------------------
 
-    df = df[
-        [
-            "PROFILE_ID",
-            "LATITUDE",
-            "LONGITUDE",
-            "TIME",
-            "PRES",
-            "TEMP",
-            "PSAL",
-        ]
+    keep_columns = [
+        "PROFILE_ID",
+        "LATITUDE",
+        "LONGITUDE",
+        "TIME",
+        "PRES",
+        "TEMP",
+        "PSAL",
     ]
+    for opt in ["REGION", "MACRO_REGION", "PLATFORM_NUMBER", "CYCLE_NUMBER"]:
+        if opt in df.columns and opt not in keep_columns:
+            keep_columns.append(opt)
+
+    df = df[keep_columns]
 
     return df
 
@@ -326,17 +377,21 @@ def standardize_profiles() -> pd.DataFrame:
             "TIME"
         ].iloc[0]
 
-        standardized_profile = pd.DataFrame(
-            {
-                "PROFILE_ID": int(profile_id),
-                "LATITUDE": latitude,
-                "LONGITUDE": longitude,
-                "TIME": timestamp,
-                "PRES": pressure_grid,
-                "TEMP": temp_interp,
-                "PSAL": psal_interp,
-            }
-        )
+        profile_dict = {
+            "PROFILE_ID": int(profile_id),
+            "LATITUDE": latitude,
+            "LONGITUDE": longitude,
+            "TIME": timestamp,
+            "PRES": pressure_grid,
+            "TEMP": temp_interp,
+            "PSAL": psal_interp,
+        }
+
+        for opt in ["REGION", "MACRO_REGION", "PLATFORM_NUMBER", "CYCLE_NUMBER"]:
+            if opt in profile.columns:
+                profile_dict[opt] = profile[opt].iloc[0]
+
+        standardized_profile = pd.DataFrame(profile_dict)
 
         standardized_profiles.append(
             standardized_profile
@@ -673,6 +728,8 @@ def get_observations(
     max_salinity: float | None = None,
 
     standardized: bool = False,
+    region: str | None = None,
+    macro_region: str | None = None,
 ) -> list[dict]:
     """
     Return validated Argo observations suitable for API
@@ -715,6 +772,20 @@ def get_observations(
     # ========================================================
     # APPLY FILTERS
     # ========================================================
+
+    if region is not None:
+        canon = resolve_region(region)
+        if canon:
+            if "REGION" in df.columns:
+                df = df[df["REGION"] == canon]
+            else:
+                df = df[df.apply(lambda r: validate_region(float(r["LATITUDE"]), float(r["LONGITUDE"])) == canon, axis=1)]
+
+    if macro_region is not None:
+        if "MACRO_REGION" in df.columns:
+            df = df[df["MACRO_REGION"].str.lower() == macro_region.lower()]
+        else:
+            df = df[df.apply(lambda r: (get_macro_region(float(r["LATITUDE"]), float(r["LONGITUDE"])) or "").lower() == macro_region.lower(), axis=1)]
 
     if min_lat is not None:
         df = df[
@@ -804,6 +875,8 @@ def get_observations(
 
     for _, row in df.iterrows():
 
+        time_val = row["TIME"].isoformat() if hasattr(row["TIME"], "isoformat") else str(row["TIME"])
+
         observation = {
             "id": int(
                 row["PROFILE_ID"]
@@ -821,7 +894,7 @@ def get_observations(
                 row["LONGITUDE"]
             ),
 
-            "time": row["TIME"].isoformat(),
+            "time": time_val,
 
             "temperature": float(
                 row["TEMP"]
@@ -835,6 +908,15 @@ def get_observations(
                 row["PRES"]
             ),
         }
+
+        if "REGION" in row and pd.notna(row["REGION"]):
+            observation["region"] = row["REGION"]
+        if "MACRO_REGION" in row and pd.notna(row["MACRO_REGION"]):
+            observation["macro_region"] = row["MACRO_REGION"]
+        if "PLATFORM_NUMBER" in row and pd.notna(row["PLATFORM_NUMBER"]):
+            observation["platform_number"] = int(row["PLATFORM_NUMBER"])
+        if "CYCLE_NUMBER" in row and pd.notna(row["CYCLE_NUMBER"]):
+            observation["cycle_number"] = int(row["CYCLE_NUMBER"])
 
         # ----------------------------------------------------
         # Add scientific derived variables

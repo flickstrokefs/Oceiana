@@ -29,36 +29,41 @@ export const OceanBottomBar: React.FC<OceanBottomBarProps> = ({
 
   return (
     <>
-      {/* Telemetry info pill on bottom-left above timeline */}
-      <div className="telemetry-hud-chip">
+      {/* Viewport Status / Coordinate Readout (Section 18) */}
+      <div className="telemetry-hud-chip" aria-label="Viewport Spatial Readout">
         <span className="hud-metric">
-          <strong className="hud-label">Lat:</strong> 15.4° N
+          <span className="hud-label">Lat:</span>{' '}
+          <span className="mono-val">15.4°N</span>
         </span>
         <span className="hud-divider">|</span>
         <span className="hud-metric">
-          <strong className="hud-label">Lon:</strong> 73.2° E
+          <span className="hud-label">Lon:</span>{' '}
+          <span className="mono-val">73.2°E</span>
         </span>
         <span className="hud-divider">|</span>
         <span className="hud-metric">
-          <strong className="hud-label">Depth:</strong> 500 m
+          <span className="hud-label">Depth:</span>{' '}
+          <span className="mono-val">500 m</span>
         </span>
         <span className="hud-divider">|</span>
         <span className="hud-metric">
-          <strong className="hud-label">Value:</strong> 18.1 °C
+          <span className="hud-label">Value:</span>{' '}
+          <span className="mono-val">18.1°C</span>
         </span>
         <span className="hud-divider">|</span>
         <button
           type="button"
           className="hud-cross-btn"
           onClick={() => setShowCrossSection(!showCrossSection)}
+          title="Toggle vertical cross-section projection"
         >
           <span>Show Cross-section</span>
-          <ChevronDown size={12} />
+          <ChevronDown size={11} />
         </button>
       </div>
 
-      {/* Vertical Turbo Colorbar on bottom-right */}
-      <div className="ocean-vertical-colorbar">
+      {/* Scientific Colorbar on bottom-right (Section 15) */}
+      <div className="ocean-vertical-colorbar" aria-label="Variable Palette Legend">
         <span className="colorbar-title">{variableName}</span>
         <div className="colorbar-scale-container">
           <div className="colorbar-ticks">
@@ -71,33 +76,38 @@ export const OceanBottomBar: React.FC<OceanBottomBarProps> = ({
         </div>
       </div>
 
-      {/* Bottom Timeline Bar */}
-      <div className="ocean-timeline-dock">
+      {/* Bottom Timeline Dock (Section 17) */}
+      <div className="ocean-timeline-dock" aria-label="Temporal Playback Controller">
         {/* Playback controls */}
         <div className="timeline-ctrls">
           <button
             type="button"
             className="timeline-btn"
-            title="Step backward"
+            title="Step backward (-1 day)"
             onClick={() => setTimelineIndex((prev) => Math.max(0, prev - 1))}
+            aria-label="Step backward"
           >
-            <SkipBack size={13} />
+            <SkipBack size={12} />
           </button>
           <button
             type="button"
             className="timeline-btn timeline-play-btn"
-            title={isPlaying ? 'Pause' : 'Play'}
+            title={isPlaying ? 'Pause simulation' : 'Play simulation'}
             onClick={() => setIsPlaying(!isPlaying)}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
           >
-            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+            {isPlaying ? <Pause size={13} /> : <Play size={13} />}
           </button>
           <button
             type="button"
             className="timeline-btn"
-            title="Step forward"
-            onClick={() => setTimelineIndex((prev) => Math.min(dates.length - 1, prev + 1))}
+            title="Step forward (+1 day)"
+            onClick={() =>
+              setTimelineIndex((prev) => Math.min(dates.length - 1, prev + 1))
+            }
+            aria-label="Step forward"
           >
-            <SkipForward size={13} />
+            <SkipForward size={12} />
           </button>
         </div>
 
@@ -110,12 +120,15 @@ export const OceanBottomBar: React.FC<OceanBottomBarProps> = ({
             value={timelineIndex}
             onChange={(e) => setTimelineIndex(parseInt(e.target.value, 10))}
             className="timeline-range"
+            aria-label="Time timeline position"
           />
           <div className="timeline-labels-row">
             {dates.map((d, i) => (
               <span
                 key={d.label}
-                className={`timeline-date-label ${timelineIndex === i ? 'timeline-active-date' : ''}`}
+                className={`timeline-date-label ${
+                  timelineIndex === i ? 'timeline-active-date' : ''
+                }`}
                 onClick={() => setTimelineIndex(i)}
               >
                 {d.label}
@@ -138,6 +151,7 @@ export const OceanBottomBar: React.FC<OceanBottomBarProps> = ({
               className="ariel-select select-xs"
               value={timeStep}
               onChange={(e) => setTimeStep(e.target.value)}
+              aria-label="Playback step resolution"
             >
               <option value="+1 hour">+1 hour</option>
               <option value="+6 hours">+6 hours</option>

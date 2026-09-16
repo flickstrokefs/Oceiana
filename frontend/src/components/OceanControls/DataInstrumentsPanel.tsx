@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Plus, Database, Table2 } from 'lucide-react';
+import { ChevronDown, Database, Table2 } from 'lucide-react';
 
 export const DataInstrumentsPanel: React.FC = () => {
   const [modelOpen, setModelOpen] = useState(true);
   const [instrumentOpen, setInstrumentOpen] = useState(true);
+  const [comparisonOpen, setComparisonOpen] = useState(true);
   const [comparisonTab, setComparisonTab] = useState<'glider' | 'argo' | 'all'>('all');
 
   // Model variable selections
@@ -35,15 +36,15 @@ export const DataInstrumentsPanel: React.FC = () => {
   };
 
   return (
-    <aside className="ariel-panel panel-right-data">
-      {/* 2. Data & Instruments */}
+    <aside className="ariel-panel panel-right-data" aria-label="Data & Instruments">
+      {/* Title Bar - No numerical prefix */}
       <div className="panel-title-bar">
-        <h2 className="panel-heading">2. Data & Instruments</h2>
-        <Database size={14} className="panel-head-icon" />
+        <h2 className="panel-heading">Data & Instruments</h2>
+        <Database size={13} className="panel-head-icon" />
       </div>
 
       <div className="panel-content-scroll">
-        {/* Model Data Accordion */}
+        {/* Section 1: Model Data */}
         <div className="data-accordion-item">
           <div
             className="accordion-header"
@@ -52,73 +53,82 @@ export const DataInstrumentsPanel: React.FC = () => {
             tabIndex={0}
           >
             <span className="accordion-title">
-              {modelOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              Model Data
+              <ChevronDown
+                size={13}
+                className={`accordion-chevron ${modelOpen ? 'expanded' : ''}`}
+              />
+              Model data — INCOIS-IOCM
             </span>
-            <span className="source-tag">INCOIS-IOCM</span>
           </div>
 
           {modelOpen && (
             <div className="accordion-body">
-              <button
-                type="button"
-                className="ariel-btn-outline-teal btn-compact-full"
-                onClick={() => alert('Add model variable dialog')}
-              >
-                <Plus size={12} /> Add Model Variable
-              </button>
-
               <div className="checklist-group">
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={modelVars.temp}
-                    onChange={() => toggleModelVar('temp')}
-                  />
-                  <span className="check-label">Temperature (10 °C)</span>
+                <label className="data-metric-row">
+                  <div className="data-metric-label">
+                    <input
+                      type="checkbox"
+                      checked={modelVars.temp}
+                      onChange={() => toggleModelVar('temp')}
+                    />
+                    <span>Temperature</span>
+                  </div>
+                  <span className="data-metric-val">10°C</span>
                 </label>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={modelVars.salinity}
-                    onChange={() => toggleModelVar('salinity')}
-                  />
-                  <span className="check-label">Salinity (35 PSU)</span>
+                <label className="data-metric-row">
+                  <div className="data-metric-label">
+                    <input
+                      type="checkbox"
+                      checked={modelVars.salinity}
+                      onChange={() => toggleModelVar('salinity')}
+                    />
+                    <span>Salinity</span>
+                  </div>
+                  <span className="data-metric-val">35 PSU</span>
                 </label>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={modelVars.currents}
-                    onChange={() => toggleModelVar('currents')}
-                  />
-                  <span className="check-label">Currents (1.2 m/s)</span>
+                <label className="data-metric-row">
+                  <div className="data-metric-label">
+                    <input
+                      type="checkbox"
+                      checked={modelVars.currents}
+                      onChange={() => toggleModelVar('currents')}
+                    />
+                    <span>Currents</span>
+                  </div>
+                  <span className="data-metric-val">1.2 m/s</span>
                 </label>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={modelVars.chlorophyll}
-                    onChange={() => toggleModelVar('chlorophyll')}
-                  />
-                  <span className="check-label">Chlorophyll (2 mg/m³)</span>
+                <label className="data-metric-row">
+                  <div className="data-metric-label">
+                    <input
+                      type="checkbox"
+                      checked={modelVars.chlorophyll}
+                      onChange={() => toggleModelVar('chlorophyll')}
+                    />
+                    <span>Chlorophyll</span>
+                  </div>
+                  <span className="data-metric-val">2 mg/m³</span>
                 </label>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={modelVars.oxygen}
-                    onChange={() => toggleModelVar('oxygen')}
-                  />
-                  <span className="check-label">Oxygen (5 mg/L)</span>
+                <label className="data-metric-row">
+                  <div className="data-metric-label">
+                    <input
+                      type="checkbox"
+                      checked={modelVars.oxygen}
+                      onChange={() => toggleModelVar('oxygen')}
+                    />
+                    <span>Oxygen</span>
+                  </div>
+                  <span className="data-metric-val">5 mg/L</span>
                 </label>
               </div>
             </div>
           )}
         </div>
 
-        {/* Instrument Data Accordion */}
+        {/* Section 2: Instrument Data */}
         <div className="data-accordion-item">
           <div
             className="accordion-header"
@@ -127,10 +137,12 @@ export const DataInstrumentsPanel: React.FC = () => {
             tabIndex={0}
           >
             <span className="accordion-title">
-              {instrumentOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-              Instrument Data
+              <ChevronDown
+                size={13}
+                className={`accordion-chevron ${instrumentOpen ? 'expanded' : ''}`}
+              />
+              Instrument data
             </span>
-            <span className="source-tag">In-Situ Overlays</span>
           </div>
 
           {instrumentOpen && (
@@ -142,7 +154,7 @@ export const DataInstrumentsPanel: React.FC = () => {
                     checked={instruments.argo}
                     onChange={() => toggleInstrument('argo')}
                   />
-                  <span className="check-label">Argo Floats</span>
+                  <span className="check-label">Argo floats</span>
                 </label>
 
                 <label className="checkbox-row">
@@ -187,7 +199,7 @@ export const DataInstrumentsPanel: React.FC = () => {
                     checked={instruments.hfRadar}
                     onChange={() => toggleInstrument('hfRadar')}
                   />
-                  <span className="check-label">HF-Radar</span>
+                  <span className="check-label">HF Radar</span>
                 </label>
 
                 <label className="checkbox-row">
@@ -199,85 +211,98 @@ export const DataInstrumentsPanel: React.FC = () => {
                   <span className="check-label">ADCP</span>
                 </label>
               </div>
-
-              <button
-                type="button"
-                className="ariel-btn-outline-teal btn-compact-full"
-                onClick={() => alert('Connect new sensor or dataset')}
-              >
-                <Plus size={12} /> Add Dataset
-              </button>
             </div>
           )}
         </div>
 
-        {/* 3. Data Comparison */}
-        <div className="comparison-subpanel">
-          <div className="comparison-title-row">
-            <h3 className="subpanel-heading">3. Data Comparison</h3>
+        {/* Section 3: Data Comparison - No numerical prefix */}
+        <div className="data-accordion-item">
+          <div
+            className="accordion-header"
+            onClick={() => setComparisonOpen(!comparisonOpen)}
+            role="button"
+            tabIndex={0}
+          >
+            <span className="accordion-title">
+              <ChevronDown
+                size={13}
+                className={`accordion-chevron ${comparisonOpen ? 'expanded' : ''}`}
+              />
+              Data comparison
+            </span>
             <Table2 size={12} className="panel-head-icon" />
           </div>
 
-          <div className="comparison-tabs-row">
-            <button
-              type="button"
-              className={`comp-tab-btn ${comparisonTab === 'glider' ? 'comp-tab-active' : ''}`}
-              onClick={() => setComparisonTab('glider')}
-            >
-              Model vs Glider
-            </button>
-            <button
-              type="button"
-              className={`comp-tab-btn ${comparisonTab === 'argo' ? 'comp-tab-active' : ''}`}
-              onClick={() => setComparisonTab('argo')}
-            >
-              Model vs Argo
-            </button>
-            <button
-              type="button"
-              className={`comp-tab-btn ${comparisonTab === 'all' ? 'comp-tab-active' : ''}`}
-              onClick={() => setComparisonTab('all')}
-            >
-              All
-            </button>
-          </div>
+          {comparisonOpen && (
+            <div className="accordion-body">
+              <div className="comparison-tabs-row" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={comparisonTab === 'glider'}
+                  className={`comp-tab-btn ${comparisonTab === 'glider' ? 'comp-tab-active' : ''}`}
+                  onClick={() => setComparisonTab('glider')}
+                >
+                  Model vs Glider
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={comparisonTab === 'argo'}
+                  className={`comp-tab-btn ${comparisonTab === 'argo' ? 'comp-tab-active' : ''}`}
+                  onClick={() => setComparisonTab('argo')}
+                >
+                  Model vs Argo
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={comparisonTab === 'all'}
+                  className={`comp-tab-btn ${comparisonTab === 'all' ? 'comp-tab-active' : ''}`}
+                  onClick={() => setComparisonTab('all')}
+                >
+                  All
+                </button>
+              </div>
 
-          <table className="ariel-compact-table">
-            <thead>
-              <tr>
-                <th>Variable</th>
-                {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <th>Model</th>}
-                {(comparisonTab === 'all' || comparisonTab === 'glider') && <th>Glider</th>}
-                {(comparisonTab === 'all' || comparisonTab === 'argo') && <th>Argo</th>}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Temperature (°C)</td>
-                {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>18.2</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>18.4</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>18.1</td>}
-              </tr>
-              <tr>
-                <td>Salinity (PSU)</td>
-                {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>35.0</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>35.1</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>35.1</td>}
-              </tr>
-              <tr>
-                <td>Current (m/s)</td>
-                {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>0.6</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>0.6</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>0.6</td>}
-              </tr>
-              <tr>
-                <td>Chlorophyll (mg/m³)</td>
-                {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>0.4</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>0.6</td>}
-                {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>0.8</td>}
-              </tr>
-            </tbody>
-          </table>
+              <table className="ariel-compact-table">
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <th>Model</th>}
+                    {(comparisonTab === 'all' || comparisonTab === 'glider') && <th>Glider</th>}
+                    {(comparisonTab === 'all' || comparisonTab === 'argo') && <th>Argo</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Temperature °C</td>
+                    {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>18.2</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>18.4</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>18.1</td>}
+                  </tr>
+                  <tr>
+                    <td>Salinity PSU</td>
+                    {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>35.0</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>35.1</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>35.1</td>}
+                  </tr>
+                  <tr>
+                    <td>Current m/s</td>
+                    {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>0.6</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>0.6</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>0.6</td>}
+                  </tr>
+                  <tr>
+                    <td>Chlorophyll mg/m³</td>
+                    {(comparisonTab === 'all' || comparisonTab === 'glider' || comparisonTab === 'argo') && <td>0.4</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'glider') && <td>0.6</td>}
+                    {(comparisonTab === 'all' || comparisonTab === 'argo') && <td>0.8</td>}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </aside>
