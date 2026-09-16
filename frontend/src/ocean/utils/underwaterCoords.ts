@@ -1,110 +1,207 @@
-import * as Cesium from 'cesium';
+﻿import * as Cesium from "cesium";
 
-// Geographic bounds of the Indian Ocean / Arabian Sea scientific analysis domain
+/**
+ * Geographic coordinate utilities for ARIEL underwater rendering.
+ *
+ * IMPORTANT:
+ * - Ocean region data is always [longitude, latitude] in degrees.
+ * - Cesium also expects longitude/latitude in degrees when using fromDegrees().
+ * - No Web Mercator conversion is required here.
+ *
+ * The old implementation contained a fixed Arabian Sea coordinate box.
+ * That made the same conversion unsuitable for Bay of Bengal, Java Sea,
+ * Andaman Sea, Laccadive Sea and Southern Ocean.
+ *
+ * The exports below are kept compatible with the existing project.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Legacy-compatible defaults                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * These values are retained only for compatibility with existing imports.
+ *
+ * They are NOT used by the region mesh to position IHO polygons.
+ */
 export const UW_BOUNDS = {
-  minLon: 58.0,
-  maxLon: 86.0,
-  centerLon: 72.0,
-  minLat: 7.0,
-  maxLat: 22.0,
+  minLon: 58,
+  maxLon: 86,
+  minLat: 7,
+  maxLat: 22,
+
+  centerLon: 72,
   centerLat: 14.5,
-  minDepth: 0,
-  maxDepth: 2000,
 };
 
-// Dimensions of the 3D analytical volume box in local meters
+/**
+ * Legacy-compatible underwater dimensions.
+ *
+ * These values are retained because other parts of the project may import
+ * them. Region positioning should NOT depend on these dimensions.
+ */
 export const UW_DIMENSIONS = {
-  halfWidthX: 520000,   // Total width = 1,040,000 m (~1,040 km)
-  halfLengthY: 360000,  // Total length = 720,000 m (~720 km)
-  totalDepthZ: 300000,  // Total vertical depth = 300,000 m (~300 km)
+  halfWidthX: 520000,
+  halfLengthY: 360000,
+  totalDepthZ: 300000,
 };
 
-// Precomputed ENU transformation matrix anchored at the center of the domain
-let enuMatrix: Cesium.Matrix4 | null = null;
-let inverseEnuMatrix: Cesium.Matrix4 | null = null;
+/**
+ * Vertical exaggeration used for underwater visualization.
+ *
+ * Keep this modest enough that the ocean volume remains visually useful
+ * without making the geographic footprint appear displaced.
+ */
+export const DEPTH_EXAGGERATION = 8;
 
-export function getEnuMatrix(): Cesium.Matrix4 {
-  if (!enuMatrix) {
-    const center = Cesium.Cartesian3.fromDegrees(
-      UW_BOUNDS.centerLon,
-      UW_BOUNDS.centerLat,
-      0.0
-    );
-    enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
-  }
-  return enuMatrix;
+/* -------------------------------------------------------------------------- */
+/* Depth conversion                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Convert ocean depth in meters to a Cesium height.
+ *
+ * Ocean depth is represented as a negative height below sea level.
+ */
+export function depthToHeight(depthMeters: number): number {
+  return -Math.abs(depthMeters) * DEPTH_EXAGGERATION;
 }
 
-export function getInverseEnuMatrix(): Cesium.Matrix4 {
-  if (!inverseEnuMatrix) {
-    inverseEnuMatrix = Cesium.Matrix4.inverse(getEnuMatrix(), new Cesium.Matrix4());
-  }
-  return inverseEnuMatrix;
+/* -------------------------------------------------------------------------- */
+/* Geographic → Cesium world                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Convert longitude/latitude/depth directly into Cesium world coordinates.
+ *
+ * This is the authoritative geographic conversion for ARIEL.
+ *
+ * longitude = degrees east
+ * latitude  = degrees north
+ * depth     = positive meters downward
+ */
+export function geoToWorld(
+  longitude: number,
+  latitude: number,
+  depthMeters = 0,
+): Cesium.Cartesian3 {
+  return Cesium.Cartesian3.fromDegrees(
+    longitude,
+    latitude,
+    depthToHeight(depthMeters),
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Local coordinate helpers                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Convert a geographic point to a local East/North coordinate system
+ * centered on the supplied geographic origin.
+ *
+ * This is useful for polygon clipping and grid calculations because those
+ * operations are much cheaper in a local 2D coordinate system.
+ *
+ * IMPORTANT:
+ * This function is only for local geometry calculations.
+ * The final Cesium position should be generated from the same geographic
+ * coordinate system / local frame.
+ */
+export function geoToLocal(
+  longitude: number,
+  latitude: number,
+  depthMeters = 0,
+  originLon = UW_BOUNDS.centerLon,
+  originLat = UW_BOUNDS.centerLat,
+): Cesium.Cartesian3 {
+  const origin = Cesium.Cartesian3.fromDegrees(
+    originLon,
+    originLat,
+    0,
+  );
+
+  const point = geoToWorld(longitude, latitude, depthMeters);
+
+  const transform = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
+  const inverse = Cesium.Matrix4.inverseTransformation(
+    transform,
+    new Cesium.Matrix4(),
+  );
+
+  return Cesium.Matrix4.multiplyByPoint(
+    inverse,
+    point,
+    new Cesium.Cartesian3(),
+  );
 }
 
 /**
- * Converts geographic coordinates (lon, lat, depth) to flat local coordinates (x, y, z).
- * Local coordinate system:
- * - X: East-West (-halfWidthX to +halfWidthX)
- * - Y: North-South (-halfLengthY to +halfLengthY)
- * - Z: Depth (0 at surface to -totalDepthZ at 2000m)
+ * Convert a local East/North/Up point back to Cesium world coordinates.
+ *
+ * The origin is geographic, so every region can have its own local frame.
  */
-export function geoToLocal(lon: number, lat: number, depth: number): Cesium.Cartesian3 {
-  const normX = (lon - UW_BOUNDS.centerLon) / (UW_BOUNDS.maxLon - UW_BOUNDS.centerLon);
-  const normY = (lat - UW_BOUNDS.centerLat) / (UW_BOUNDS.maxLat - UW_BOUNDS.centerLat);
-  const normZ = Math.max(0, Math.min(UW_BOUNDS.maxDepth, depth)) / UW_BOUNDS.maxDepth;
+export function localToWorld(
+  x: number,
+  y: number,
+  z: number,
+  originLon = UW_BOUNDS.centerLon,
+  originLat = UW_BOUNDS.centerLat,
+): Cesium.Cartesian3 {
+  const origin = Cesium.Cartesian3.fromDegrees(
+    originLon,
+    originLat,
+    0,
+  );
 
-  const x = normX * UW_DIMENSIONS.halfWidthX;
-  const y = normY * UW_DIMENSIONS.halfLengthY;
-  const z = -normZ * UW_DIMENSIONS.totalDepthZ;
+  const transform = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
 
-  return new Cesium.Cartesian3(x, y, z);
+  return Cesium.Matrix4.multiplyByPoint(
+    transform,
+    new Cesium.Cartesian3(x, y, z),
+    new Cesium.Cartesian3(),
+  );
 }
 
-/**
- * Converts geographic coordinates (lon, lat, depth) directly to flat Cesium world Cartesian3.
- */
-export function geoToWorld(lon: number, lat: number, depth: number): Cesium.Cartesian3 {
-  const local = geoToLocal(lon, lat, depth);
-  return Cesium.Matrix4.multiplyByPoint(getEnuMatrix(), local, new Cesium.Cartesian3());
-}
+/* -------------------------------------------------------------------------- */
+/* Rectangle helpers                                                          */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Converts local Cartesian coordinates (x, y, z) directly to flat Cesium world Cartesian3.
+ * Legacy helper.
+ *
+ * NOTE:
+ * This creates a rectangle and therefore should NOT be used as the actual
+ * geographic footprint of an IHO region.
+ *
+ * It is retained so existing imports do not break.
  */
-export function localToWorld(x: number, y: number, z: number): Cesium.Cartesian3 {
-  const local = new Cesium.Cartesian3(x, y, z);
-  return Cesium.Matrix4.multiplyByPoint(getEnuMatrix(), local, new Cesium.Cartesian3());
-}
+export function getVolumeCornersAtDepth(
+  depthMeters: number,
+): Cesium.Cartesian3[] {
+  const depth = depthToHeight(depthMeters);
 
-/**
- * Converts flat Cesium world Cartesian3 back to local coordinates (x, y, z).
- */
-export function worldToLocal(worldPos: Cesium.Cartesian3): Cesium.Cartesian3 {
-  return Cesium.Matrix4.multiplyByPoint(getInverseEnuMatrix(), worldPos, new Cesium.Cartesian3());
-}
-
-/**
- * Gets the 4 corner positions in world Cartesian3 at a given depth: [SW, SE, NE, NW].
- */
-export function getVolumeCornersAtDepth(depth: number): Cesium.Cartesian3[] {
-  const normZ = Math.max(0, Math.min(UW_BOUNDS.maxDepth, depth)) / UW_BOUNDS.maxDepth;
-  const z = -normZ * UW_DIMENSIONS.totalDepthZ;
-  const hx = UW_DIMENSIONS.halfWidthX;
-  const hy = UW_DIMENSIONS.halfLengthY;
+  const minLon = UW_BOUNDS.minLon;
+  const maxLon = UW_BOUNDS.maxLon;
+  const minLat = UW_BOUNDS.minLat;
+  const maxLat = UW_BOUNDS.maxLat;
 
   return [
-    localToWorld(-hx, -hy, z), // SW (minLon, minLat)
-    localToWorld(hx, -hy, z),  // SE (maxLon, minLat)
-    localToWorld(hx, hy, z),   // NE (maxLon, maxLat)
-    localToWorld(-hx, hy, z),  // NW (minLon, maxLat)
+    Cesium.Cartesian3.fromDegrees(minLon, minLat, depth),
+    Cesium.Cartesian3.fromDegrees(maxLon, minLat, depth),
+    Cesium.Cartesian3.fromDegrees(maxLon, maxLat, depth),
+    Cesium.Cartesian3.fromDegrees(minLon, maxLat, depth),
   ];
 }
 
 /**
- * Gets closed 5-point perimeter loop in world Cartesian3 at a given depth: [SW, SE, NE, NW, SW].
+ * Legacy perimeter helper.
+ *
+ * Like getVolumeCornersAtDepth(), this is only a compatibility helper.
+ * Actual region geometry must come from ocean.ts footprints.
  */
-export function getVolumePerimeterAtDepth(depth: number): Cesium.Cartesian3[] {
-  const corners = getVolumeCornersAtDepth(depth);
-  return [...corners, corners[0]];
+export function getVolumePerimeterAtDepth(
+  depthMeters: number,
+): Cesium.Cartesian3[] {
+  return getVolumeCornersAtDepth(depthMeters);
 }

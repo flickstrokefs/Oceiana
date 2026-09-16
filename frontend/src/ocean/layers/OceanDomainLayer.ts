@@ -58,7 +58,7 @@ export class OceanDomainLayer {
           },
         });
 
-      border.show = false;
+      border.show = true;
 
       this.entities.push(border);
     }

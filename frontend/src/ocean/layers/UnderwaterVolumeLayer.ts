@@ -8,7 +8,7 @@ import {
   type OceanVariable,
 } from '../../types/ocean';
 
-import { UnderwaterRegionBox } from './UnderwaterRegionBox';
+import { UnderwaterRegionPolygon } from './UnderwaterRegionPolygon';
 
 import {
   fetchUnderwaterRegionData,
@@ -17,7 +17,7 @@ import {
 export class UnderwaterVolumeLayer {
   private viewer: Cesium.Viewer;
 
-  private boxes: UnderwaterRegionBox[] = [];
+  private boxes: UnderwaterRegionPolygon[] = [];
 
   private visible = false;
 
@@ -64,7 +64,7 @@ export class UnderwaterVolumeLayer {
       const definition of UNDERWATER_REGIONS
     ) {
       const box =
-        new UnderwaterRegionBox(
+        new UnderwaterRegionPolygon(
           this.viewer,
           definition,
         );

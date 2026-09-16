@@ -1,7 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import { OceanState } from '../../ocean/OceanState';
-import type { OceanVariable } from '../../types/ocean';
-import { Layers, Thermometer, Droplets, Wind, Sparkles } from 'lucide-react';
+
+import type {
+  OceanVariable,
+} from '../../types/ocean';
+
+import {
+  Layers,
+  Thermometer,
+  Droplets,
+  Wind,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 
 interface CheckpointData {
   depth: number;
@@ -10,129 +26,411 @@ interface CheckpointData {
   unit: string;
 }
 
-export const WaterColumn: React.FC = () => {
-  const [selectedDepth, setSelectedDepth] = useState<number>(0);
-  const [activeVar, setActiveVar] = useState<OceanVariable>('temperature');
-  const [checkpoints, setCheckpoints] = useState<CheckpointData[]>([]);
+export const WaterColumn: React.FC =
+  () => {
+    const [selectedDepth, setSelectedDepth] =
+      useState(0);
 
-  const depthLevels = [
-    { depth: 0, label: '0m Surface' },
-    { depth: 100, label: '100m Mixed Layer' },
-    { depth: 200, label: '200m Thermocline' },
-    { depth: 300, label: '300m Upper Pycnocline' },
-    { depth: 400, label: '400m Mid Pycnocline' },
-    { depth: 500, label: '500m Mesopelagic' },
-    { depth: 750, label: '750m Intermediate' },
-    { depth: 1000, label: '1000m Bathypelagic' },
-    { depth: 1500, label: '1500m Deep Ocean' },
-    { depth: 2000, label: '2000m Abyssal Plain' },
-  ];
+    const [activeVar, setActiveVar] =
+      useState<OceanVariable>(
+        'temperature',
+      );
 
-  useEffect(() => {
-    const oceanState = OceanState.getInstance();
-    const unsub = oceanState.subscribe((snapshot) => {
-      setSelectedDepth(snapshot.parameters.depth);
-      setActiveVar(snapshot.activeVariable);
+    const [checkpoints, setCheckpoints] =
+      useState<CheckpointData[]>([]);
 
-      // Sample central Arabian Sea / Indian Ocean location (lat: 14.0, lon: 66.0) across water column
-      const sampled = depthLevels.map((lvl) => {
-        const field = oceanState.sampleSpatialField(14.0, 66.0, lvl.depth);
-        let val = field.temperature;
-        let unit = '°C';
+    const [collapsed, setCollapsed] =
+      useState(false);
 
-        if (snapshot.activeVariable === 'salinity') {
-          val = field.salinity;
-          unit = 'PSU';
-        } else if (snapshot.activeVariable === 'current') {
-          val = Math.sqrt(field.velocity.u ** 2 + field.velocity.v ** 2);
-          unit = 'm/s';
-        } else if (snapshot.activeVariable === 'chlorophyll') {
-          val = field.chlorophyll;
-          unit = 'mg/m³';
+    const depthLevels = [
+      { depth: 0, label: '0m Surface' },
+      { depth: 100, label: '100m Mixed Layer' },
+      { depth: 200, label: '200m Thermocline' },
+      { depth: 300, label: '300m Upper Pycnocline' },
+      { depth: 400, label: '400m Mid Pycnocline' },
+      { depth: 500, label: '500m Mesopelagic' },
+      { depth: 750, label: '750m Intermediate' },
+      { depth: 1000, label: '1000m Bathypelagic' },
+      { depth: 1500, label: '1500m Deep Ocean' },
+      { depth: 2000, label: '2000m Abyssal Plain' },
+    ];
+
+    useEffect(() => {
+      const state =
+        OceanState.getInstance();
+
+      const unsub =
+        state.subscribe(
+          (snapshot) => {
+            setSelectedDepth(
+              snapshot.parameters.depth,
+            );
+
+            setActiveVar(
+              snapshot.activeVariable,
+            );
+
+            const sampled =
+              depthLevels.map(
+                (level) => {
+                  const field =
+                    state.sampleSpatialField(
+                      14,
+                      66,
+                      level.depth,
+                    );
+
+                  let value =
+                    field.temperature;
+
+                  let unit =
+                    '°C';
+
+                  if (
+                    snapshot.activeVariable ===
+                    'salinity'
+                  ) {
+                    value =
+                      field.salinity;
+
+                    unit =
+                      'PSU';
+                  } else if (
+                    snapshot.activeVariable ===
+                    'current'
+                  ) {
+                    value =
+                      Math.sqrt(
+                        field.velocity.u **
+                          2 +
+                          field.velocity.v **
+                            2,
+                      );
+
+                    unit =
+                      'm/s';
+                  } else if (
+                    snapshot.activeVariable ===
+                    'chlorophyll'
+                  ) {
+                    value =
+                      field.chlorophyll;
+
+                    unit =
+                      'mg/m³';
+                  }
+
+                  return {
+                    depth:
+                      level.depth,
+
+                    label:
+                      level.label,
+
+                    value:
+                      parseFloat(
+                        value.toFixed(
+                          2,
+                        ),
+                      ),
+
+                    unit,
+                  };
+                },
+              );
+
+            setCheckpoints(
+              sampled,
+            );
+          },
+        );
+
+      return unsub;
+    }, []);
+
+    const handleSelectDepth =
+      (
+        depth: number,
+      ) => {
+        OceanState
+          .getInstance()
+          .setDepth(depth);
+      };
+
+    const getVarIcon =
+      () => {
+        switch (
+          activeVar
+        ) {
+          case 'salinity':
+            return (
+              <Droplets
+                size={14}
+                className="icon-blue"
+              />
+            );
+
+          case 'current':
+            return (
+              <Wind
+                size={14}
+                className="icon-cyan"
+              />
+            );
+
+          case 'chlorophyll':
+            return (
+              <Sparkles
+                size={14}
+                className="icon-green"
+              />
+            );
+
+          default:
+            return (
+              <Thermometer
+                size={14}
+                className="icon-amber"
+              />
+            );
         }
+      };
 
-        return {
-          depth: lvl.depth,
-          label: lvl.label,
-          value: parseFloat(val.toFixed(2)),
-          unit,
-        };
-      });
+    return (
+      <aside
+        className="ocean-panel water-column-panel"
+        style={{
+          transition:
+            'width 0.25s ease, min-width 0.25s ease',
 
-      setCheckpoints(sampled);
-    });
+          width:
+            collapsed
+              ? '44px'
+              : undefined,
 
-    return unsub;
-  }, []);
+          minWidth:
+            collapsed
+              ? '44px'
+              : undefined,
 
-  const handleSelectDepth = (depth: number) => {
-    OceanState.getInstance().setDepth(depth);
-  };
+          overflow:
+            'hidden',
+        }}
+      >
 
-  const getVarIcon = () => {
-    switch (activeVar) {
-      case 'salinity':
-        return <Droplets size={14} className="icon-blue" />;
-      case 'current':
-        return <Wind size={14} className="icon-cyan" />;
-      case 'chlorophyll':
-        return <Sparkles size={14} className="icon-green" />;
-      default:
-        return <Thermometer size={14} className="icon-amber" />;
-    }
-  };
+        <div
+          className="panel-header"
+          style={{
+            position:
+              'relative',
 
-  return (
-    <aside className="ocean-panel water-column-panel">
-      <div className="panel-header">
-        <div className="panel-title-group">
-          <Layers className="icon-teal" size={16} />
-          <h2 className="panel-title">WATER COLUMN PROFILE</h2>
-        </div>
-        <div className="var-mini-tag">
-          {getVarIcon()}
-          <span className="var-mini-name">{activeVar.toUpperCase()}</span>
-        </div>
-      </div>
+            minWidth:
+              collapsed
+                ? '44px'
+                : undefined,
+          }}
+        >
 
-      <div className="water-column-list">
-        {checkpoints.map((cp) => {
-          const isCurrentSlice = Math.abs(selectedDepth - cp.depth) <= 40;
-          const isExact = selectedDepth === cp.depth;
+          {!collapsed && (
+            <div className="panel-title-group">
+              <Layers
+                className="icon-teal"
+                size={16}
+              />
 
-          return (
-            <div
-              key={cp.depth}
-              onClick={() => handleSelectDepth(cp.depth)}
-              className={`water-column-row ${isCurrentSlice ? 'row-active-slice' : ''} ${isExact ? 'row-exact-depth' : ''}`}
-            >
-              <div className="row-depth-label">
-                <span className="depth-bullet"></span>
-                <span className="depth-text">-{cp.depth}m</span>
-              </div>
-
-              <div className="row-bar-track">
-                <div
-                  className="row-bar-fill"
-                  style={{
-                    width: `${Math.min(100, Math.max(10, activeVar === 'temperature' ? (cp.value / 32) * 100 : (cp.value / 40) * 100))}%`,
-                    background: activeVar === 'temperature'
-                      ? 'linear-gradient(90deg, #2d82ff, #ff9100)'
-                      : activeVar === 'salinity'
-                      ? 'linear-gradient(90deg, #00f0ff, #00ff9d)'
-                      : '#00f0ff'
-                  }}
-                />
-              </div>
-
-              <div className="row-val-group">
-                <span className="row-val-num">{cp.value}</span>
-                <span className="row-val-unit">{cp.unit}</span>
-              </div>
+              <h2 className="panel-title">
+                WATER COLUMN PROFILE
+              </h2>
             </div>
-          );
-        })}
-      </div>
-    </aside>
-  );
-};
+          )}
+
+          {collapsed && (
+            <Layers
+              className="icon-teal"
+              size={16}
+            />
+          )}
+
+          {!collapsed && (
+            <div className="var-mini-tag">
+              {getVarIcon()}
+
+              <span className="var-mini-name">
+                {activeVar.toUpperCase()}
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={() =>
+              setCollapsed(
+                (value) =>
+                  !value,
+              )
+            }
+            title={
+              collapsed
+                ? 'Expand Water Column'
+                : 'Collapse Water Column'
+            }
+            style={{
+              position:
+                'absolute',
+
+              right:
+                collapsed
+                  ? '5px'
+                  : '6px',
+
+              top:
+                '50%',
+
+              transform:
+                'translateY(-50%)',
+
+              width:
+                '24px',
+
+              height:
+                '24px',
+
+              display:
+                'flex',
+
+              alignItems:
+                'center',
+
+              justifyContent:
+                'center',
+
+              border:
+                '1px solid rgba(0,240,255,0.40)',
+
+              borderRadius:
+                '5px',
+
+              background:
+                'rgba(0,20,35,0.90)',
+
+              color:
+                '#00f0ff',
+
+              cursor:
+                'pointer',
+
+              zIndex:
+                20,
+            }}
+          >
+            {collapsed ? (
+              <ChevronRight
+                size={13}
+              />
+            ) : (
+              <ChevronLeft
+                size={13}
+              />
+            )}
+          </button>
+
+        </div>
+
+        {!collapsed && (
+          <div className="water-column-list">
+
+            {checkpoints.map(
+              (cp) => {
+                const isCurrentSlice =
+                  Math.abs(
+                    selectedDepth -
+                      cp.depth,
+                  ) <= 40;
+
+                const isExact =
+                  selectedDepth ===
+                  cp.depth;
+
+                return (
+                  <div
+                    key={
+                      cp.depth
+                    }
+                    onClick={() =>
+                      handleSelectDepth(
+                        cp.depth,
+                      )
+                    }
+                    className={`water-column-row ${
+                      isCurrentSlice
+                        ? 'row-active-slice'
+                        : ''
+                    } ${
+                      isExact
+                        ? 'row-exact-depth'
+                        : ''
+                    }`}
+                  >
+
+                    <div className="row-depth-label">
+                      <span className="depth-bullet" />
+
+                      <span className="depth-text">
+                        -{cp.depth}m
+                      </span>
+                    </div>
+
+                    <div className="row-bar-track">
+                      <div
+                        className="row-bar-fill"
+                        style={{
+                          width:
+                            `${
+                              Math.min(
+                                100,
+                                Math.max(
+                                  10,
+                                  activeVar ===
+                                    'temperature'
+                                    ? (cp.value /
+                                        32) *
+                                        100
+                                    : (cp.value /
+                                        40) *
+                                        100,
+                                ),
+                              )
+                            }%`,
+
+                          background:
+                            activeVar ===
+                            'temperature'
+                              ? 'linear-gradient(90deg, #2d82ff, #ff9100)'
+                              : activeVar ===
+                                'salinity'
+                              ? 'linear-gradient(90deg, #00f0ff, #00ff9d)'
+                              : '#00f0ff',
+                        }}
+                      />
+                    </div>
+
+                    <div className="row-val-group">
+                      <span className="row-val-num">
+                        {cp.value}
+                      </span>
+
+                      <span className="row-val-unit">
+                        {cp.unit}
+                      </span>
+                    </div>
+
+                  </div>
+                );
+              },
+            )}
+
+          </div>
+        )}
+
+      </aside>
+    );
+  };
