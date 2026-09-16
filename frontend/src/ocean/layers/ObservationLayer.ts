@@ -14,7 +14,6 @@ export class ObservationLayer {
   private entityMeta = new Map<Cesium.Entity, ObsEntityMeta>();
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
   private unsubscribeState: (() => void) | null = null;
-  private highlightedId: string | null = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -41,16 +40,15 @@ export class ObservationLayer {
   private renderArgoProfile(argo: ArgoProfile): void {
     const pos = Cesium.Cartesian3.fromDegrees(argo.longitude, argo.latitude, 2000);
 
-    // 1. Surface Beacon Pin - Restrained 8px solid technical dot
+    // 1. Surface Beacon Pin
     const beacon = this.viewer.entities.add({
-      id: `obs-argo-marker-${argo.id}`,
       name: argo.name,
       position: pos,
       point: {
-        pixelSize: 8,
-        color: Cesium.Color.fromCssColorString('#c79a5b'), // Restrained instrument amber
-        outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-        outlineWidth: 1.5,
+        pixelSize: 13,
+        color: new Cesium.Color(1.0, 0.8, 0.0, 1.0),
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 2,
       },
       label: {
         text: new Cesium.CallbackProperty(() => {
@@ -70,17 +68,17 @@ export class ObservationLayer {
           }
 
           if (isUnderwater) {
-            return `● ${argo.stationCode} [-${closest.depth}m: ${closest.temperature.toFixed(1)}°C]`;
+            return `${argo.stationCode}\n[-${closest.depth}m: ${closest.temperature.toFixed(1)}°C | ${closest.salinity.toFixed(1)} PSU]`;
           }
-          return `● ${argo.stationCode}`;
+          return `${argo.stationCode} (ARGO)`;
         }, false),
-        font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
+        font: 'bold 11px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
         outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
         outlineWidth: 2,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -10),
+        pixelOffset: new Cesium.Cartesian2(0, -14),
       },
       properties: {
         obsType: 'argo',
@@ -91,29 +89,22 @@ export class ObservationLayer {
     this.entities.push(beacon);
     this.entityMeta.set(beacon, { obsId: argo.id, obsType: 'argo', role: 'marker' });
 
-    // 2. Subtle Coverage Ring
+    // 2. Pulsing Radio Range Ring
     const rangeRing = this.viewer.entities.add({
-      id: `obs-argo-ring-${argo.id}`,
-      name: argo.name + ' Range',
+      name: argo.name + ' Telemetry Ring',
       position: pos,
       ellipse: {
-        semiMinorAxis: 40000.0,
-        semiMajorAxis: 40000.0,
+        semiMinorAxis: 45000.0,
+        semiMajorAxis: 45000.0,
         material: new Cesium.ColorMaterialProperty(
-          new Cesium.Color(0.2, 0.25, 0.3, 0.04)
+          new Cesium.Color(1.0, 0.8, 0.0, 0.12)
         ),
         outline: true,
-        outlineColor: new Cesium.Color(0.35, 0.4, 0.45, 0.25),
-        outlineWidth: 1.0,
-      },
-      properties: {
-        obsType: 'argo',
-        obsId: argo.id,
-        data: argo,
+        outlineColor: new Cesium.Color(1.0, 0.8, 0.0, 0.5),
+        outlineWidth: 1.5,
       },
     });
     this.entities.push(rangeRing);
-    this.entityMeta.set(rangeRing, { obsId: argo.id, obsType: 'argo', role: 'ring' });
   }
 
   private renderGliderTrajectory(glider: GliderTrajectory): void {
@@ -123,14 +114,13 @@ export class ObservationLayer {
 
     // Mission Track Polyline on ocean surface
     const trajectoryLine = this.viewer.entities.add({
-      id: `obs-glider-track-${glider.id}`,
       name: glider.name + ' Mission Track',
       polyline: {
         positions: surfacePositions,
         width: 3.0,
         material: new Cesium.PolylineGlowMaterialProperty({
           glowPower: 0.3,
-          color: new Cesium.Color(0.12, 0.78, 0.59, 0.9), // solid teal (ARIEL), not magenta
+          color: new Cesium.Color(1.0, 0.3, 0.8, 0.9),
         }),
       },
       properties: {
@@ -159,20 +149,19 @@ export class ObservationLayer {
         name: glider.name + ' Active Unit',
         position: gliderPos,
         point: {
-          pixelSize: 8,
-          color: Cesium.Color.fromCssColorString('#5b8fc7'), // Restrained GIS blue
-          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-          outlineWidth: 1.5,
+          pixelSize: 12,
+          color: new Cesium.Color(1.0, 0.0, 0.6, 1.0),
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 2,
         },
         label: {
-          text: `● ${glider.name}`,
-          font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
-          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-          outlineWidth: 2,
+          text: `${glider.name}\n[ACTIVE SURVEY // ${glider.waypoints.length} WAYPOINTS]`,
+          font: 'bold 11px "JetBrains Mono", monospace',
+          fillColor: new Cesium.Color(1.0, 0.4, 0.8, 1.0),
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 3,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -10),
+          pixelOffset: new Cesium.Cartesian2(0, -12),
         },
         properties: {
           obsType: 'glider',
@@ -232,6 +221,13 @@ export class ObservationLayer {
     }
   }
 
+  private bindDepthObservationState(): void {
+    const oceanState = OceanState.getInstance();
+    this.unsubscribeState = oceanState.subscribe(() => {
+      // Re-trigger label properties on depth update
+    });
+  }
+
   private initClickHandler(): void {
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
 
@@ -275,3 +271,4 @@ export class ObservationLayer {
     this.entityMeta.clear();
   }
 }
+
