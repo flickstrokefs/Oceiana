@@ -23,7 +23,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  LayoutGrid,
   Globe2,
 } from 'lucide-react';
 
@@ -67,8 +66,12 @@ export const UnderwaterHeader: React.FC<
   const oceanState =
     OceanState.getInstance();
 
+  // ============================================================
+  // STATE SUBSCRIPTION
+  // ============================================================
+
   useEffect(() => {
-    const unsub =
+    const unsubscribe =
       oceanState.subscribe(
         (snapshot) => {
           setDepth(
@@ -98,8 +101,12 @@ export const UnderwaterHeader: React.FC<
         },
       );
 
-    return unsub;
+    return unsubscribe;
   }, [oceanState]);
+
+  // ============================================================
+  // CLOSE DROPDOWNS
+  // ============================================================
 
   useEffect(() => {
     const handleClickOutside = (
@@ -163,7 +170,7 @@ export const UnderwaterHeader: React.FC<
   };
 
   // ============================================================
-  // DOMAIN
+  // DOMAIN STATE
   // ============================================================
 
   const setDomainSafely = (
@@ -190,76 +197,134 @@ export const UnderwaterHeader: React.FC<
     );
   };
 
+  // ============================================================
+  // DOMAIN CLICK
+  //
+  // IMPORTANT:
+  //
+  // Clicking an ocean domain ALSO activates its
+  // underwater geometry immediately.
+  //
+  // This is intentionally NOT set to null.
+  // ============================================================
+
   const handleDomainSelect = (
     domainId: OceanDomainId,
   ) => {
+    const domain =
+      OCEAN_DOMAINS.find(
+        (item) =>
+          item.id ===
+          domainId,
+      );
+
+    if (!domain) {
+      return;
+    }
+
+    // 1. Set ocean domain
     setDomainSafely(
       domainId,
     );
 
+    // 2. Close dropdown
     setIsDomainOpen(false);
 
-    /*
-     * CRITICAL:
-     *
-     * Southern Ocean is a DOMAIN, not one of
-     * the Indian Ocean underwater sea meshes.
-     *
-     * Therefore clear the active underwater
-     * sea when switching to Southern Ocean.
-     */
+    // ========================================================
+    // SOUTHERN OCEAN
+    // ========================================================
+
     if (
       domainId ===
       'southern-ocean'
     ) {
-      oceanState.setUnderwaterRegion(
-        null,
-      );
+      /*
+       * Southern Ocean is a valid underwater
+       * geometry target in the existing data.
+       *
+       * Activating it here makes the existing
+       * footprint / grid / mesh system respond
+       * immediately.
+       */
 
-      setActiveRegionId(
-        null,
-      );
+      const southernRegion =
+        UNDERWATER_REGIONS.find(
+          (region) =>
+            region.id ===
+            'southern-ocean',
+        );
+
+      if (
+        southernRegion
+      ) {
+        oceanState.setUnderwaterRegion(
+          southernRegion.id,
+        );
+
+        setActiveRegionId(
+          southernRegion.id,
+        );
+      }
 
       return;
     }
 
-    /*
-     * Indian Ocean:
-     *
-     * If there is no current Indian Ocean sea,
-     * select Arabian Sea as the initial child.
-     */
+    // ========================================================
+    // INDIAN OCEAN
+    // ========================================================
+
     if (
       domainId ===
       'indian-ocean'
     ) {
-      const domain =
-        OCEAN_DOMAINS.find(
-          (item) =>
-            item.id ===
-            'indian-ocean',
-        );
+      /*
+       * If the currently selected sea belongs
+       * to Indian Ocean, KEEP it.
+       *
+       * Otherwise activate the first Indian
+       * Ocean sea.
+       */
 
-      if (!domain) {
-        return;
-      }
-
-      const currentIsChild =
+      const currentIsIndianSea =
         activeRegionId !== null &&
         domain.children.includes(
           activeRegionId,
         );
 
       if (
-        !currentIsChild &&
-        domain.children.length > 0
+        currentIsIndianSea
       ) {
+        /*
+         * Re-apply the selected region so the
+         * underwater renderer receives the
+         * selection immediately.
+         */
+
         oceanState.setUnderwaterRegion(
-          domain.children[0],
+          activeRegionId,
+        );
+
+        return;
+      }
+
+      /*
+       * No Indian Ocean sea selected:
+       * activate the first child.
+       */
+
+      if (
+        domain.children.length >
+        0
+      ) {
+        const firstRegionId =
+          domain.children[0];
+
+        oceanState.setUnderwaterRegion(
+          firstRegionId,
         );
 
         setActiveRegionId(
-          domain.children[0],
+          firstRegionId,
         );
       }
     }
@@ -283,8 +348,7 @@ export const UnderwaterHeader: React.FC<
             (id) =>
               UNDERWATER_REGIONS.find(
                 (region) =>
-                  region.id ===
-                  id,
+                  region.id === id,
               ),
           )
           .filter(
@@ -306,10 +370,6 @@ export const UnderwaterHeader: React.FC<
         ) ?? null
       : null;
 
-  /*
-   * Only show sea navigation while inside
-   * Indian Ocean.
-   */
   const showSeaNavigation =
     selectedDomain ===
     'indian-ocean';
@@ -347,34 +407,75 @@ export const UnderwaterHeader: React.FC<
       ? indianOceanRegions[0]
       : null;
 
+  // ============================================================
+  // SEA CLICK
+  //
+  // This is the important part:
+  //
+  // SEA CLICK
+  //     ↓
+  // set domain
+  //     ↓
+  // set underwater region
+  //     ↓
+  // existing renderer reacts
+  //     ↓
+  // footprint + grid + mesh + vertices
+  // ============================================================
+
   const handleRegionSelect = (
     id: UnderwaterRegionId | null,
   ) => {
+    if (
+      id === null
+    ) {
+      oceanState.setUnderwaterRegion(
+        null,
+      );
+
+      setActiveRegionId(
+        null,
+      );
+
+      setIsRegionOpen(
+        false,
+      );
+
+      return;
+    }
+
+    // Ensure Indian Ocean domain is active.
+    setDomainSafely(
+      'indian-ocean',
+    );
+
+    setSelectedDomain(
+      'indian-ocean',
+    );
+
+    // Activate the actual sea geometry.
     oceanState.setUnderwaterRegion(
       id,
     );
 
-    if (
-      id !== null
-    ) {
-      setDomainSafely(
-        'indian-ocean',
-      );
+    setActiveRegionId(
+      id,
+    );
 
-      setSelectedDomain(
-        'indian-ocean',
-      );
-    }
-
-    setActiveRegionId(id);
-    setIsRegionOpen(false);
+    setIsRegionOpen(
+      false,
+    );
   };
+
+  // ============================================================
+  // RENDER
+  // ============================================================
 
   return (
     <header className="header-controls underwater-header">
 
       {/* ====================================================== */}
-      {/* BRAND + OCEAN NAVIGATION                              */}
+      {/* BRAND                                                  */}
       {/* ====================================================== */}
 
       <div className="brand-group">
@@ -390,7 +491,9 @@ export const UnderwaterHeader: React.FC<
         </div>
 
         {/* STRATUM */}
+
         <div className="stratum-indicator">
+
           <Layers
             size={13}
             className="icon-cyan animate-pulse-slow"
@@ -399,6 +502,7 @@ export const UnderwaterHeader: React.FC<
           <span className="stratum-text">
             STRATUM: -{depth}m
           </span>
+
         </div>
 
         {/* ==================================================== */}
@@ -412,6 +516,7 @@ export const UnderwaterHeader: React.FC<
               'relative',
           }}
         >
+
           <button
             onClick={() => {
               setIsDomainOpen(
@@ -464,6 +569,7 @@ export const UnderwaterHeader: React.FC<
                 'nowrap',
             }}
           >
+
             <Globe2
               size={12}
             />
@@ -476,7 +582,10 @@ export const UnderwaterHeader: React.FC<
             <ChevronDown
               size={12}
             />
+
           </button>
+
+          {/* DOMAIN DROPDOWN */}
 
           {isDomainOpen && (
             <div
@@ -487,10 +596,11 @@ export const UnderwaterHeader: React.FC<
                 top:
                   'calc(100% + 6px)',
 
-                left: 0,
+                left:
+                  0,
 
                 minWidth:
-                  '240px',
+                  '245px',
 
                 padding:
                   '6px',
@@ -610,6 +720,7 @@ export const UnderwaterHeader: React.FC<
                           'left',
                       }}
                     >
+
                       <Globe2
                         size={12}
                       />
@@ -633,6 +744,7 @@ export const UnderwaterHeader: React.FC<
                           5 SEAS
                         </span>
                       )}
+
                     </button>
                   );
                 },
@@ -640,6 +752,7 @@ export const UnderwaterHeader: React.FC<
 
             </div>
           )}
+
         </div>
 
         {/* ==================================================== */}
@@ -660,6 +773,8 @@ export const UnderwaterHeader: React.FC<
                 '4px',
             }}
           >
+
+            {/* PREVIOUS */}
 
             {prevRegion && (
               <button
@@ -704,13 +819,18 @@ export const UnderwaterHeader: React.FC<
 
                   cursor:
                     'pointer',
+
+                  whiteSpace:
+                    'nowrap',
                 }}
               >
+
                 <ChevronLeft
                   size={12}
                 />
 
                 {prevRegion.label.toUpperCase()}
+
               </button>
             )}
 
@@ -723,6 +843,7 @@ export const UnderwaterHeader: React.FC<
                   'relative',
               }}
             >
+
               <button
                 onClick={() =>
                   setIsRegionOpen(
@@ -771,6 +892,7 @@ export const UnderwaterHeader: React.FC<
                     'nowrap',
                 }}
               >
+
                 <MapPin
                   size={11}
                 />
@@ -782,7 +904,10 @@ export const UnderwaterHeader: React.FC<
                 <ChevronDown
                   size={11}
                 />
+
               </button>
+
+              {/* SEA DROPDOWN */}
 
               {isRegionOpen && (
                 <div
@@ -793,7 +918,8 @@ export const UnderwaterHeader: React.FC<
                     top:
                       'calc(100% + 6px)',
 
-                    left: 0,
+                    left:
+                      0,
 
                     minWidth:
                       '245px',
@@ -905,6 +1031,7 @@ export const UnderwaterHeader: React.FC<
                               'left',
                           }}
                         >
+
                           <span
                             style={{
                               width:
@@ -929,6 +1056,7 @@ export const UnderwaterHeader: React.FC<
                           />
 
                           {region.label}
+
                         </button>
                       );
                     },
@@ -936,7 +1064,10 @@ export const UnderwaterHeader: React.FC<
 
                 </div>
               )}
+
             </div>
+
+            {/* NEXT */}
 
             {nextRegion && (
               <button
@@ -981,13 +1112,18 @@ export const UnderwaterHeader: React.FC<
 
                   cursor:
                     'pointer',
+
+                  whiteSpace:
+                    'nowrap',
                 }}
               >
+
                 {nextRegion.label.toUpperCase()}
 
                 <ChevronRight
                   size={12}
                 />
+
               </button>
             )}
 
@@ -997,7 +1133,7 @@ export const UnderwaterHeader: React.FC<
       </div>
 
       {/* ====================================================== */}
-      {/* MODE                                                    */}
+      {/* MODE                                                   */}
       {/* ====================================================== */}
 
       <div className="mode-switch-container">
@@ -1030,7 +1166,7 @@ export const UnderwaterHeader: React.FC<
       </div>
 
       {/* ====================================================== */}
-      {/* VARIABLES                                               */}
+      {/* VARIABLES                                              */}
       {/* ====================================================== */}
 
       <div className="variable-selector-group">
@@ -1104,6 +1240,10 @@ export const UnderwaterHeader: React.FC<
         </button>
 
       </div>
+
+      {/* ====================================================== */}
+      {/* RESET                                                  */}
+      {/* ====================================================== */}
 
       <button
         onClick={
