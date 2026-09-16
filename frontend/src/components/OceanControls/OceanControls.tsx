@@ -26,8 +26,14 @@ export const OceanControls: React.FC = () => {
     OceanState.getInstance().updateParameters({ [key]: val });
   };
 
-  const applyPreset = (preset: Partial<OceanParameters>) => {
+  const applyPreset = (
+    preset: Partial<OceanParameters>,
+    targetCoord?: { lat: number; lon: number; alt?: number }
+  ) => {
     OceanState.getInstance().updateParameters(preset);
+    if (targetCoord) {
+      OceanState.getInstance().requestFlyToLocation(targetCoord.lat, targetCoord.lon, targetCoord.alt);
+    }
   };
 
   return (
@@ -203,13 +209,16 @@ export const OceanControls: React.FC = () => {
         <div className="preset-grid">
           <button
             onClick={() =>
-              applyPreset({
-                temperature: 30.5,
-                salinity: 36.8,
-                currentSpeed: 0.8,
-                depth: 0,
-                chlorophyll: 0.4,
-              })
+              applyPreset(
+                {
+                  temperature: 30.5,
+                  salinity: 36.8,
+                  currentSpeed: 0.8,
+                  depth: 0,
+                  chlorophyll: 0.4,
+                },
+                { lat: 16.0, lon: 65.0, alt: 1800000 }
+              )
             }
             className="preset-btn"
           >
@@ -217,45 +226,54 @@ export const OceanControls: React.FC = () => {
           </button>
           <button
             onClick={() =>
-              applyPreset({
-                temperature: 17.5,
-                salinity: 35.7,
-                currentSpeed: 3.4,
-                depth: 30,
-                chlorophyll: 4.8,
-              })
+              applyPreset(
+                {
+                  temperature: 28.5,
+                  salinity: 32.8,
+                  currentSpeed: 1.2,
+                  depth: 10,
+                  chlorophyll: 2.1,
+                },
+                { lat: 15.0, lon: 88.0, alt: 1800000 }
+              )
             }
             className="preset-btn"
           >
-            Somali Upwelling
+            Bay of Bengal Plume
           </button>
           <button
             onClick={() =>
-              applyPreset({
-                temperature: 24.2,
-                salinity: 35.1,
-                currentSpeed: 2.2,
-                depth: 120,
-                chlorophyll: 1.4,
-              })
+              applyPreset(
+                {
+                  temperature: 1.8,
+                  salinity: 34.0,
+                  currentSpeed: 1.8,
+                  depth: 50,
+                  chlorophyll: 1.4,
+                },
+                { lat: -58.0, lon: 70.0, alt: 3200000 }
+              )
             }
             className="preset-btn"
           >
-            Equatorial Flow
+            Southern Ocean Front
           </button>
           <button
             onClick={() =>
-              applyPreset({
-                temperature: 2.8,
-                salinity: 34.7,
-                currentSpeed: 0.3,
-                depth: 2200,
-                chlorophyll: 0.1,
-              })
+              applyPreset(
+                {
+                  temperature: 2.8,
+                  salinity: 34.7,
+                  currentSpeed: 0.3,
+                  depth: 2200,
+                  chlorophyll: 0.1,
+                },
+                { lat: 14.0, lon: 75.0, alt: 950000 }
+              )
             }
             className="preset-btn"
           >
-            Abyssal Trench
+            Abyssal Stratum
           </button>
         </div>
       </div>

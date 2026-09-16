@@ -1,10 +1,17 @@
 import * as Cesium from 'cesium';
 import { OceanState } from '../OceanState';
-import type { ArgoProfile, GliderTrajectory } from '../../types/ocean';
+import type { ArgoProfile, GliderTrajectory, SelectedObservation } from '../../types/ocean';
+
+type ObsEntityMeta = {
+  obsId: string;
+  obsType: 'argo' | 'glider';
+  role: 'marker' | 'ring' | 'track';
+};
 
 export class ObservationLayer {
   private viewer: Cesium.Viewer;
   private entities: Cesium.Entity[] = [];
+  private entityMeta = new Map<Cesium.Entity, ObsEntityMeta>();
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
   private unsubscribeState: (() => void) | null = null;
 
@@ -67,18 +74,20 @@ export class ObservationLayer {
         }, false),
         font: 'bold 11px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Cesium.Color.WHITE,
-        outlineColor: Cesium.Color.BLACK,
-        outlineWidth: 3,
+        fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
+        outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
+        outlineWidth: 2,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -14),
       },
       properties: {
         obsType: 'argo',
+        obsId: argo.id,
         data: argo,
       },
     });
     this.entities.push(beacon);
+    this.entityMeta.set(beacon, { obsId: argo.id, obsType: 'argo', role: 'marker' });
 
     // 2. Pulsing Radio Range Ring
     const rangeRing = this.viewer.entities.add({
@@ -116,10 +125,16 @@ export class ObservationLayer {
       },
       properties: {
         obsType: 'glider',
+        obsId: glider.id,
         data: glider,
       },
     });
     this.entities.push(trajectoryLine);
+    this.entityMeta.set(trajectoryLine, {
+      obsId: glider.id,
+      obsType: 'glider',
+      role: 'track',
+    });
 
     if (glider.waypoints.length > 0) {
       const latest = glider.waypoints[glider.waypoints.length - 1];
@@ -130,6 +145,7 @@ export class ObservationLayer {
       );
 
       const headMarker = this.viewer.entities.add({
+        id: `obs-glider-marker-${glider.id}`,
         name: glider.name + ' Active Unit',
         position: gliderPos,
         point: {
@@ -149,10 +165,59 @@ export class ObservationLayer {
         },
         properties: {
           obsType: 'glider',
+          obsId: glider.id,
           data: glider,
         },
       });
       this.entities.push(headMarker);
+      this.entityMeta.set(headMarker, {
+        obsId: glider.id,
+        obsType: 'glider',
+        role: 'marker',
+      });
+    }
+  }
+
+  private bindDepthObservationState(): void {
+    const oceanState = OceanState.getInstance();
+    this.unsubscribeState = oceanState.subscribe((snapshot) => {
+      const selectedId = snapshot.selectedObservation?.data.id ?? null;
+      if (selectedId !== this.highlightedId) {
+        this.applyHighlight(selectedId);
+      }
+    });
+  }
+
+  /**
+   * Visually emphasize the selected Argo / Glider marker (+ track when glider).
+   * Called from OceanState selection and Show on Globe.
+   */
+  public applyHighlight(obsId: string | null): void {
+    this.highlightedId = obsId;
+
+    for (const entity of this.entities) {
+      const meta = this.entityMeta.get(entity);
+      if (!meta) continue;
+      const isSelected = obsId !== null && meta.obsId === obsId;
+
+      if (meta.role === 'marker' && entity.point) {
+        entity.point.pixelSize = new Cesium.ConstantProperty(isSelected ? 11 : 8);
+        entity.point.outlineWidth = new Cesium.ConstantProperty(isSelected ? 2.5 : 1.5);
+        entity.point.outlineColor = new Cesium.ConstantProperty(
+          isSelected
+            ? Cesium.Color.fromCssColorString('#5b8fc7') // Restrained selection blue
+            : Cesium.Color.fromCssColorString('#1b1e22')
+        );
+      }
+
+      if (meta.role === 'track' && entity.polyline) {
+        entity.polyline.width = new Cesium.ConstantProperty(isSelected ? 4.0 : 2.0);
+      }
+
+      if (meta.role === 'ring' && entity.ellipse) {
+        entity.ellipse.semiMajorAxis = new Cesium.ConstantProperty(isSelected ? 50000 : 40000);
+        entity.ellipse.semiMinorAxis = new Cesium.ConstantProperty(isSelected ? 50000 : 40000);
+      }
     }
   }
 
@@ -175,14 +240,17 @@ export class ObservationLayer {
         const data = props.data ? props.data.getValue() : null;
 
         if (obsType && data) {
-          OceanState.getInstance().selectObservation({
+          const selection: SelectedObservation = {
             type: obsType,
             data,
-          });
+          };
+          // Opens Observation Profile modal via OceanState (globe stays mounted)
+          OceanState.getInstance().selectObservation(selection);
           return;
         }
       }
 
+      // Empty-globe click: clear selection + close modal
       OceanState.getInstance().selectObservation(null);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
@@ -200,6 +268,7 @@ export class ObservationLayer {
       }
     }
     this.entities = [];
+    this.entityMeta.clear();
   }
 }
 

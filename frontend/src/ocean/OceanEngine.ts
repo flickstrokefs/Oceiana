@@ -1,23 +1,39 @@
 import type * as Cesium from 'cesium';
+
 import { OceanState } from './OceanState';
+
 import { CameraController } from '../cesium/CameraController';
 import { UnderwaterEnvironment } from '../cesium/UnderwaterEnvironment';
 import { DepthSliceRenderer } from './layers/DepthSliceRenderer';
 import { CurrentLayer } from './layers/CurrentLayer';
 import { ObservationLayer } from './layers/ObservationLayer';
-import type { OceanMode, OceanVariable } from '../types/ocean';
+import { UnderwaterVolumeLayer } from './layers/UnderwaterVolumeLayer';
+import { OceanDomainLayer } from './layers/OceanDomainLayer';
+
+import { getObservationFocusCoords } from '../services/observationService';
+
+import type {
+  OceanMode,
+  OceanVariable,
+} from '../types/ocean';
 
 export class OceanEngine {
+  private viewer: Cesium.Viewer;
   private cameraController: CameraController;
   private underwaterEnv: UnderwaterEnvironment;
   private depthSliceRenderer: DepthSliceRenderer;
   private currentLayer: CurrentLayer;
   private obsLayer: ObservationLayer;
 
+  private underwaterVolumeLayer: UnderwaterVolumeLayer;
+  private oceanDomainLayer: OceanDomainLayer;
+
   private unsubscribeState: (() => void) | null = null;
+
   private lastVariable: OceanVariable = 'temperature';
   private lastMode: OceanMode = 'surface';
   private lastDepth = 0;
+  private lastFlyToken = 0;
 
   constructor(viewer: Cesium.Viewer) {
     this.underwaterEnv = new UnderwaterEnvironment(viewer);
@@ -27,6 +43,7 @@ export class OceanEngine {
     this.obsLayer = new ObservationLayer(viewer);
 
     this.cameraController.setInitialView();
+
     this.bindState();
   }
 
@@ -62,16 +79,18 @@ export class OceanEngine {
   }
 
   public resetView(): void {
-    this.cameraController.setInitialView();
+    this.cameraController.resetCamera();
   }
 
   public destroy(): void {
     if (this.unsubscribeState) {
       this.unsubscribeState();
+      this.unsubscribeState = null;
     }
     this.depthSliceRenderer.destroy();
     this.currentLayer.destroy();
     this.obsLayer.destroy();
+
     this.underwaterEnv.destroy();
   }
 }

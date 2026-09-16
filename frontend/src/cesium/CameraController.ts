@@ -1,6 +1,4 @@
-import * as Cesium from 'cesium';
-import type { OceanMode } from '../types/ocean';
-import { UnderwaterEnvironment } from './UnderwaterEnvironment';
+import { OceanCameraController } from './OceanCameraController';
 
 export class CameraController {
   private viewer: Cesium.Viewer;
