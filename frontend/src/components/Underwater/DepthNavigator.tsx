@@ -253,7 +253,7 @@ export const DepthNavigator: React.FC =
                   className="vertical-depth-slider"
                   style={{
                     background:
-                      `linear-gradient(to right, #00f0ff 0%, #00f0ff ${
+                      `linear-gradient(to right, #2d5e94 0%, #2d5e94 ${
                         (
                           depth /
                           maxDepth

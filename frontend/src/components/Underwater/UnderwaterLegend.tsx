@@ -20,7 +20,7 @@ export const UnderwaterLegend: React.FC = () => {
           min: '32.0',
           mid: '35.0',
           max: '38.0',
-          gradient: 'linear-gradient(90deg, #00f0ff, #00ff9d, #ff9100, #ff0055)',
+          gradient: 'linear-gradient(90deg, #2d5e94, #38bdf8, #facc15, #ef4444)',
         };
       case 'current':
         return {
@@ -28,7 +28,7 @@ export const UnderwaterLegend: React.FC = () => {
           min: '0.0',
           mid: '1.5',
           max: '3.0+',
-          gradient: 'linear-gradient(90deg, rgba(0,240,255,0.2), #00f0ff, #00ff9d, #ffffff)',
+          gradient: 'linear-gradient(90deg, #161920, #2d5e94, #38bdf8, #f0f2f6)',
         };
       case 'chlorophyll':
         return {

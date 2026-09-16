@@ -98,30 +98,30 @@ export const FisheryAdvisoriesView: React.FC = () => {
           <div className="map-wrapper-relative">
             <svg viewBox="0 0 600 380" className="hazard-geospatial-svg" aria-label="Chlorophyll map">
               {/* Ocean Dark Background */}
-              <rect x="0" y="0" width="600" height="380" fill="#040f1a" />
+              <rect x="0" y="0" width="600" height="380" fill="#0c0e12" />
 
               {/* Coastal shelf contours */}
-              <path d="M 180,90 Q 250,180 270,240" stroke="#0e3d48" strokeWidth="1" strokeDasharray="3,3" fill="none" />
-              <path d="M 310,100 Q 320,180 290,240" stroke="#0e3d48" strokeWidth="1" strokeDasharray="3,3" fill="none" />
+              <path d="M 180,90 Q 250,180 270,240" stroke="#161920" strokeWidth="1" strokeDasharray="3,3" fill="none" />
+              <path d="M 310,100 Q 320,180 290,240" stroke="#161920" strokeWidth="1" strokeDasharray="3,3" fill="none" />
 
               {/* Landmass (Indian Subcontinent) */}
               <path
                 d="M 240,40 L 290,40 L 320,90 L 300,160 L 285,220 L 280,235 L 275,220 L 245,170 L 210,130 L 190,100 L 210,55 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.5"
               />
               <path
                 d="M 40,40 L 120,40 L 130,80 L 110,130 L 70,120 L 40,80 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.2"
               />
-              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#11293a" stroke="#1e4e68" strokeWidth="1" />
+              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#161920" stroke="#20242b" strokeWidth="1" />
               <path
                 d="M 370,50 L 430,70 L 450,150 L 430,220 L 400,240 L 390,200 L 380,130 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.2"
               />
 
@@ -151,9 +151,9 @@ export const FisheryAdvisoriesView: React.FC = () => {
               <ellipse cx="320" cy="165" rx="35" ry="50" fill="url(#chlEastCoast)" transform="rotate(-15 320 165)" />
 
               {/* Potential Fishing Zone Highlighting Points */}
-              <circle cx="218" cy="170" r="4" fill="#00e5be" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
-              <circle cx="248" cy="215" r="4" fill="#00e5be" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
-              <circle cx="330" cy="120" r="4" fill="#00e5be" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
+              <circle cx="218" cy="170" r="4" fill="#2d5e94" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
+              <circle cx="248" cy="215" r="4" fill="#2d5e94" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
+              <circle cx="330" cy="120" r="4" fill="#2d5e94" stroke="#ffffff" strokeWidth="1.5" className="animate-ping-slow" />
 
               {/* Labels */}
               <text x="140" y="190" fill="#94a3b8" fontSize="10" fontWeight="bold">Eastern Arabian Sea PFZ</text>

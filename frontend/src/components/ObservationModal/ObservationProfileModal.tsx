@@ -635,15 +635,15 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       aria-label="Depth profile curve comparison"
                     >
                       {/* Background grid */}
-                      <rect x="0" y="0" width="540" height="260" fill="#040e18" rx="4" />
+                      <rect x="0" y="0" width="540" height="260" fill="#111418" rx="4" />
 
                       {/* Depth grid lines (horizontal) */}
                       {[0, 500, 1000, 1500, 2000].map((depth) => {
                         const y = 30 + (depth / 2000) * 190;
                         return (
                           <g key={depth}>
-                            <line x1="55" y1={y} x2="450" y2={y} stroke="#0e2a38" strokeWidth="1" strokeDasharray="3,3" />
-                            <text x="45" y={y + 3} fill="#64748b" fontSize="10" textAnchor="end" fontFamily="monospace">
+                            <line x1="55" y1={y} x2="450" y2={y} stroke="#20242b" strokeWidth="1" strokeDasharray="3,3" />
+                            <text x="45" y={y + 3} fill="#88909e" fontSize="10" textAnchor="end" fontFamily="monospace">
                               {depth}
                             </text>
                           </g>
@@ -655,8 +655,8 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                         const x = 55 + (val / 30) * 395;
                         return (
                           <g key={val}>
-                            <line x1={x} y1="30" x2={x} y2="220" stroke="#0e2a38" strokeWidth="1" strokeDasharray="3,3" />
-                            <text x={x} y="235" fill="#64748b" fontSize="10" textAnchor="middle" fontFamily="monospace">
+                            <line x1={x} y1="30" x2={x} y2="220" stroke="#20242b" strokeWidth="1" strokeDasharray="3,3" />
+                            <text x={x} y="235" fill="#88909e" fontSize="10" textAnchor="middle" fontFamily="monospace">
                               {val}
                             </text>
                           </g>
@@ -664,31 +664,31 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       })}
 
                       {/* Axes Lines */}
-                      <line x1="55" y1="30" x2="55" y2="220" stroke="#144d5c" strokeWidth="1.5" />
-                      <line x1="55" y1="220" x2="450" y2="220" stroke="#144d5c" strokeWidth="1.5" />
+                      <line x1="55" y1="30" x2="55" y2="220" stroke="#2c323e" strokeWidth="1.5" />
+                      <line x1="55" y1="220" x2="450" y2="220" stroke="#2c323e" strokeWidth="1.5" />
 
                       {/* Axis Labels */}
-                      <text x="18" y="125" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle" transform="rotate(-90 18 125)">
+                      <text x="18" y="125" fill="#88909e" fontSize="10" fontWeight="bold" textAnchor="middle" transform="rotate(-90 18 125)">
                         Depth (m)
                       </text>
-                      <text x="250" y="252" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">
+                      <text x="250" y="252" fill="#88909e" fontSize="10" fontWeight="bold" textAnchor="middle">
                         {VARIABLE_OPTIONS.find((v) => v.id === selectedVar)?.label}
                       </text>
 
-                      {/* Model Curve (Cyan/Teal) */}
+                      {/* Model Curve (Slate Blue) */}
                       <path
                         d="M 425,30 Q 340,54 295,78 T 240,110 T 190,140 T 135,175 T 98,220"
                         fill="none"
-                        stroke="#00e5be"
+                        stroke="#2d5e94"
                         strokeWidth="2.2"
                       />
                       {/* Model Points */}
-                      <circle cx="425" cy="30" r="3" fill="#00e5be" />
-                      <circle cx="295" cy="78" r="3" fill="#00e5be" />
-                      <circle cx="240" cy="110" r="3" fill="#00e5be" />
-                      <circle cx="190" cy="140" r="3" fill="#00e5be" />
-                      <circle cx="135" cy="175" r="3" fill="#00e5be" />
-                      <circle cx="98" cy="220" r="3" fill="#00e5be" />
+                      <circle cx="425" cy="30" r="3" fill="#2d5e94" />
+                      <circle cx="295" cy="78" r="3" fill="#2d5e94" />
+                      <circle cx="240" cy="110" r="3" fill="#2d5e94" />
+                      <circle cx="190" cy="140" r="3" fill="#2d5e94" />
+                      <circle cx="135" cy="175" r="3" fill="#2d5e94" />
+                      <circle cx="98" cy="220" r="3" fill="#2d5e94" />
 
                       {/* Glider Curve (Yellow/Amber) */}
                       <path
@@ -722,8 +722,8 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
 
                       {/* Chart Legend on Right */}
                       <g transform="translate(465, 45)">
-                        <line x1="0" y1="0" x2="14" y2="0" stroke="#00e5be" strokeWidth="2.5" />
-                        <circle cx="7" cy="0" r="2.5" fill="#00e5be" />
+                        <line x1="0" y1="0" x2="14" y2="0" stroke="#2d5e94" strokeWidth="2.5" />
+                        <circle cx="7" cy="0" r="2.5" fill="#2d5e94" />
                         <text x="20" y="3" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Model</text>
 
                         <line x1="0" y1="22" x2="14" y2="22" stroke="#facc15" strokeWidth="2.5" />

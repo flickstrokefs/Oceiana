@@ -473,792 +473,231 @@ export const UnderwaterHeader: React.FC<
 
   return (
     <header className="header-controls underwater-header">
-
       {/* ====================================================== */}
-      {/* BRAND                                                  */}
+      {/* 1. LEFT INSTRUMENT CLUSTER: BRAND, STRATUM, DOMAIN & SEA */}
       {/* ====================================================== */}
-
-      <div className="brand-group">
-
-        <div className="brand-title">
-          <span className="brand-primary">
-            OCEAN-X
-          </span>
-
-          <span className="brand-sub">
-            UNDERWATER ANALYSIS WORKSPACE
-          </span>
+      <div className="underwater-header-left">
+        {/* BRAND & MISSION TAG */}
+        <div className="brand-group top-brand-group">
+          <div className="brand-logo-text-horiz">
+            <span className="brand-org-tag">INCOIS</span>
+            <span className="brand-divider">/</span>
+            <span className="brand-main-title">ARIEL</span>
+            <span className="station-code-badge">SUB-SURFACE</span>
+          </div>
         </div>
 
-        {/* STRATUM */}
+        <div className="header-v-divider" />
 
-        <div className="stratum-indicator">
-
-          <Layers
-            size={13}
-            className="icon-cyan animate-pulse-slow"
-          />
-
-          <span className="stratum-text">
-            STRATUM: -{depth}m
-          </span>
-
+        {/* SOUNDING DEPTH STRATUM READOUT */}
+        <div className="stratum-indicator" title="Current Sounding Depth Stratum">
+          <Layers size={11} className="stratum-icon" />
+          <span className="stratum-text">STRATUM -{depth}m</span>
         </div>
 
-        {/* ==================================================== */}
-        {/* OCEAN DOMAIN                                         */}
-        {/* ==================================================== */}
+        <div className="header-v-divider" />
 
-        <div
-          ref={domainDropdownRef}
-          style={{
-            position:
-              'relative',
-          }}
-        >
-
+        {/* OCEAN DOMAIN SELECTOR */}
+        <div ref={domainDropdownRef} className="underwater-header-dropdown">
           <button
+            type="button"
             onClick={() => {
-              setIsDomainOpen(
-                (value) =>
-                  !value,
-              );
-
-              setIsRegionOpen(
-                false,
-              );
+              setIsDomainOpen((v) => !v);
+              setIsRegionOpen(false);
             }}
-            style={{
-              display:
-                'flex',
-
-              alignItems:
-                'center',
-
-              gap:
-                '6px',
-
-              padding:
-                '5px 10px',
-
-              background:
-                'rgba(0,240,255,0.10)',
-
-              border:
-                '1px solid rgba(0,240,255,0.55)',
-
-              borderRadius:
-                '6px',
-
-              color:
-                '#00f0ff',
-
-              fontFamily:
-                'JetBrains Mono, monospace',
-
-              fontSize:
-                '10px',
-
-              fontWeight:
-                800,
-
-              cursor:
-                'pointer',
-
-              whiteSpace:
-                'nowrap',
-            }}
+            className={`underwater-dropdown-trigger domain-trigger ${isDomainOpen ? 'dropdown-active' : ''}`}
+            title="Select Oceanographic Mission Domain"
           >
-
-            <Globe2
-              size={12}
-            />
-
-            {selectedDomain ===
-            'southern-ocean'
-              ? 'SOUTHERN OCEAN'
-              : 'INDIAN OCEAN'}
-
-            <ChevronDown
-              size={12}
-            />
-
+            <Globe2 size={11} className="dropdown-trigger-icon" />
+            <span className="dropdown-trigger-label">
+              {selectedDomain === 'southern-ocean' ? 'SOUTHERN OCEAN' : 'INDIAN OCEAN'}
+            </span>
+            <ChevronDown size={10} className="dropdown-caret" />
           </button>
 
-          {/* DOMAIN DROPDOWN */}
-
+          {/* DOMAIN DROPDOWN MENU */}
           {isDomainOpen && (
-            <div
-              style={{
-                position:
-                  'absolute',
+            <div className="underwater-dropdown-menu domain-dropdown-menu">
+              <div className="underwater-dropdown-header">// MISSION_DOMAINS</div>
 
-                top:
-                  'calc(100% + 6px)',
-
-                left:
-                  0,
-
-                minWidth:
-                  '245px',
-
-                padding:
-                  '6px',
-
-                background:
-                  'rgba(3,10,28,0.98)',
-
-                border:
-                  '1px solid rgba(0,240,255,0.45)',
-
-                borderRadius:
-                  '8px',
-
-                boxShadow:
-                  '0 15px 35px rgba(0,0,0,0.8)',
-
-                backdropFilter:
-                  'blur(16px)',
-
-                zIndex:
-                  99999,
-              }}
-            >
-
-              <div
-                style={{
-                  padding:
-                    '5px 8px',
-
-                  fontSize:
-                    '9px',
-
-                  color:
-                    '#64748b',
-
-                  fontFamily:
-                    'JetBrains Mono, monospace',
-
-                  fontWeight:
-                    700,
-
-                  borderBottom:
-                    '1px solid rgba(255,255,255,0.08)',
-
-                  marginBottom:
-                    '4px',
-                }}
-              >
-                OCEAN DOMAINS
-              </div>
-
-              {OCEAN_DOMAINS.map(
-                (domain) => {
-                  const selected =
-                    domain.id ===
-                    selectedDomain;
-
-                  return (
-                    <button
-                      key={
-                        domain.id
-                      }
-                      onClick={() =>
-                        handleDomainSelect(
-                          domain.id,
-                        )
-                      }
-                      style={{
-                        width:
-                          '100%',
-
-                        display:
-                          'flex',
-
-                        alignItems:
-                          'center',
-
-                        gap:
-                          '8px',
-
-                        padding:
-                          '8px',
-
-                        background:
-                          selected
-                            ? 'rgba(0,240,255,0.15)'
-                            : 'transparent',
-
-                        border:
-                          selected
-                            ? '1px solid rgba(0,240,255,0.45)'
-                            : '1px solid transparent',
-
-                        borderRadius:
-                          '5px',
-
-                        color:
-                          selected
-                            ? '#00f0ff'
-                            : '#cbd5e1',
-
-                        fontFamily:
-                          'JetBrains Mono, monospace',
-
-                        fontSize:
-                          '10px',
-
-                        fontWeight:
-                          selected
-                            ? 800
-                            : 600,
-
-                        cursor:
-                          'pointer',
-
-                        textAlign:
-                          'left',
-                      }}
-                    >
-
-                      <Globe2
-                        size={12}
-                      />
-
-                      {domain.label.toUpperCase()}
-
-                      {domain.id ===
-                        'indian-ocean' && (
-                        <span
-                          style={{
-                            marginLeft:
-                              'auto',
-
-                            fontSize:
-                              '8px',
-
-                            color:
-                              '#64748b',
-                          }}
-                        >
-                          5 SEAS
-                        </span>
-                      )}
-
-                    </button>
-                  );
-                },
-              )}
-
+              {OCEAN_DOMAINS.map((domain) => {
+                const selected = domain.id === selectedDomain;
+                return (
+                  <button
+                    key={domain.id}
+                    type="button"
+                    onClick={() => handleDomainSelect(domain.id)}
+                    className={`underwater-dropdown-item ${selected ? 'item-selected' : ''}`}
+                  >
+                    <Globe2 size={11} className="item-icon" />
+                    <span>{domain.label.toUpperCase()}</span>
+                    {domain.id === 'indian-ocean' && (
+                      <span className="item-badge">5 SEAS</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
-
         </div>
 
-        {/* ==================================================== */}
-        {/* SEA NAVIGATION                                       */}
-        {/* ==================================================== */}
-
+        {/* SEA NAVIGATION (PREV / CURRENT SEA DROPDOWN / NEXT) */}
         {showSeaNavigation && (
-          <div
-            className="region-nav-group"
-            style={{
-              display:
-                'flex',
-
-              alignItems:
-                'center',
-
-              gap:
-                '4px',
-            }}
-          >
-
-            {/* PREVIOUS */}
-
+          <div className="region-nav-group">
+            {/* PREVIOUS SEA BUTTON */}
             {prevRegion && (
               <button
-                onClick={() =>
-                  handleRegionSelect(
-                    prevRegion.id,
-                  )
-                }
-                style={{
-                  display:
-                    'flex',
-
-                  alignItems:
-                    'center',
-
-                  gap:
-                    '3px',
-
-                  padding:
-                    '4px 7px',
-
-                  background:
-                    'rgba(2,20,45,0.70)',
-
-                  border:
-                    '1px solid rgba(0,240,255,0.25)',
-
-                  borderRadius:
-                    '5px',
-
-                  color:
-                    '#94a3b8',
-
-                  fontFamily:
-                    'JetBrains Mono, monospace',
-
-                  fontSize:
-                    '9px',
-
-                  fontWeight:
-                    600,
-
-                  cursor:
-                    'pointer',
-
-                  whiteSpace:
-                    'nowrap',
-                }}
+                type="button"
+                onClick={() => handleRegionSelect(prevRegion.id)}
+                className="underwater-nav-step-btn prev"
+                title={`Jump to ${prevRegion.label}`}
               >
-
-                <ChevronLeft
-                  size={12}
-                />
-
-                {prevRegion.label.toUpperCase()}
-
+                <ChevronLeft size={10} />
+                <span className="step-btn-text">{prevRegion.label.toUpperCase()}</span>
               </button>
             )}
 
-            {/* CURRENT SEA */}
-
-            <div
-              ref={dropdownRef}
-              style={{
-                position:
-                  'relative',
-              }}
-            >
-
+            {/* CURRENT SEA DROPDOWN */}
+            <div ref={dropdownRef} className="underwater-header-dropdown">
               <button
-                onClick={() =>
-                  setIsRegionOpen(
-                    (value) =>
-                      !value,
-                  )
-                }
-                style={{
-                  display:
-                    'flex',
-
-                  alignItems:
-                    'center',
-
-                  gap:
-                    '6px',
-
-                  padding:
-                    '5px 9px',
-
-                  background:
-                    'rgba(0,240,255,0.14)',
-
-                  border:
-                    '1px solid #00f0ff',
-
-                  borderRadius:
-                    '6px',
-
-                  color:
-                    '#00f0ff',
-
-                  fontFamily:
-                    'JetBrains Mono, monospace',
-
-                  fontSize:
-                    '10px',
-
-                  fontWeight:
-                    800,
-
-                  cursor:
-                    'pointer',
-
-                  whiteSpace:
-                    'nowrap',
+                type="button"
+                onClick={() => {
+                  setIsRegionOpen((v) => !v);
+                  setIsDomainOpen(false);
                 }}
+                className={`underwater-dropdown-trigger sea-trigger ${isRegionOpen ? 'dropdown-active' : ''}`}
+                title="Select Specific Sea/Basin"
               >
-
-                <MapPin
-                  size={11}
-                />
-
-                {activeRegionConfig
-                  ? activeRegionConfig.label.toUpperCase()
-                  : 'SELECT SEA'}
-
-                <ChevronDown
-                  size={11}
-                />
-
+                <MapPin size={10} className="dropdown-trigger-icon" />
+                <span className="dropdown-trigger-label">
+                  {activeRegionConfig ? activeRegionConfig.label.toUpperCase() : 'SELECT SEA'}
+                </span>
+                <ChevronDown size={10} className="dropdown-caret" />
               </button>
 
-              {/* SEA DROPDOWN */}
-
+              {/* SEA DROPDOWN MENU */}
               {isRegionOpen && (
-                <div
-                  style={{
-                    position:
-                      'absolute',
+                <div className="underwater-dropdown-menu sea-dropdown-menu">
+                  <div className="underwater-dropdown-header">// INDIAN_OCEAN_SEAS</div>
 
-                    top:
-                      'calc(100% + 6px)',
-
-                    left:
-                      0,
-
-                    minWidth:
-                      '245px',
-
-                    padding:
-                      '6px',
-
-                    background:
-                      'rgba(3,10,28,0.98)',
-
-                    border:
-                      '1px solid rgba(0,240,255,0.45)',
-
-                    borderRadius:
-                      '8px',
-
-                    boxShadow:
-                      '0 15px 35px rgba(0,0,0,0.8)',
-
-                    backdropFilter:
-                      'blur(16px)',
-
-                    zIndex:
-                      99999,
-                  }}
-                >
-
-                  <div
-                    style={{
-                      padding:
-                        '5px 8px',
-
-                      color:
-                        '#64748b',
-
-                      fontFamily:
-                        'JetBrains Mono, monospace',
-
-                      fontSize:
-                        '9px',
-
-                      fontWeight:
-                        700,
-                    }}
-                  >
-                    INDIAN OCEAN · SEAS
-                  </div>
-
-                  {indianOceanRegions.map(
-                    (region) => {
-                      const selected =
-                        region.id ===
-                        activeRegionId;
-
-                      return (
-                        <button
-                          key={
-                            region.id
-                          }
-                          onClick={() =>
-                            handleRegionSelect(
-                              region.id,
-                            )
-                          }
-                          style={{
-                            width:
-                              '100%',
-
-                            display:
-                              'flex',
-
-                            alignItems:
-                              'center',
-
-                            gap:
-                              '8px',
-
-                            padding:
-                              '8px',
-
-                            background:
-                              selected
-                                ? 'rgba(0,240,255,0.15)'
-                                : 'transparent',
-
-                            border:
-                              selected
-                                ? '1px solid rgba(0,240,255,0.45)'
-                                : '1px solid transparent',
-
-                            borderRadius:
-                              '5px',
-
-                            color:
-                              selected
-                                ? '#00f0ff'
-                                : '#cbd5e1',
-
-                            fontFamily:
-                              'JetBrains Mono, monospace',
-
-                            fontSize:
-                              '10px',
-
-                            cursor:
-                              'pointer',
-
-                            textAlign:
-                              'left',
-                          }}
-                        >
-
-                          <span
-                            style={{
-                              width:
-                                '5px',
-
-                              height:
-                                '5px',
-
-                              borderRadius:
-                                '50%',
-
-                              background:
-                                selected
-                                  ? '#00f0ff'
-                                  : '#475569',
-
-                              boxShadow:
-                                selected
-                                  ? '0 0 7px #00f0ff'
-                                  : 'none',
-                            }}
-                          />
-
-                          {region.label}
-
-                        </button>
-                      );
-                    },
-                  )}
-
+                  {indianOceanRegions.map((region) => {
+                    const selected = region.id === activeRegionId;
+                    return (
+                      <button
+                        key={region.id}
+                        type="button"
+                        onClick={() => handleRegionSelect(region.id)}
+                        className={`underwater-dropdown-item ${selected ? 'item-selected' : ''}`}
+                      >
+                        <span className={`item-dot ${selected ? 'dot-active' : ''}`} />
+                        <span>{region.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
-
             </div>
 
-            {/* NEXT */}
-
+            {/* NEXT SEA BUTTON */}
             {nextRegion && (
               <button
-                onClick={() =>
-                  handleRegionSelect(
-                    nextRegion.id,
-                  )
-                }
-                style={{
-                  display:
-                    'flex',
-
-                  alignItems:
-                    'center',
-
-                  gap:
-                    '3px',
-
-                  padding:
-                    '4px 7px',
-
-                  background:
-                    'rgba(2,20,45,0.70)',
-
-                  border:
-                    '1px solid rgba(0,240,255,0.25)',
-
-                  borderRadius:
-                    '5px',
-
-                  color:
-                    '#94a3b8',
-
-                  fontFamily:
-                    'JetBrains Mono, monospace',
-
-                  fontSize:
-                    '9px',
-
-                  fontWeight:
-                    600,
-
-                  cursor:
-                    'pointer',
-
-                  whiteSpace:
-                    'nowrap',
-                }}
+                type="button"
+                onClick={() => handleRegionSelect(nextRegion.id)}
+                className="underwater-nav-step-btn next"
+                title={`Jump to ${nextRegion.label}`}
               >
-
-                {nextRegion.label.toUpperCase()}
-
-                <ChevronRight
-                  size={12}
-                />
-
+                <span className="step-btn-text">{nextRegion.label.toUpperCase()}</span>
+                <ChevronRight size={10} />
               </button>
             )}
-
           </div>
         )}
-
       </div>
 
       {/* ====================================================== */}
-      {/* MODE                                                   */}
+      {/* 2. CENTER CONTROLS CLUSTER: MODE SWITCH & VARIABLES   */}
       {/* ====================================================== */}
+      <div className="underwater-header-center">
+        {/* MODE SWITCHER */}
+        <div className="mode-switch-container">
+          <button
+            type="button"
+            onClick={() => handleModeChange('surface')}
+            className="mode-btn"
+            title="Switch to 3D Surface Workspace"
+          >
+            SURFACE
+          </button>
 
-      <div className="mode-switch-container">
+          <button
+            type="button"
+            className="mode-btn mode-active mode-underwater-active"
+            title="Active Sub-surface Sounding Mode"
+          >
+            <Waves size={10} className="mode-icon" />
+            <span>UNDERWATER</span>
+          </button>
+        </div>
 
-        <button
-          onClick={() =>
-            handleModeChange(
-              'surface',
-            )
-          }
-          className="mode-btn"
-        >
-          SURFACE
-        </button>
+        <div className="header-v-divider" />
 
-        <button
-          className="mode-btn mode-active mode-underwater-active"
-        >
-          <Waves
-            size={12}
-            style={{
-              marginRight:
-                '4px',
-            }}
-          />
+        {/* VARIABLE SELECTOR */}
+        <div className="variable-selector-group">
+          <span className="analyze-label">ANALYZE:</span>
 
-          UNDERWATER
-        </button>
+          <button
+            type="button"
+            onClick={() => handleVarChange('temperature')}
+            className={`var-btn ${activeVar === 'temperature' ? 'var-active' : ''}`}
+            title="In-Situ Water Column Temperature"
+          >
+            TEMP (°C)
+          </button>
 
+          <button
+            type="button"
+            onClick={() => handleVarChange('salinity')}
+            className={`var-btn ${activeVar === 'salinity' ? 'var-active' : ''}`}
+            title="Practical Salinity Scale"
+          >
+            SALINITY
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleVarChange('current')}
+            className={`var-btn ${activeVar === 'current' ? 'var-active' : ''}`}
+            title="Flow Velocity Vector Field"
+          >
+            CURRENTS
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleVarChange('chlorophyll')}
+            className={`var-btn ${activeVar === 'chlorophyll' ? 'var-active' : ''}`}
+            title="Chlorophyll Concentration"
+          >
+            <span className="var-btn-full">CHLOROPHYLL</span>
+            <span className="var-btn-short">CHL</span>
+          </button>
+        </div>
       </div>
 
       {/* ====================================================== */}
-      {/* VARIABLES                                              */}
+      {/* 3. RIGHT ACTION CLUSTER: RESET CAMERA VIEW             */}
       {/* ====================================================== */}
-
-      <div className="variable-selector-group">
-
-        <span className="analyze-label">
-          ANALYZE:
-        </span>
-
+      <div className="underwater-header-right">
         <button
-          onClick={() =>
-            handleVarChange(
-              'temperature',
-            )
-          }
-          className={`var-btn ${
-            activeVar ===
-            'temperature'
-              ? 'var-active'
-              : ''
-          }`}
+          type="button"
+          onClick={onResetView}
+          className="icon-action-btn reset-btn"
+          title="Reset Camera View to Sub-surface Nadir"
         >
-          TEMP (°C)
+          <Compass size={12} className="action-icon" />
+          <span>RESET VIEW</span>
         </button>
-
-        <button
-          onClick={() =>
-            handleVarChange(
-              'salinity',
-            )
-          }
-          className={`var-btn ${
-            activeVar ===
-            'salinity'
-              ? 'var-active'
-              : ''
-          }`}
-        >
-          SALINITY
-        </button>
-
-        <button
-          onClick={() =>
-            handleVarChange(
-              'current',
-            )
-          }
-          className={`var-btn ${
-            activeVar ===
-            'current'
-              ? 'var-active'
-              : ''
-          }`}
-        >
-          CURRENTS
-        </button>
-
-        <button
-          onClick={() =>
-            handleVarChange(
-              'chlorophyll',
-            )
-          }
-          className={`var-btn ${
-            activeVar ===
-            'chlorophyll'
-              ? 'var-active'
-              : ''
-          }`}
-        >
-          CHLOROPHYLL
-        </button>
-
       </div>
-
-      {/* ====================================================== */}
-      {/* RESET                                                  */}
-      {/* ====================================================== */}
-
-      <button
-        onClick={
-          onResetView
-        }
-        className="icon-action-btn"
-        title="Reset View"
-      >
-        <Compass
-          size={16}
-        />
-
-        RESET VIEW
-      </button>
-
     </header>
   );
 };

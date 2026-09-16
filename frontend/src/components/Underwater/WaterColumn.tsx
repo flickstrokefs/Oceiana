@@ -324,11 +324,11 @@ export const WaterColumn: React.FC = () => {
                         background:
                           activeVar ===
                           'temperature'
-                            ? 'linear-gradient(90deg, #2d82ff, #ff9100)'
+                            ? 'linear-gradient(90deg, #2d5e94, #f59e0b)'
                             : activeVar ===
                               'salinity'
-                            ? 'linear-gradient(90deg, #00f0ff, #00ff9d)'
-                            : '#00f0ff',
+                            ? 'linear-gradient(90deg, #2d5e94, #38bdf8)'
+                            : '#2d5e94',
                       }}
                     />
                   </div>
