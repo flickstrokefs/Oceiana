@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+﻿import * as Cesium from 'cesium';
 
 import {
   UW_BOUNDS,
@@ -23,11 +23,14 @@ interface PointRecord {
   value: number;
 }
 
-export class UnderwaterRegionBox {
+export class UnderwaterRegionPolygon {
   private viewer: Cesium.Viewer;
 
   public readonly definition: UnderwaterRegionDefinition;
 
+  // Keep these public because other existing code may use them.
+  // They now represent the bounding extent of the polygon,
+  // not the actual visible shape.
   public readonly minX: number;
   public readonly maxX: number;
   public readonly minY: number;
@@ -75,7 +78,9 @@ export class UnderwaterRegionBox {
   private wallEntities: Cesium.Entity[] = [];
   private floorEntity: Cesium.Entity | null = null;
   private columnEntities: Cesium.Entity[] = [];
-  private verticalGridEntities: Cesium.Entity[] = [];
+
+  // Kept for compatibility with the existing structure.
+  // The old rectangular vertical grid is no longer generated.
   private depthLabelEntities: Cesium.Entity[] = [];
 
   private referenceDepths = [
@@ -111,6 +116,16 @@ export class UnderwaterRegionBox {
     this.viewer = viewer;
     this.definition = definition;
 
+    // ----------------------------------------------------------
+    // Bounding extent
+    //
+    // These values are retained for compatibility with the
+    // existing coordinate system and other code.
+    //
+    // They DO NOT define the visible polygon anymore.
+    // The actual visible shape comes from definition.footprint.
+    // ----------------------------------------------------------
+
     const normMinX =
       (definition.west - UW_BOUNDS.centerLon) /
       (UW_BOUNDS.maxLon - UW_BOUNDS.centerLon);
@@ -127,8 +142,6 @@ export class UnderwaterRegionBox {
       (definition.north - UW_BOUNDS.centerLat) /
       (UW_BOUNDS.maxLat - UW_BOUNDS.centerLat);
 
-    // Convert normalized coordinates to the
-    // local underwater coordinate system.
     this.minX =
       normMinX * UW_DIMENSIONS.halfWidthX;
 
@@ -141,7 +154,6 @@ export class UnderwaterRegionBox {
     this.maxY =
       normMaxY * UW_DIMENSIONS.halfLengthY;
 
-    // Center of the region.
     this.cx =
       (this.minX + this.maxX) / 2;
 
@@ -169,62 +181,158 @@ export class UnderwaterRegionBox {
         this.definition,
       );
 
-    this.initBoxGeometry();
+    // ----------------------------------------------------------
+    // IRREGULAR POLYGON GEOMETRY
+    // ----------------------------------------------------------
+
+    this.initPolygonGeometry();
+  }
+
+  // ============================================================
+  // POLYGON HELPERS
+  // ============================================================
+
+  /**
+   * Returns the actual geographic footprint of this region
+   * converted into the existing ARIEL world coordinate system.
+   *
+   * footprint format:
+   *
+   * [
+   *   [longitude, latitude],
+   *   [longitude, latitude],
+   *   ...
+   * ]
+   *
+   * This is the actual shape of the region.
+   */
+  /**
+   * Render-only simplification of the IHO footprint.
+   *
+   * The original definition.footprint remains untouched.
+   * This prevents thousands of IHO vertices from becoming
+   * thousands of Cesium entities.
+   */
+  private getRenderFootprint(): [number, number][] {
+    const source =
+      this.definition.footprint;
+
+    const maxPoints = 220;
+
+    if (
+      source.length <= maxPoints
+    ) {
+      return source;
+    }
+
+    const result:
+      [number, number][] = [];
+
+    const step =
+      source.length /
+      maxPoints;
+
+    for (
+      let i = 0;
+      i < maxPoints;
+      i++
+    ) {
+      result.push(
+        source[
+          Math.floor(
+            i * step,
+          )
+        ],
+      );
+    }
+
+    return result;
+  }
+  private getFootprintAtDepth(
+    depth: number,
+  ): Cesium.Cartesian3[] {
+    return this.getRenderFootprint().map(([longitude, latitude]) =>
+        geoToWorld(
+          longitude,
+          latitude,
+          depth,
+        ),
+    );
+  }
+
+  /**
+   * Calculate the geographic center of the polygon.
+   *
+   * Used for labels and reference crosshairs.
+   */
+  private getPolygonCenter(): {
+    longitude: number;
+    latitude: number;
+  } {
+    const footprint = this.getRenderFootprint();
+
+    if (footprint.length === 0) {
+      return {
+        longitude: UW_BOUNDS.centerLon,
+        latitude: UW_BOUNDS.centerLat,
+      };
+    }
+
+    let longitude = 0;
+    let latitude = 0;
+
+    for (
+      const [lon, lat] of footprint
+    ) {
+      longitude += lon;
+      latitude += lat;
+    }
+
+    return {
+      longitude:
+        longitude / footprint.length,
+      latitude:
+        latitude / footprint.length,
+    };
   }
 
   // ============================================================
   // GEOMETRY HELPERS
   // ============================================================
 
+  /**
+   * Kept with the existing method name so existing code does
+   * not need to change.
+   *
+   * It now returns ALL polygon vertices rather than 4 box
+   * corners.
+   */
   public getCornersAtDepth(
     depth: number,
   ): Cesium.Cartesian3[] {
-    const normZ =
+    return this.getFootprintAtDepth(
       Math.max(
         0,
         Math.min(
           this.definition.depthMax,
           depth,
         ),
-      ) /
-      this.definition.depthMax;
-
-    const z =
-      -normZ *
-      UW_DIMENSIONS.totalDepthZ;
-
-    return [
-      localToWorld(
-        this.minX,
-        this.minY,
-        z,
       ),
-
-      localToWorld(
-        this.maxX,
-        this.minY,
-        z,
-      ),
-
-      localToWorld(
-        this.maxX,
-        this.maxY,
-        z,
-      ),
-
-      localToWorld(
-        this.minX,
-        this.maxY,
-        z,
-      ),
-    ];
+    );
   }
 
+  /**
+   * Closed perimeter of the actual irregular polygon.
+   */
   public getPerimeterAtDepth(
     depth: number,
   ): Cesium.Cartesian3[] {
     const corners =
       this.getCornersAtDepth(depth);
+
+    if (corners.length === 0) {
+      return [];
+    }
 
     return [
       ...corners,
@@ -232,52 +340,75 @@ export class UnderwaterRegionBox {
     ];
   }
 
+  /**
+   * Reference crosshairs through the geographic center.
+   *
+   * These are still based on the polygon bounding extent,
+   * but the actual slice itself follows the irregular footprint.
+   */
   public getCrosshairsAtDepth(
     depth: number,
   ): {
     lineX: Cesium.Cartesian3[];
     lineY: Cesium.Cartesian3[];
   } {
-    const normZ =
-      Math.max(
-        0,
-        Math.min(
-          this.definition.depthMax,
-          depth,
-        ),
-      ) /
-      this.definition.depthMax;
+    const center =
+      this.getPolygonCenter();
 
-    const z =
-      -normZ *
-      UW_DIMENSIONS.totalDepthZ;
+    const lons =
+      this.getRenderFootprint().map(([lon]) => lon,
+      );
+
+    const lats =
+      this.getRenderFootprint().map(([, lat]) => lat,
+      );
+
+    if (
+      lons.length === 0 ||
+      lats.length === 0
+    ) {
+      return {
+        lineX: [],
+        lineY: [],
+      };
+    }
+
+    const minLon =
+      Math.min(...lons);
+
+    const maxLon =
+      Math.max(...lons);
+
+    const minLat =
+      Math.min(...lats);
+
+    const maxLat =
+      Math.max(...lats);
 
     return {
       lineX: [
-        localToWorld(
-          this.minX,
-          this.cy,
-          z,
+        geoToWorld(
+          minLon,
+          center.latitude,
+          depth,
         ),
-
-        localToWorld(
-          this.maxX,
-          this.cy,
-          z,
+        geoToWorld(
+          maxLon,
+          center.latitude,
+          depth,
         ),
       ],
 
       lineY: [
-        localToWorld(
-          this.cx,
-          this.minY,
-          z,
+        geoToWorld(
+          center.longitude,
+          minLat,
+          depth,
         ),
-
-        localToWorld(
-          this.cx,
-          this.maxY,
-          z,
+        geoToWorld(
+          center.longitude,
+          maxLat,
+          depth,
         ),
       ],
     };
@@ -292,14 +423,14 @@ export class UnderwaterRegionBox {
 
     this.fieldMesh.setResolution(
       resolution,
-  ) ;
- }
+    );
+  }
 
   // ============================================================
-  // BOX GEOMETRY
+  // POLYGON GEOMETRY
   // ============================================================
 
-  private initBoxGeometry(): void {
+  private initPolygonGeometry(): void {
     const surfaceCorners =
       this.getCornersAtDepth(0);
 
@@ -308,8 +439,9 @@ export class UnderwaterRegionBox {
         this.definition.depthMax,
       );
 
-    const hz =
-      UW_DIMENSIONS.totalDepthZ;
+    if (surfaceCorners.length < 3) {
+      return;
+    }
 
     // ----------------------------------------------------------
     // FLOOR
@@ -347,48 +479,34 @@ export class UnderwaterRegionBox {
     );
 
     // ----------------------------------------------------------
-    // WALLS
+    // IRREGULAR POLYGON WALLS
+    //
+    // Instead of 4 rectangular walls, create one wall segment
+    // for every edge of the footprint.
     // ----------------------------------------------------------
 
-    const wallPositions = [
-      [
-        surfaceCorners[0],
-        surfaceCorners[1],
-        floorCorners[1],
-        floorCorners[0],
-      ],
-
-      [
-        surfaceCorners[1],
-        surfaceCorners[2],
-        floorCorners[2],
-        floorCorners[1],
-      ],
-
-      [
-        surfaceCorners[2],
-        surfaceCorners[3],
-        floorCorners[3],
-        floorCorners[2],
-      ],
-
-      [
-        surfaceCorners[3],
-        surfaceCorners[0],
-        floorCorners[0],
-        floorCorners[3],
-      ],
-    ];
-
     for (
-      const positions of wallPositions
+      let i = 0;
+      i < surfaceCorners.length;
+      i++
     ) {
+      const next =
+        (i + 1) %
+        surfaceCorners.length;
+
+      const wallPositions = [
+        surfaceCorners[i],
+        surfaceCorners[next],
+        floorCorners[next],
+        floorCorners[i],
+      ];
+
       const wall =
         this.viewer.entities.add({
           polygon: {
             hierarchy:
               new Cesium.PolygonHierarchy(
-                positions,
+                wallPositions,
               ),
 
             material:
@@ -415,10 +533,16 @@ export class UnderwaterRegionBox {
     }
 
     // ----------------------------------------------------------
-    // CORNER COLUMNS
+    // VERTICAL COLUMNS
+    //
+    // One column for every polygon vertex.
     // ----------------------------------------------------------
 
-    for (let i = 0; i < 4; i++) {
+    for (
+      let i = 0;
+      i < surfaceCorners.length;
+      i++
+    ) {
       const column =
         this.viewer.entities.add({
           polyline: {
@@ -449,210 +573,28 @@ export class UnderwaterRegionBox {
           },
         });
 
-      this.columnEntities.push(column);
-      this.structuralEntities.push(column);
-    }
-
-    // ----------------------------------------------------------
-    // VERTICAL GRID
-    // ----------------------------------------------------------
-
-    const xStep =
-      (this.maxX - this.minX) / 3;
-
-    const yStep =
-      (this.maxY - this.minY) / 3;
-
-    for (let k = 1; k <= 2; k++) {
-      const vx =
-        this.minX +
-        k * xStep;
-
-      const south =
-        this.viewer.entities.add({
-          polyline: {
-            positions: [
-              localToWorld(
-                vx,
-                this.minY,
-                0,
-              ),
-
-              localToWorld(
-                vx,
-                this.minY,
-                -hz,
-              ),
-            ],
-
-            width: 1,
-
-            arcType:
-              Cesium.ArcType.NONE,
-
-            material:
-              new Cesium.ColorMaterialProperty(
-                new Cesium.Color(
-                  0.0,
-                  0.55,
-                  0.80,
-                  0.12,
-                ),
-              ),
-          },
-
-          properties: {
-            regionId:
-              this.definition.id,
-          },
-        });
-
-      const north =
-        this.viewer.entities.add({
-          polyline: {
-            positions: [
-              localToWorld(
-                vx,
-                this.maxY,
-                0,
-              ),
-
-              localToWorld(
-                vx,
-                this.maxY,
-                -hz,
-              ),
-            ],
-
-            width: 1,
-
-            arcType:
-              Cesium.ArcType.NONE,
-
-            material:
-              new Cesium.ColorMaterialProperty(
-                new Cesium.Color(
-                  0.0,
-                  0.55,
-                  0.80,
-                  0.12,
-                ),
-              ),
-          },
-
-          properties: {
-            regionId:
-              this.definition.id,
-          },
-        });
-
-      this.verticalGridEntities.push(
-        south,
-        north,
+      this.columnEntities.push(
+        column,
       );
 
       this.structuralEntities.push(
-        south,
-        north,
+        column,
       );
     }
 
-    for (let k = 1; k <= 2; k++) {
-      const vy =
-        this.minY +
-        k * yStep;
-
-      const west =
-        this.viewer.entities.add({
-          polyline: {
-            positions: [
-              localToWorld(
-                this.minX,
-                vy,
-                0,
-              ),
-
-              localToWorld(
-                this.minX,
-                vy,
-                -hz,
-              ),
-            ],
-
-            width: 1,
-
-            arcType:
-              Cesium.ArcType.NONE,
-
-            material:
-              new Cesium.ColorMaterialProperty(
-                new Cesium.Color(
-                  0.0,
-                  0.55,
-                  0.80,
-                  0.12,
-                ),
-              ),
-          },
-
-          properties: {
-            regionId:
-              this.definition.id,
-          },
-        });
-
-      const east =
-        this.viewer.entities.add({
-          polyline: {
-            positions: [
-              localToWorld(
-                this.maxX,
-                vy,
-                0,
-              ),
-
-              localToWorld(
-                this.maxX,
-                vy,
-                -hz,
-              ),
-            ],
-
-            width: 1,
-
-            arcType:
-              Cesium.ArcType.NONE,
-
-            material:
-              new Cesium.ColorMaterialProperty(
-                new Cesium.Color(
-                  0.0,
-                  0.55,
-                  0.80,
-                  0.12,
-                ),
-              ),
-          },
-
-          properties: {
-            regionId:
-              this.definition.id,
-          },
-        });
-
-      this.verticalGridEntities.push(
-        west,
-        east,
-      );
-
-      this.structuralEntities.push(
-        west,
-        east,
-      );
-    }
-
+    // ----------------------------------------------------------
+    // NO OLD RECTANGULAR VERTICAL GRID
+    //
+    // The actual scientific grid is handled by
+    // UnderwaterFieldMesh.
+    //
+    // This prevents the old rectangular grid from appearing
+    // inside the new irregular polygon.
+    // ----------------------------------------------------------
     // ----------------------------------------------------------
     // DEPTH GUIDES
+    //
+    // Every depth guide now follows the irregular footprint.
     // ----------------------------------------------------------
 
     for (
@@ -662,6 +604,10 @@ export class UnderwaterRegionBox {
         this.getPerimeterAtDepth(
           depth,
         );
+
+      if (perimeter.length < 2) {
+        continue;
+      }
 
       const isBoundary =
         depth === 0 ||
@@ -726,15 +672,25 @@ export class UnderwaterRegionBox {
         guide,
       );
 
+      // --------------------------------------------------------
+      // DEPTH LABEL
+      // --------------------------------------------------------
+
       if (isMajor) {
-        const nw =
-          this.getCornersAtDepth(
+        const center =
+          this.getPolygonCenter();
+
+        const labelPosition =
+          geoToWorld(
+            center.longitude,
+            center.latitude,
             depth,
-          )[3];
+          );
 
         const label =
           this.viewer.entities.add({
-            position: nw,
+            position:
+              labelPosition,
 
             label: {
               text:
@@ -805,6 +761,10 @@ export class UnderwaterRegionBox {
         this.currentDepth,
       );
 
+    // ----------------------------------------------------------
+    // SLICE POLYGON
+    // ----------------------------------------------------------
+
     this.slicePolygon =
       this.viewer.entities.add({
         polygon: {
@@ -835,6 +795,10 @@ export class UnderwaterRegionBox {
     this.structuralEntities.push(
       this.slicePolygon,
     );
+
+    // ----------------------------------------------------------
+    // SLICE OUTLINE
+    // ----------------------------------------------------------
 
     this.slicePolyline =
       this.viewer.entities.add({
@@ -868,6 +832,10 @@ export class UnderwaterRegionBox {
       this.slicePolyline,
     );
 
+    // ----------------------------------------------------------
+    // CROSSHAIR X
+    // ----------------------------------------------------------
+
     this.sliceCrosshairX =
       this.viewer.entities.add({
         polyline: {
@@ -899,6 +867,10 @@ export class UnderwaterRegionBox {
     this.structuralEntities.push(
       this.sliceCrosshairX,
     );
+
+    // ----------------------------------------------------------
+    // CROSSHAIR Y
+    // ----------------------------------------------------------
 
     this.sliceCrosshairY =
       this.viewer.entities.add({
@@ -936,21 +908,16 @@ export class UnderwaterRegionBox {
     // LABEL
     // ----------------------------------------------------------
 
-    const normZ =
-      this.currentDepth /
-      this.definition.depthMax;
-
-    const cz =
-      -normZ *
-      UW_DIMENSIONS.totalDepthZ;
+    const center =
+      this.getPolygonCenter();
 
     this.boxLabel =
       this.viewer.entities.add({
         position:
-          localToWorld(
-            this.cx,
-            this.cy,
-            cz + 10000,
+          geoToWorld(
+            center.longitude,
+            center.latitude,
+            this.currentDepth,
           ),
 
         label: {
@@ -1070,9 +1037,11 @@ export class UnderwaterRegionBox {
     // ==========================================================
 
     this.fieldMesh.setData(data);
+
     this.fieldMesh.setActive(
       this.isActive,
     );
+
     this.fieldMesh.setVisible(
       this.isVisible,
     );
@@ -1371,6 +1340,10 @@ export class UnderwaterRegionBox {
       this.currentDepth,
     );
 
+    // ----------------------------------------------------------
+    // IRREGULAR SLICE
+    // ----------------------------------------------------------
+
     const sliceCorners =
       this.getCornersAtDepth(
         this.currentDepth,
@@ -1436,30 +1409,29 @@ export class UnderwaterRegionBox {
         );
     }
 
-    if (this.boxLabel) {
-      const normZ =
-        this.currentDepth /
-        this.definition.depthMax;
+    // ----------------------------------------------------------
+    // LABEL
+    // ----------------------------------------------------------
 
-      const cz =
-        -normZ *
-        UW_DIMENSIONS.totalDepthZ;
+    if (this.boxLabel) {
+      const center =
+        this.getPolygonCenter();
 
       this.boxLabel.position =
         new Cesium.ConstantPositionProperty(
-          localToWorld(
-            this.cx,
-            this.cy,
-            cz + 10000,
+          geoToWorld(
+            center.longitude,
+            center.latitude,
+            this.currentDepth,
           ),
         );
 
       if (this.boxLabel.label) {
         const prefix =
           this.isActive
-            ? '● '
+            ? 'â— '
             : this.isHovered
-              ? '▷ '
+              ? 'â–· '
               : '';
 
         const suffix =
@@ -1687,7 +1659,7 @@ export class UnderwaterRegionBox {
   }
 
   // ============================================================
-  // VARIABLE → COLOR
+  // VARIABLE â†’ COLOR
   // ============================================================
 
   private getColor(
@@ -1987,6 +1959,11 @@ export class UnderwaterRegionBox {
     this.structuralEntities = [];
     this.depthWireframeEntities = [];
     this.currentVectorEntities = [];
+    this.wallEntities = [];
+    this.columnEntities = [];
+    this.depthLabelEntities = [];
     this.pointRecords = [];
   }
 }
+
+

@@ -5,7 +5,7 @@ import type { OceanVariable, UnderwaterRegionId } from '../../types/ocean';
  * UnderwaterDepthPointsLayer
  * Maintained for interface compatibility with OceanEngine.
  * Regional underwater data points are now independently queried and visualized
- * directly within each UnderwaterRegionBox container via fetchUnderwaterRegionData().
+ * directly within each UnderwaterRegionPolygon container via fetchUnderwaterRegionData().
  */
 export class UnderwaterDepthPointsLayer {
   constructor(_viewer: Cesium.Viewer) {}
