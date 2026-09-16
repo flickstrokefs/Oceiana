@@ -92,34 +92,34 @@ export const HazardAssessmentView: React.FC = () => {
           <div className="map-wrapper-relative">
             <svg viewBox="0 0 600 380" className="hazard-geospatial-svg" aria-label="Hazard heat map">
               {/* Ocean Dark Background */}
-              <rect x="0" y="0" width="600" height="380" fill="#040f1a" />
+              <rect x="0" y="0" width="600" height="380" fill="#0c0e12" />
 
               {/* Bathymetry contours */}
-              <path d="M 50,180 Q 150,220 280,260 T 550,300" stroke="#082538" strokeWidth="1.5" fill="none" />
-              <path d="M 20,240 Q 180,270 320,310 T 580,350" stroke="#082538" strokeWidth="1.5" fill="none" />
+              <path d="M 50,180 Q 150,220 280,260 T 550,300" stroke="#161920" strokeWidth="1.5" fill="none" />
+              <path d="M 20,240 Q 180,270 320,310 T 580,350" stroke="#161920" strokeWidth="1.5" fill="none" />
 
               {/* Landmass Outlines (Indian Subcontinent & Surroundings) */}
               {/* India */}
               <path
                 d="M 240,40 L 290,40 L 320,90 L 300,160 L 285,220 L 280,235 L 275,220 L 245,170 L 210,130 L 190,100 L 210,55 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.5"
               />
               {/* Arabian Peninsula */}
               <path
                 d="M 40,40 L 120,40 L 130,80 L 110,130 L 70,120 L 40,80 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.2"
               />
               {/* Sri Lanka */}
-              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#11293a" stroke="#1e4e68" strokeWidth="1" />
+              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#161920" stroke="#20242b" strokeWidth="1" />
               {/* Southeast Asia / Myanmar */}
               <path
                 d="M 370,50 L 430,70 L 450,150 L 430,220 L 400,240 L 390,200 L 380,130 Z"
-                fill="#11293a"
-                stroke="#1e4e68"
+                fill="#161920"
+                stroke="#20242b"
                 strokeWidth="1.2"
               />
 

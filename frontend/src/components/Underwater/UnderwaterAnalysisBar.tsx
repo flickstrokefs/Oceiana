@@ -139,7 +139,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
     'SURFACE MIXED LAYER';
 
   let layerColor =
-    '#00ff9d';
+    '#2d5e94';
 
   if (
     depth > 50 &&
@@ -149,7 +149,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
       'PERMANENT THERMOCLINE';
 
     layerColor =
-      '#00f0ff';
+      '#88909e';
   } else if (
     depth > 250 &&
     depth <= 1000
@@ -158,15 +158,15 @@ export const UnderwaterAnalysisBar: React.FC = () => {
       'MESOPELAGIC (TWILIGHT ZONE)';
 
     layerColor =
-      '#2d82ff';
+      '#2d5e94';
   } else if (
     depth > 1000
   ) {
     layerName =
-      'BATHYPELAGIC (ABYSSAL REALM)';
+      'BATHYPELAGIC (DEEP ABYSS)';
 
     layerColor =
-      '#a855f7';
+      '#505664';
   }
 
   /* ============================================
@@ -182,7 +182,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
             2,
           )} PSU`,
           color:
-            'var(--accent-blue)',
+            '#f0f2f6',
         };
 
       case 'current':
@@ -190,7 +190,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
           label: `FLOW VELOCITY @ -${depth}m`,
           value: `${currentMagnitude} m/s`,
           color:
-            'var(--accent-cyan)',
+            '#f0f2f6',
         };
 
       case 'chlorophyll':
@@ -200,7 +200,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
             2,
           )} mg/m³`,
           color:
-            'var(--accent-green)',
+            '#f0f2f6',
         };
 
       default:
@@ -210,7 +210,7 @@ export const UnderwaterAnalysisBar: React.FC = () => {
             2,
           )} °C`,
           color:
-            'var(--accent-amber)',
+            '#f0f2f6',
         };
     }
   };
@@ -220,10 +220,6 @@ export const UnderwaterAnalysisBar: React.FC = () => {
 
   /* ============================================
      COLLAPSED STATE
-     
-     IMPORTANT:
-     DO NOT RENDER THE ANALYSIS BAR HERE.
-     ONLY THE EXPAND ICON REMAINS.
      ============================================ */
 
   if (collapsed) {
@@ -243,8 +239,8 @@ export const UnderwaterAnalysisBar: React.FC = () => {
           top: '29px',
           right: '15px',
 
-          width: '36px',
-          height: '36px',
+          width: '32px',
+          height: '32px',
 
           padding: 0,
           margin: 0,
@@ -253,23 +249,22 @@ export const UnderwaterAnalysisBar: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
 
-          background: '#071520',
-          color: '#00e5be',
+          background: '#161920',
+          color: '#88909e',
 
-          border: '1px solid #00e5be',
-          borderRadius: '5px',
+          border: '1px solid #20242b',
+          borderRadius: '2px',
 
           cursor: 'pointer',
 
-          zIndex: 9999999,
+          zIndex: 99999,
 
           boxSizing: 'border-box',
 
-          boxShadow:
-            '0 0 8px rgba(0, 229, 190, 0.25)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
         }}
       >
-        <ChevronUp size={16} />
+        <ChevronUp size={14} />
       </button>
     );
   }
@@ -318,15 +313,15 @@ export const UnderwaterAnalysisBar: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
 
-          background: '#071520',
-          color: '#00e5be',
+          background: '#161920',
+          color: '#88909e',
 
-          border: '1px solid #00e5be',
-          borderRadius: '4px',
+          border: '1px solid #20242b',
+          borderRadius: '2px',
 
           cursor: 'pointer',
 
-          zIndex: 9999999,
+          zIndex: 99999,
 
           boxSizing: 'border-box',
         }}

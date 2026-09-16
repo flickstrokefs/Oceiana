@@ -52,8 +52,8 @@ export class DepthSliceRenderer {
         ]),
         width: 2.5,
         material: new Cesium.PolylineGlowMaterialProperty({
-          glowPower: 0.3,
-          color: Cesium.Color.fromCssColorString('#00f0ff').withAlpha(0.75),
+          glowPower: 0.1,
+          color: Cesium.Color.fromCssColorString('#2d5e94').withAlpha(0.85),
         }),
       },
     });
@@ -74,7 +74,7 @@ export class DepthSliceRenderer {
         }, false),
         font: 'bold 12px "JetBrains Mono", monospace',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Cesium.Color.fromCssColorString('#00f0ff'),
+        fillColor: Cesium.Color.fromCssColorString('#f0f2f6'),
         outlineColor: Cesium.Color.BLACK,
         outlineWidth: 4,
         verticalOrigin: Cesium.VerticalOrigin.TOP,

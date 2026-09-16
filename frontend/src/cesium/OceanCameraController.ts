@@ -895,18 +895,17 @@ export class OceanCameraController {
       bottom: 24px;
       right: 24px;
       width: 280px;
-      background: rgba(2, 6, 23, 0.88);
-      border: 1px solid rgba(0, 240, 255, 0.4);
-      border-radius: 8px;
+      background: #111418;
+      border: 1px solid #20242b;
+      border-radius: 4px;
       padding: 12px 16px;
-      color: #94a3b8;
+      color: #88909e;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       line-height: 1.6;
       z-index: 9999;
       pointer-events: none;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
       display: none;
     `;
     document.body.appendChild(this.debugPanel);
@@ -925,17 +924,17 @@ export class OceanCameraController {
 
     const snap = this.getStateSnapshot();
     this.debugPanel.innerHTML = `
-      <div style="color: #00f0ff; font-weight: bold; border-bottom: 1px solid rgba(0,240,255,0.2); margin-bottom: 6px; padding-bottom: 2px;">
-        OCEAN-X CAMERA ENGINE
+      <div style="color: #f0f2f6; font-weight: bold; border-bottom: 1px solid #20242b; margin-bottom: 6px; padding-bottom: 2px;">
+        ARIEL CAMERA ENGINE
       </div>
-      <div>Lat: <span style="color:#f8fafc">${snap.targetLatitude.toFixed(2)}°</span> Lon: <span style="color:#f8fafc">${snap.targetLongitude.toFixed(2)}°</span></div>
-      <div>Altitude: <span style="color:#38bdf8">${(snap.range / 1000.0).toFixed(0)} km</span></div>
-      <div>Heading: <span style="color:#f8fafc">${snap.heading.toFixed(1)}°</span> Pitch: <span style="color:#f8fafc">${snap.pitch.toFixed(1)}°</span></div>
-      <div>Zoom Vel: <span style="color:#fbbf24">${snap.zoomVelocity.toFixed(1)}</span></div>
-      <div>Pan Vel: <span style="color:#fbbf24">${(snap.panVelocityX * 1000).toFixed(2)}, ${(snap.panVelocityY * 1000).toFixed(2)}</span></div>
-      <div>Mode: <span style="color:#4ade80; font-weight: bold">${snap.mode}</span></div>
-      <div>Environment: <span style="color:${snap.isUnderwater ? '#00f0ff' : '#94a3b8'}">${snap.isUnderwater ? 'UNDERWATER' : 'ATMOSPHERE'}</span></div>
-      <div style="font-size: 9px; color: #64748b; margin-top: 4px;">Press ~ or Ctrl+Shift+D to hide</div>
+      <div>Lat: <span style="color:#f0f2f6">${snap.targetLatitude.toFixed(2)}°</span> Lon: <span style="color:#f0f2f6">${snap.targetLongitude.toFixed(2)}°</span></div>
+      <div>Altitude: <span style="color:#f0f2f6">${(snap.range / 1000.0).toFixed(0)} km</span></div>
+      <div>Heading: <span style="color:#f0f2f6">${snap.heading.toFixed(1)}°</span> Pitch: <span style="color:#f0f2f6">${snap.pitch.toFixed(1)}°</span></div>
+      <div>Zoom Vel: <span style="color:#f0f2f6">${snap.zoomVelocity.toFixed(1)}</span></div>
+      <div>Pan Vel: <span style="color:#f0f2f6">${(snap.panVelocityX * 1000).toFixed(2)}, ${(snap.panVelocityY * 1000).toFixed(2)}</span></div>
+      <div>Mode: <span style="color:#2d5e94; font-weight: bold">${snap.mode}</span></div>
+      <div>Environment: <span style="color:${snap.isUnderwater ? '#2d5e94' : '#88909e'}">${snap.isUnderwater ? 'UNDERWATER' : 'ATMOSPHERE'}</span></div>
+      <div style="font-size: 9px; color: #505664; margin-top: 4px;">Press ~ or Ctrl+Shift+D to hide</div>
     `;
   }
 
