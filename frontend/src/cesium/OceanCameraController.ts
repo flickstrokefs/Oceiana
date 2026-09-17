@@ -81,7 +81,7 @@ export class OceanCameraController {
 
   // Limits
   private readonly minRange = 400.0; // Above surface
-  private readonly maxRange = 7000000.0; // Deep space planetary overview
+  private readonly maxRange = 30000000.0; // Deep space planetary overview
   private readonly minPitch = Cesium.Math.toRadians(-89.5);
   private readonly maxPitch = Cesium.Math.toRadians(-12.0);
   private readonly maxDepth = 5000.0;
@@ -652,7 +652,9 @@ export class OceanCameraController {
         if (rect.top < height) bottomInset = Math.max(0, height - rect.top);
       }
     }
-    const pixelOffset = (topInset - bottomInset) * 0.5;
+    const globeLiftPixels = 180;
+    
+const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
     if (Math.abs(pixelOffset) < 1) return 0;
     const frustum = this.viewer.camera.frustum;
     const fovy = ('fovy' in frustum ? frustum.fovy : undefined) ?? Cesium.Math.toRadians(60);
