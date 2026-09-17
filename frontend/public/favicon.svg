@@ -1,1 +1,128 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">OCEAN-X Ocean Monitoring Emblem</title>
+  <desc id="desc">A stylized vector globe showing South Asia and the Indian Ocean, ocean currents, satellite telemetry, and an underwater autonomous vehicle.</desc>
+  <defs>
+    <radialGradient id="ocean" cx="48%" cy="42%" r="62%">
+      <stop offset="0" stop-color="#25d7e8"/>
+      <stop offset=".42" stop-color="#087fca"/>
+      <stop offset="1" stop-color="#042b68"/>
+    </radialGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b65bd"/>
+      <stop offset=".55" stop-color="#10c7e7"/>
+      <stop offset="1" stop-color="#0873ca"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07365f"/>
+      <stop offset="1" stop-color="#021b42"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="globeClip"><circle cx="500" cy="455" r="330"/></clipPath>
+  </defs>
+
+  <!-- atmospheric glow -->
+  <circle cx="500" cy="455" r="350" fill="#087fca" opacity=".14" filter="url(#glow)"/>
+  <circle cx="500" cy="455" r="330" fill="url(#ocean)" stroke="#39d8ff" stroke-opacity=".32" stroke-width="2"/>
+
+  <g clip-path="url(#globeClip)">
+    <!-- latitude / longitude grid -->
+    <g fill="none" stroke="#73dcff" stroke-opacity=".18" stroke-width="2">
+      <ellipse cx="500" cy="455" rx="300" ry="82"/>
+      <ellipse cx="500" cy="455" rx="300" ry="175"/>
+      <ellipse cx="500" cy="455" rx="300" ry="255"/>
+      <ellipse cx="500" cy="455" rx="92" ry="330"/>
+      <ellipse cx="500" cy="455" rx="190" ry="330"/>
+      <ellipse cx="500" cy="455" rx="275" ry="330"/>
+    </g>
+
+    <!-- simplified South Asia / Southeast Asia landmass -->
+    <path d="M220 225 L270 190 L330 205 L365 175 L415 195 L448 175 L500 192
+             L545 178 L600 205 L650 190 L700 215 L750 205 L790 240
+             L765 285 L720 292 L695 325 L650 315 L620 350 L585 338
+             L560 390 L530 430 L505 470 L485 455 L470 410 L445 375
+             L425 330 L395 300 L360 290 L330 315 L300 300 L275 270 Z"
+          fill="url(#land)" stroke="#9beaff" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- India peninsula -->
+    <path d="M365 285 L430 295 L470 325 L500 365 L485 425 L455 475
+             L420 520 L390 480 L365 425 L335 385 L345 335 Z"
+          fill="#052d56" stroke="#b4f4ff" stroke-width="4"/>
+
+    <!-- Sri Lanka -->
+    <ellipse cx="452" cy="500" rx="10" ry="17" fill="#052d56" stroke="#aaf0ff" stroke-width="3"/>
+
+    <!-- Andaman / Nicobar -->
+    <g fill="#06345e" stroke="#9beaff" stroke-width="2">
+      <ellipse cx="565" cy="420" rx="7" ry="15"/>
+      <ellipse cx="578" cy="446" rx="6" ry="13"/>
+      <ellipse cx="589" cy="472" rx="5" ry="11"/>
+    </g>
+
+    <!-- ocean current contour lines -->
+    <g fill="none" stroke="#8beaff" stroke-opacity=".62" stroke-width="3">
+      <path d="M275 370 C350 315 440 325 505 365 C565 402 620 395 690 350"/>
+      <path d="M265 405 C345 355 430 360 500 398 C565 435 630 420 720 370"/>
+      <path d="M260 445 C345 400 430 405 495 440 C565 477 650 455 730 410"/>
+      <path d="M280 485 C355 450 430 455 495 480 C570 510 645 495 710 465"/>
+      <path d="M310 520 C380 495 445 500 505 520 C565 540 630 535 680 510"/>
+    </g>
+
+    <!-- major southern current -->
+    <path d="M150 575 C300 500 390 535 500 575 C615 618 730 600 860 520"
+          fill="none" stroke="#0aaee2" stroke-width="48" opacity=".82"/>
+    <path d="M150 575 C300 500 390 535 500 575 C615 618 730 600 860 520"
+          fill="none" stroke="#74efff" stroke-width="6"/>
+
+    <!-- deeper current -->
+    <path d="M180 650 C325 570 420 620 535 650 C650 680 745 635 830 585"
+          fill="none" stroke="#07569d" stroke-width="55"/>
+    <path d="M180 650 C325 570 420 620 535 650 C650 680 745 635 830 585"
+          fill="none" stroke="#20bce6" stroke-width="4"/>
+  </g>
+
+  <!-- globe rim -->
+  <circle cx="500" cy="455" r="330" fill="none" stroke="#6ce9ff" stroke-opacity=".35" stroke-width="3"/>
+
+  <!-- satellite -->
+  <g transform="translate(735 105) rotate(32)">
+    <rect x="0" y="28" width="72" height="32" rx="6" fill="#071f45" stroke="#5fdcff" stroke-width="2"/>
+    <rect x="-70" y="12" width="62" height="60" fill="#062d58" stroke="#55d9ff" stroke-width="2"/>
+    <rect x="80" y="12" width="62" height="60" fill="#062d58" stroke="#55d9ff" stroke-width="2"/>
+    <g stroke="#55d9ff" stroke-opacity=".45">
+      <path d="M-49 12V72 M-28 12V72 M-70 32H-8 M-70 52H-8"/>
+      <path d="M101 12V72 M122 12V72 M80 32H142 M80 52H142"/>
+    </g>
+  </g>
+
+  <!-- telemetry arcs -->
+  <g fill="none" stroke="#d5fbff" stroke-width="8" stroke-linecap="round">
+    <path d="M705 210 A92 92 0 0 1 790 175"/>
+    <path d="M720 235 A120 120 0 0 1 830 190"/>
+    <path d="M735 260 A150 150 0 0 1 870 205"/>
+  </g>
+
+  <!-- underwater autonomous vehicle -->
+  <g transform="translate(335 690)">
+    <path d="M0 30 L34 12 L175 12 Q205 12 225 30 Q205 48 175 48 L34 48 Z"
+          fill="#9aaec4" stroke="#d9f8ff" stroke-width="3"/>
+    <path d="M34 12 L20 -8 L37 -8 L58 12 Z" fill="#9aaec4"/>
+    <path d="M34 48 L18 68 L36 68 L60 48 Z" fill="#7891aa"/>
+    <ellipse cx="232" cy="30" rx="9" ry="9" fill="#9aaec4"/>
+    <g fill="#1fc7ed">
+      <circle cx="270" cy="24" r="6"/>
+      <circle cx="295" cy="16" r="5"/>
+      <circle cx="318" cy="7" r="4"/>
+    </g>
+  </g>
+
+  <!-- subtle signal nodes -->
+  <g fill="#a7f6ff">
+    <circle cx="305" cy="355" r="4"/>
+    <circle cx="650" cy="375" r="4"/>
+    <circle cx="610" cy="520" r="4"/>
+    <circle cx="380" cy="555" r="4"/>
+  </g>
+</svg>
