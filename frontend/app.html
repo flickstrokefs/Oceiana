@@ -5,15 +5,129 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OCEAN-X / ARIEL — Advanced Ocean Intelligence</title>
+    <!-- High priority pre-connections for satellite tiles and fonts -->
+    <link rel="preconnect" href="https://services.arcgisonline.com" crossorigin />
+    <link rel="dns-prefetch" href="https://services.arcgisonline.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #020617;
+        overflow: hidden;
+      }
+      @keyframes ariel-pulse-ring {
+        0% { transform: scale(0.85); opacity: 0.8; }
+        50% { transform: scale(1.15); opacity: 0.3; }
+        100% { transform: scale(0.85); opacity: 0.8; }
+      }
+      @keyframes ariel-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes ariel-spin-reverse {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .ariel-loader-container {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at center, #0a1429 0%, #020617 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+        color: #f8fafc;
+      }
+      .ariel-sonar-box {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ariel-sonar-ring-1 {
+        position: absolute;
+        inset: 0;
+        border: 2px solid rgba(0, 242, 254, 0.2);
+        border-radius: 50%;
+        animation: ariel-pulse-ring 2.4s ease-in-out infinite;
+      }
+      .ariel-sonar-ring-2 {
+        position: absolute;
+        inset: 6px;
+        border: 2px solid transparent;
+        border-top-color: #00f2fe;
+        border-right-color: #38bdf8;
+        border-radius: 50%;
+        animation: ariel-spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+      }
+      .ariel-sonar-ring-3 {
+        position: absolute;
+        inset: 18px;
+        border: 2px solid transparent;
+        border-bottom-color: #38bdf8;
+        border-left-color: rgba(0, 242, 254, 0.4);
+        border-radius: 50%;
+        animation: ariel-spin-reverse 1.8s linear infinite;
+      }
+      .ariel-sonar-core {
+        width: 24px;
+        height: 24px;
+        background: radial-gradient(circle, #00f2fe 0%, #0284c7 100%);
+        border-radius: 50%;
+        box-shadow: 0 0 20px #00f2fe;
+      }
+      .ariel-loader-title {
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #f1f5f9;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ariel-loader-subtitle {
+        font-size: 11px;
+        color: #38bdf8;
+        letter-spacing: 0.12em;
+        font-family: 'IBM Plex Mono', monospace;
+        text-transform: uppercase;
+        opacity: 0.9;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Instant First-Paint Loading Screen -->
+      <div class="ariel-loader-container">
+        <div class="ariel-sonar-box">
+          <div class="ariel-sonar-ring-1"></div>
+          <div class="ariel-sonar-ring-2"></div>
+          <div class="ariel-sonar-ring-3"></div>
+          <div class="ariel-sonar-core"></div>
+        </div>
+        <div class="ariel-loader-title">
+          <span>OCEAN-X</span>
+          <span style="color: #38bdf8;">/</span>
+          <span style="color: #00f2fe;">ARIEL</span>
+        </div>
+        <div class="ariel-loader-subtitle">INITIALIZING 3D DIGITAL OCEAN TWIN...</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
