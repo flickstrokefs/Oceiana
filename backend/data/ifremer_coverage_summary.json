@@ -1,0 +1,101 @@
+{
+  "duration_seconds": 364.43,
+  "total_missions": 27,
+  "total_cache_size_bytes": 6462169,
+  "stats": {
+    "raw_observations": 455426,
+    "valid_observations": 455244,
+    "rejected_observations": 3,
+    "duplicate_observations": 179
+  },
+  "regional_reports": {
+    "arabian_sea": {
+      "missions_count": 2,
+      "mission_ids": [
+        "sea057_20220128",
+        "sea057_20220707"
+      ],
+      "observations_count": 12903,
+      "earliest": "2021-11-20T06:53:27Z",
+      "latest": "2022-10-14T04:09:25Z",
+      "lat_min": 23.59007,
+      "lat_max": 24.69388,
+      "lon_min": 57.48833,
+      "lon_max": 58.16832,
+      "variables": [
+        "temperature",
+        "salinity",
+        "pressure",
+        "latitude",
+        "longitude",
+        "time"
+      ]
+    },
+    "bay_of_bengal": {
+      "missions_count": 5,
+      "mission_ids": [
+        "Bellatrix_368",
+        "Denebola_382",
+        "Humpback_504",
+        "Marlin_505",
+        "Melonhead_506"
+      ],
+      "observations_count": 10874,
+      "earliest": "2016-06-30T04:12:40Z",
+      "latest": "2016-07-20T07:15:22Z",
+      "lat_min": 7.8428,
+      "lat_max": 8.20187,
+      "lon_min": 85.29057,
+      "lon_max": 89.11728,
+      "variables": [
+        "temperature",
+        "salinity",
+        "pressure",
+        "latitude",
+        "longitude",
+        "time"
+      ]
+    },
+    "southern_ocean": {
+      "missions_count": 20,
+      "mission_ids": [
+        "Agathe_575",
+        "Amazon_622",
+        "Bella_626",
+        "Bellamite_538",
+        "Bottlenose_629",
+        "Churchill_501",
+        "Doombar_503",
+        "Doombar_553",
+        "Frazil_619",
+        "HSB_554",
+        "Humboldt_597",
+        "Humpback_580",
+        "Kelvin_620",
+        "Marlin_596",
+        "Melonhead_579",
+        "Orca_576",
+        "Pancake_502",
+        "semla_20191021",
+        "sg564_20201229",
+        "sg565_630"
+      ],
+      "observations_count": 431467,
+      "earliest": "2018-11-25T22:09:43Z",
+      "latest": "2024-02-24T05:05:37Z",
+      "lat_min": -77.40077,
+      "lat_max": -52.65602,
+      "lon_min": -119.79594,
+      "lon_max": 172.11581,
+      "variables": [
+        "temperature",
+        "salinity",
+        "pressure",
+        "latitude",
+        "longitude",
+        "time"
+      ]
+    }
+  },
+  "catalog_path": "D:\\CODING\\Hackathons\\Year2\\SIH\\backend\\storage\\cache\\gliders_catalog.json"
+}

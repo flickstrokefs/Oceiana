@@ -27,7 +27,7 @@ class GliderItem(BaseModel):
     timestamp: str = Field(..., description="Latest observation UTC timestamp")
     depth: Optional[float] = Field(default=None, description="Latest sounding depth (m)")
     status: str = Field(default="Active", description="Platform operational status")
-    source: str = Field(default="IOOS Glider DAC / ERDDAP", description="Data provider provenance")
+    source: str = Field(default="IFREMER OceanGliders GDAC", description="Data provider provenance")
     source_dataset: str = Field(..., description="Authoritative ERDDAP dataset ID")
     region: Optional[str] = Field(default=None, description="Authorized region (bay_of_bengal, arabian_sea, southern_ocean)")
     macro_region: Optional[str] = Field(default=None, description="Macro ocean basin")
@@ -46,7 +46,7 @@ class GliderListResponse(BaseModel):
     data: List[GliderItem] = Field(..., description="List of authorized operational gliders")
     count: int = Field(..., description="Total count of active gliders matching query")
     latest_observation: Optional[str] = Field(default=None, description="Timestamp of the most recent observation")
-    source: str = Field(default="IOOS Glider DAC / ERDDAP", description="Primary data authority")
+    source: str = Field(default="IFREMER OceanGliders GDAC", description="Primary data authority")
     source_datasets: List[str] = Field(default_factory=list, description="ERDDAP datasets ingested")
     regions_included: List[str] = Field(default_factory=list, description="Authorized regions covered")
 
