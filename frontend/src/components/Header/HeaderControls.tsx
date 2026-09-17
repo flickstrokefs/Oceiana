@@ -70,7 +70,18 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
             <Menu size={14} />
           </button>
         )}
-        <a href="/" className="brand-logo-text-horiz" title="Return to ARIEL Landing Page" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+        <a
+          href="/"
+          className="brand-logo-text-horiz"
+          title="Return to ARIEL Landing Page"
+          style={{ textDecoration: 'none', cursor: 'pointer' }}
+          onClick={(e) => {
+            if (window.parent && window.parent !== window) {
+              e.preventDefault();
+              window.parent.postMessage({ type: 'ARIEL_CLOSE_GLOBE' }, '*');
+            }
+          }}
+        >
           <span className="brand-org-tag">INCOIS</span>
           <span className="brand-divider">/</span>
           <span className="brand-main-title">ARIEL</span>
