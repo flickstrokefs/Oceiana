@@ -1,8 +1,10 @@
-﻿import * as Cesium from 'cesium';
+import * as Cesium from 'cesium';
 
 import {
   UW_DIMENSIONS,
 } from '../utils/underwaterCoords';
+
+import { OceanState } from '../OceanState';
 
 import type {
   OceanVariable,
@@ -28,6 +30,11 @@ interface CellRecord {
   id: string;
   depth: number;
   baseColor: Cesium.Color;
+  sample?: {
+    temperature: number;
+    salinity: number;
+    value: number;
+  };
 }
 
 interface FootprintPoint {
@@ -55,6 +62,7 @@ export class UnderwaterFieldMesh {
   private destroyed = false;
 
   private resolution: 7 | 9 | 12 = 9;
+  private colorTransitionCleanup: (() => void) | null = null;
 
   /*
    * ------------------------------------------------------------
@@ -800,6 +808,11 @@ export class UnderwaterFieldMesh {
             depth,
             baseColor:
               color,
+            sample: {
+              temperature: sample.temperature,
+              salinity: sample.salinity,
+              value: sample.value,
+            },
           });
 
           this.appendWireframe(
@@ -1789,50 +1802,46 @@ export class UnderwaterFieldMesh {
     variable: OceanVariable,
     alpha: number,
   ): Cesium.Color {
-    let normalized = 0;
-
-    if (
-      variable ===
-      'temperature'
-    ) {
-      normalized =
-        (
-          temperature - 2
-        ) / 28;
-    } else if (
-      variable ===
-      'salinity'
-    ) {
-      normalized =
-        (
-          salinity - 32
-        ) / 6;
-    } else {
-      normalized =
-        value / 5;
+    let scalar = value;
+    if (variable === 'temperature') {
+      scalar = temperature;
+    } else if (variable === 'salinity') {
+      scalar = salinity;
     }
+    return OceanState.getInstance().getCesiumColorForActiveVariable(scalar, alpha);
+  }
 
-    normalized =
-      Math.max(
-        0,
-        Math.min(
-          1,
-          normalized,
-        ),
-      );
+  public reapplyColors(): void {
+    if (this.destroyed || !this.fieldPrimitive) return;
 
-    const hue =
-      (
-        1 -
-        normalized
-      ) * 240;
+    if (this.colorTransitionCleanup) this.colorTransitionCleanup();
 
-    return Cesium.Color.fromHsl(
-      hue / 360,
-      0.90,
-      0.52,
-      alpha,
-    );
+    const transitions = this.cells
+      .filter((cell) => !!cell.sample)
+      .map((cell) => ({
+        cell,
+        from: cell.baseColor.clone(),
+        to: this.getColor(cell.sample!.temperature, cell.sample!.salinity, cell.sample!.value, this.currentVariable, 0.42),
+      }));
+
+    const start = performance.now();
+    const duration = 360;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const renderListener = () => {
+      if (this.destroyed || !this.fieldPrimitive) return;
+      const t = Math.min(1, (performance.now() - start) / duration);
+      const e = ease(t);
+      for (const item of transitions) Cesium.Color.lerp(item.from, item.to, e, item.cell.baseColor);
+      this.updateDepthEmphasis();
+      if (t >= 1 && this.colorTransitionCleanup) {
+        const cleanup = this.colorTransitionCleanup;
+        this.colorTransitionCleanup = null;
+        cleanup();
+      }
+    };
+    const remove = this.viewer.scene.postRender.addEventListener(renderListener);
+    this.colorTransitionCleanup = remove;
+    renderListener();
   }
 
   // ============================================================
@@ -1986,6 +1995,7 @@ export class UnderwaterFieldMesh {
 
     this.destroyed = true;
 
+    if (this.colorTransitionCleanup) { this.colorTransitionCleanup(); this.colorTransitionCleanup = null; }
     this.clearMesh();
 
     this.dataPoints = [];

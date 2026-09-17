@@ -14,6 +14,9 @@ import type {
 import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
 import { MockOceanProvider } from './provider/MockOceanProvider';
+import * as Cesium from 'cesium';
+import type { ColorRange } from './color/colorTypes';
+import { DEFAULT_COLOR_RANGES, loadStoredRanges, saveStoredRanges, getColorForValue, cesiumColorFromHex } from './color/colorRangeUtils';
 
 export type OceanStateListener = (snapshot: OceanStateSnapshot) => void;
 
@@ -53,6 +56,7 @@ export class OceanState {
 
   private provider: OceanDataProvider;
   private listeners: Set<OceanStateListener> = new Set();
+  private colorRanges: Record<OceanVariable, ColorRange[]> = loadStoredRanges();
 
   private constructor(provider?: OceanDataProvider) {
     this.provider = provider || new MockOceanProvider();
@@ -105,6 +109,24 @@ public getMeshResolution(): 7 | 9 | 12 {
   return this.meshResolution;
 }
 
+public getColorRanges(variable: OceanVariable = this.activeVariable): ColorRange[] {
+  return (this.colorRanges[variable] || []).map((r) => ({ ...r }));
+}
+
+public setColorRanges(variable: OceanVariable, ranges: ColorRange[]): void {
+  this.colorRanges[variable] = ranges.map((r) => ({ ...r }));
+  saveStoredRanges(this.colorRanges);
+  this.notify();
+}
+
+public getCesiumColorForVariable(variable: OceanVariable, value: number, alpha = 1): Cesium.Color {
+  const ranges = this.colorRanges[variable] || DEFAULT_COLOR_RANGES[variable] || [];
+  return cesiumColorFromHex(getColorForValue(value, ranges), alpha);
+}
+
+public getCesiumColorForActiveVariable(value: number, alpha = 1): Cesium.Color {
+  return this.getCesiumColorForVariable(this.activeVariable, value, alpha);
+}
 public getSnapshot(): OceanStateSnapshot {
 return {
   parameters: { ...this.parameters },
@@ -119,6 +141,12 @@ return {
   selectedOceanDomain: this.selectedOceanDomain,
   gliders: [...this.gliders],
   argoProfiles: [...this.argoProfiles],
+  colorRanges: {
+    temperature: this.getColorRanges('temperature'),
+    salinity: this.getColorRanges('salinity'),
+    current: this.getColorRanges('current'),
+    chlorophyll: this.getColorRanges('chlorophyll'),
+  },
 };
 }
 

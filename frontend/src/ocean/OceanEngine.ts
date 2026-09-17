@@ -36,6 +36,7 @@ export class OceanEngine {
   private lastMode: OceanMode = 'surface';
   private lastDepth = 0;
   private lastFlyToken = 0;
+  private lastColorRanges: unknown = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -85,6 +86,17 @@ export class OceanEngine {
           snapshot.activeVariable !==
           this.lastVariable;
 
+        const rangesChanged =
+          snapshot.colorRanges !== this.lastColorRanges;
+
+        if (rangesChanged) {
+          this.lastColorRanges = snapshot.colorRanges;
+          void this.depthSliceRenderer.update();
+          this.currentLayer.setVisible(snapshot.activeVariable === 'current');
+          if (snapshot.mode === 'underwater') {
+            this.underwaterVolumeLayer.reapplyColors();
+          }
+        }
         // ------------------------------------------------------
         // MODE / DEPTH
         // ------------------------------------------------------

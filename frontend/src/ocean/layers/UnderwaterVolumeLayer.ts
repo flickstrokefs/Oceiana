@@ -331,6 +331,16 @@ export class UnderwaterVolumeLayer {
     this.applyRegionVisibility();
   }
 
+  public reapplyColors(): void {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    for (const box of this.boxes) {
+      box.reapplyColors();
+    }
+  }
+
   public destroy(): void {
     if (this.isDestroyed) {
       return;

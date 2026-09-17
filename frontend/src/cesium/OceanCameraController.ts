@@ -57,7 +57,7 @@ export class OceanCameraController {
     0.0
   );
 
-  private range = 4200000.0; // Distance from target in meters
+  private range = 5000000.0; // Distance from target in meters
   private heading = Cesium.Math.toRadians(0.0); // Azimuth (0 = North)
   private pitch = Cesium.Math.toRadians(-72.0); // Elevation (-90 = Nadir)
   private roll = 0.0;
@@ -81,7 +81,7 @@ export class OceanCameraController {
 
   // Limits
   private readonly minRange = 400.0; // Above surface
-  private readonly maxRange = 25000000.0; // Deep space planetary overview
+  private readonly maxRange = 30000000.0; // Deep space planetary overview
   private readonly minPitch = Cesium.Math.toRadians(-89.5);
   private readonly maxPitch = Cesium.Math.toRadians(-12.0);
   private readonly maxDepth = 5000.0;
@@ -183,7 +183,7 @@ export class OceanCameraController {
     );
     Cesium.Ellipsoid.WGS84.cartographicToCartesian(this.targetCartographic, this.targetCartesian);
 
-    this.range = 4200000.0;
+    this.range = 5000000.0;
     this.heading = Cesium.Math.toRadians(0.0);
     this.pitch = Cesium.Math.toRadians(-72.0);
     this.roll = 0.0;
@@ -637,6 +637,31 @@ export class OceanCameraController {
   /**
    * Translates the mathematical target + range + heading + pitch into the Cesium Camera matrix.
    */
+  private getVerticalFramingOffsetMeters(): number {
+    // UI overlays are positioned over the full-screen Cesium canvas. Keep the
+    // globe centered in the unobscured vertical area instead of the raw canvas.
+    const height = this.viewer.canvas.clientHeight || 1;
+    let topInset = 0;
+    let bottomInset = 0;
+    if (typeof document !== 'undefined') {
+      const header = document.querySelector('.header-controls, .underwater-header');
+      const timeline = document.querySelector('.ocean-timeline-dock');
+      if (header instanceof HTMLElement) topInset = Math.max(0, header.getBoundingClientRect().bottom);
+      if (timeline instanceof HTMLElement) {
+        const rect = timeline.getBoundingClientRect();
+        if (rect.top < height) bottomInset = Math.max(0, height - rect.top);
+      }
+    }
+    const globeLiftPixels = 180;
+    
+const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
+    if (Math.abs(pixelOffset) < 1) return 0;
+    const frustum = this.viewer.camera.frustum;
+    const fovy = ('fovy' in frustum ? frustum.fovy : undefined) ?? Cesium.Math.toRadians(60);
+    const metersPerPixel = (2 * Math.max(this.range, 1000) * Math.tan(fovy / 2)) / Math.max(height, 1);
+    return pixelOffset * metersPerPixel;
+  }
+
   private applyCameraTransform(): void {
     const enuTransform = Cesium.Transforms.eastNorthUpToFixedFrame(
       this.targetCartesian,
@@ -665,9 +690,22 @@ export class OceanCameraController {
       this.scratchCartesian
     );
 
-    // Camera looks directly at target
-    const direction = Cesium.Cartesian3.subtract(
+    // Aim at a slightly offset point so the globe is centered in the unobscured
+    // viewport. The geographic target itself is never changed.
+    const worldUp = Cesium.Matrix4.multiplyByPointAsVector(
+      enuTransform,
+      new Cesium.Cartesian3(0, 0, 1),
+      new Cesium.Cartesian3()
+    );
+    Cesium.Cartesian3.normalize(worldUp, worldUp);
+    const framingOffset = this.getVerticalFramingOffsetMeters();
+    const lookTarget = Cesium.Cartesian3.add(
       this.targetCartesian,
+      Cesium.Cartesian3.multiplyByScalar(worldUp, framingOffset, new Cesium.Cartesian3()),
+      new Cesium.Cartesian3()
+    );
+    const direction = Cesium.Cartesian3.subtract(
+      lookTarget,
       worldCameraPos,
       this.scratchCartesian2
     );
@@ -675,10 +713,10 @@ export class OceanCameraController {
 
     // Derive proper Up vector perpendicular to direction & East
     const upVector = new Cesium.Cartesian3(0, 0, 1);
-    const worldUp = Cesium.Matrix4.multiplyByPointAsVector(
+    Cesium.Matrix4.multiplyByPointAsVector(
       enuTransform,
       upVector,
-      new Cesium.Cartesian3()
+      worldUp
     );
     Cesium.Cartesian3.normalize(worldUp, worldUp);
 
@@ -874,7 +912,7 @@ export class OceanCameraController {
     this.flyTo({
       latitude: 14.0,
       longitude: 75.0,
-      altitude: 4200000,
+      altitude: 5000000,
       heading: 0.0,
       pitch: -72.0,
       duration,

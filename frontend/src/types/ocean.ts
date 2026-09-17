@@ -16650,6 +16650,12 @@ export type ArielPage =
   | 'settings'
   | 'public-view';
 
+export type {
+  ColorRange,
+  ColorRangeValidationIssue,
+  ColorRangeValidationResult,
+} from '../ocean/color/colorTypes';
+
 export interface OceanStateSnapshot {
   parameters: OceanParameters;
   mode: OceanMode;
@@ -16666,4 +16672,5 @@ export interface OceanStateSnapshot {
     | null;
   gliders?: GliderTrajectory[];
   argoProfiles?: ArgoProfile[];
+  colorRanges: Record<OceanVariable, import('../ocean/color/colorTypes').ColorRange[]>;
 }
