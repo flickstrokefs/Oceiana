@@ -12,7 +12,7 @@ export class MockOceanProvider implements OceanDataProvider {
 
   constructor() {
     this.argoProfiles = this.generateMockArgoProfiles();
-    this.gliderTrajectories = this.generateMockGliders();
+    this.gliderTrajectories = [];
   }
 
   public sampleField(
@@ -156,37 +156,6 @@ export class MockOceanProvider implements OceanDataProvider {
           { depth: 1000, temperature: 5.4, salinity: 34.8 },
           { depth: 2000, temperature: 2.6, salinity: 34.7 },
         ],
-      },
-    ];
-  }
-
-  private generateMockGliders(): GliderTrajectory[] {
-    const waypoints = [];
-    const baseLat = 15.0;
-    const baseLon = 68.0;
-
-    for (let i = 0; i <= 30; i++) {
-      const lat = baseLat + i * 0.12;
-      const lon = baseLon + Math.sin(i * 0.4) * 0.25;
-      const depth = Math.abs(Math.sin((i / 30) * Math.PI * 4)) * 950 + 10;
-      const temp = 28.0 - (depth / 1000) * 22;
-
-      waypoints.push({
-        latitude: lat,
-        longitude: lon,
-        depth: depth,
-        timestamp: new Date(Date.now() - (30 - i) * 3600000).toISOString(),
-        temperature: temp,
-        salinity: 36.0 + Math.sin(i * 0.2) * 0.5,
-      });
-    }
-
-    return [
-      {
-        id: 'glider-seaexplorer-01',
-        name: 'Deep Glider SEA-EXPLORER-IO4',
-        mission: 'Arabian Sea Thermocline Survey',
-        waypoints,
       },
     ];
   }

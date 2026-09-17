@@ -1,0 +1,7285 @@
+{
+  "id": "gs_565-20151220T1746-delayed",
+  "name": "Seaglider SG565 (Southern Ocean)",
+  "mission": "OOI Global Southern Ocean Hydrographic Transect",
+  "source_dataset": "gs_565-20151220T1746-delayed",
+  "source": "IOOS Glider DAC / ERDDAP",
+  "provenance": "REAL",
+  "region": "southern_ocean",
+  "macro_region": "Southern Ocean",
+  "platform": "Slocum Glider",
+  "operator": "OOI Coastal & Global Scale Nodes (CGSN)",
+  "wmo_id": null,
+  "status": "Active - Subpolar Sounding",
+  "battery": 84,
+  "latitude": -52.37065,
+  "longitude": -80.70958,
+  "depth": 600.0,
+  "timestamp": "2016-11-05T16:26:25Z",
+  "measurements": {
+    "temperature": 1.8,
+    "salinity": 34.0,
+    "density": 1025.4
+  },
+  "metadata": {
+    "title": "gs_565-20151220T1746-delayed",
+    "summary": "The Global component of the OOI includes arrays at critical, yet under-sampled, locations such as within the Southern Ocean. The Global Southern Ocean Array includes two types of gliders that provide simultaneous spatial and temporal sampling capabilities. Open-Ocean Gliders follow track lines around the triangular mooring array and are equipped with acoustic modems to relay data from the Flanking Moorings to shore via satellite telemetry. Profiling Gliders sample the upper water column near the Apex Profiler Mooring.",
+    "institution": "OOI Coastal & Global Scale Nodes (CGSN)",
+    "creator_name": "Collin Dobson",
+    "project": "Coastal & Global Scale Nodes (CGSN)",
+    "wmo_id": null
+  },
+  "waypoints_count": 906,
+  "waypoints": [
+    {
+      "latitude": -54.12413,
+      "longitude": -89.75957,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T17:58:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12389,
+      "longitude": -89.76016,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T18:03:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12286,
+      "longitude": -89.76007,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T18:15:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12243,
+      "longitude": -89.76076,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T19:11:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12379,
+      "longitude": -89.75954,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T20:01:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12915,
+      "longitude": -89.75564,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T21:06:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.14284,
+      "longitude": -89.75427,
+      "depth": 0.0,
+      "timestamp": "2015-12-20T23:27:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.15701,
+      "longitude": -89.75487,
+      "depth": 0.0,
+      "timestamp": "2015-12-21T02:12:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.1695,
+      "longitude": -89.75758,
+      "depth": 0.0,
+      "timestamp": "2015-12-21T05:15:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19817,
+      "longitude": -89.76938,
+      "depth": 0.0,
+      "timestamp": "2015-12-21T10:23:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22273,
+      "longitude": -89.78895,
+      "depth": 0.0,
+      "timestamp": "2015-12-21T15:37:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23864,
+      "longitude": -89.82958,
+      "depth": 0.0,
+      "timestamp": "2015-12-21T20:47:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22319,
+      "longitude": -89.83761,
+      "depth": 0.0,
+      "timestamp": "2015-12-22T02:13:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17995,
+      "longitude": -89.84193,
+      "depth": 0.0,
+      "timestamp": "2015-12-22T07:31:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17057,
+      "longitude": -89.81758,
+      "depth": 0.0,
+      "timestamp": "2015-12-22T13:02:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19086,
+      "longitude": -89.81658,
+      "depth": 0.0,
+      "timestamp": "2015-12-22T18:28:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21258,
+      "longitude": -89.80527,
+      "depth": 0.0,
+      "timestamp": "2015-12-22T23:34:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22778,
+      "longitude": -89.81427,
+      "depth": 0.0,
+      "timestamp": "2015-12-23T04:43:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.24021,
+      "longitude": -89.83899,
+      "depth": 0.0,
+      "timestamp": "2015-12-23T09:52:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21991,
+      "longitude": -89.83066,
+      "depth": 0.0,
+      "timestamp": "2015-12-23T15:24:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21355,
+      "longitude": -89.80058,
+      "depth": 0.0,
+      "timestamp": "2015-12-23T20:47:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20629,
+      "longitude": -89.76491,
+      "depth": 0.0,
+      "timestamp": "2015-12-24T02:51:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21207,
+      "longitude": -89.75591,
+      "depth": 0.0,
+      "timestamp": "2015-12-24T08:14:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22171,
+      "longitude": -89.74663,
+      "depth": 0.0,
+      "timestamp": "2015-12-24T14:08:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23065,
+      "longitude": -89.72888,
+      "depth": 0.0,
+      "timestamp": "2015-12-24T19:31:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.24902,
+      "longitude": -89.73581,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T01:00:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.2038,
+      "longitude": -89.74398,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T06:19:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21198,
+      "longitude": -89.74063,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T09:21:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.2206,
+      "longitude": -89.73815,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T12:23:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22273,
+      "longitude": -89.73694,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T13:59:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.2242,
+      "longitude": -89.73676,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T15:39:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22723,
+      "longitude": -89.7374,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T17:12:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23053,
+      "longitude": -89.73715,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T18:46:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23399,
+      "longitude": -89.7384,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T21:04:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23456,
+      "longitude": -89.73866,
+      "depth": 0.0,
+      "timestamp": "2015-12-25T22:08:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22332,
+      "longitude": -89.74088,
+      "depth": 0.0,
+      "timestamp": "2015-12-26T03:06:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23863,
+      "longitude": -89.78536,
+      "depth": 0.0,
+      "timestamp": "2015-12-26T08:10:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19497,
+      "longitude": -89.85039,
+      "depth": 0.0,
+      "timestamp": "2015-12-26T17:29:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20215,
+      "longitude": -89.83166,
+      "depth": 0.0,
+      "timestamp": "2015-12-27T02:32:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.24435,
+      "longitude": -89.81819,
+      "depth": 0.0,
+      "timestamp": "2015-12-27T11:55:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18203,
+      "longitude": -89.84342,
+      "depth": 0.0,
+      "timestamp": "2015-12-27T21:14:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21044,
+      "longitude": -89.8234,
+      "depth": 0.0,
+      "timestamp": "2015-12-28T06:22:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21287,
+      "longitude": -89.83754,
+      "depth": 0.0,
+      "timestamp": "2015-12-28T15:42:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19131,
+      "longitude": -89.81879,
+      "depth": 0.0,
+      "timestamp": "2015-12-29T00:49:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23578,
+      "longitude": -89.83206,
+      "depth": 0.0,
+      "timestamp": "2015-12-29T10:13:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18266,
+      "longitude": -89.84209,
+      "depth": 0.0,
+      "timestamp": "2015-12-29T19:19:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20229,
+      "longitude": -89.81993,
+      "depth": 0.0,
+      "timestamp": "2015-12-30T04:34:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.24062,
+      "longitude": -89.83712,
+      "depth": 0.0,
+      "timestamp": "2015-12-30T13:50:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18312,
+      "longitude": -89.84336,
+      "depth": 0.0,
+      "timestamp": "2015-12-30T23:01:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19907,
+      "longitude": -89.82645,
+      "depth": 0.0,
+      "timestamp": "2015-12-31T08:14:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22874,
+      "longitude": -89.82386,
+      "depth": 0.0,
+      "timestamp": "2015-12-31T17:17:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.2144,
+      "longitude": -89.84228,
+      "depth": 0.0,
+      "timestamp": "2016-01-01T02:25:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17549,
+      "longitude": -89.84149,
+      "depth": 0.0,
+      "timestamp": "2016-01-01T13:10:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17302,
+      "longitude": -89.78817,
+      "depth": 0.0,
+      "timestamp": "2016-01-01T22:15:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17322,
+      "longitude": -89.74054,
+      "depth": 0.0,
+      "timestamp": "2016-01-02T07:21:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.16718,
+      "longitude": -89.70386,
+      "depth": 0.0,
+      "timestamp": "2016-01-02T16:36:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.14585,
+      "longitude": -89.64083,
+      "depth": 0.0,
+      "timestamp": "2016-01-03T01:56:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17456,
+      "longitude": -89.64157,
+      "depth": 0.0,
+      "timestamp": "2016-01-03T11:09:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.17766,
+      "longitude": -89.61088,
+      "depth": 0.0,
+      "timestamp": "2016-01-03T20:32:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18106,
+      "longitude": -89.56958,
+      "depth": 0.0,
+      "timestamp": "2016-01-04T05:49:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18409,
+      "longitude": -89.53743,
+      "depth": 0.0,
+      "timestamp": "2016-01-04T15:15:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19268,
+      "longitude": -89.51494,
+      "depth": 0.0,
+      "timestamp": "2016-01-05T00:29:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19323,
+      "longitude": -89.50368,
+      "depth": 0.0,
+      "timestamp": "2016-01-05T09:28:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19503,
+      "longitude": -89.48426,
+      "depth": 0.0,
+      "timestamp": "2016-01-05T18:39:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20326,
+      "longitude": -89.46647,
+      "depth": 0.0,
+      "timestamp": "2016-01-06T03:40:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20089,
+      "longitude": -89.44968,
+      "depth": 0.0,
+      "timestamp": "2016-01-06T12:53:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20322,
+      "longitude": -89.43569,
+      "depth": 0.0,
+      "timestamp": "2016-01-06T22:14:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20734,
+      "longitude": -89.42268,
+      "depth": 0.0,
+      "timestamp": "2016-01-07T07:14:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20731,
+      "longitude": -89.41022,
+      "depth": 0.0,
+      "timestamp": "2016-01-07T16:22:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20739,
+      "longitude": -89.39749,
+      "depth": 0.0,
+      "timestamp": "2016-01-08T01:50:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.20813,
+      "longitude": -89.38308,
+      "depth": 0.0,
+      "timestamp": "2016-01-08T10:57:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21024,
+      "longitude": -89.37414,
+      "depth": 0.0,
+      "timestamp": "2016-01-08T20:11:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22011,
+      "longitude": -89.38574,
+      "depth": 0.0,
+      "timestamp": "2016-01-09T05:10:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21815,
+      "longitude": -89.4062,
+      "depth": 0.0,
+      "timestamp": "2016-01-09T14:51:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21339,
+      "longitude": -89.41103,
+      "depth": 0.0,
+      "timestamp": "2016-01-10T00:06:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21767,
+      "longitude": -89.41859,
+      "depth": 0.0,
+      "timestamp": "2016-01-10T09:23:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21537,
+      "longitude": -89.42353,
+      "depth": 0.0,
+      "timestamp": "2016-01-10T18:41:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.21056,
+      "longitude": -89.43015,
+      "depth": 0.0,
+      "timestamp": "2016-01-11T03:59:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.2055,
+      "longitude": -89.44396,
+      "depth": 0.0,
+      "timestamp": "2016-01-11T13:14:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19616,
+      "longitude": -89.45284,
+      "depth": 0.0,
+      "timestamp": "2016-01-11T22:38:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.19569,
+      "longitude": -89.47134,
+      "depth": 0.0,
+      "timestamp": "2016-01-12T07:55:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.1862,
+      "longitude": -89.48406,
+      "depth": 0.0,
+      "timestamp": "2016-01-12T17:20:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.14449,
+      "longitude": -89.45797,
+      "depth": 0.0,
+      "timestamp": "2016-01-13T02:42:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.12824,
+      "longitude": -89.42991,
+      "depth": 0.0,
+      "timestamp": "2016-01-13T12:03:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.10523,
+      "longitude": -89.38674,
+      "depth": 0.0,
+      "timestamp": "2016-01-13T21:25:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.09794,
+      "longitude": -89.33807,
+      "depth": 0.0,
+      "timestamp": "2016-01-14T06:47:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.0967,
+      "longitude": -89.27072,
+      "depth": 0.0,
+      "timestamp": "2016-01-14T15:56:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.09577,
+      "longitude": -89.18863,
+      "depth": 0.0,
+      "timestamp": "2016-01-15T01:31:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.11207,
+      "longitude": -89.09566,
+      "depth": 0.0,
+      "timestamp": "2016-01-15T10:53:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18027,
+      "longitude": -89.08603,
+      "depth": 0.0,
+      "timestamp": "2016-01-15T20:25:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.23758,
+      "longitude": -89.13005,
+      "depth": 0.0,
+      "timestamp": "2016-01-16T05:40:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.28421,
+      "longitude": -89.17066,
+      "depth": 0.0,
+      "timestamp": "2016-01-16T14:53:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.3229,
+      "longitude": -89.24888,
+      "depth": 0.0,
+      "timestamp": "2016-01-17T00:12:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.3503,
+      "longitude": -89.32035,
+      "depth": 0.0,
+      "timestamp": "2016-01-17T09:36:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.36351,
+      "longitude": -89.3468,
+      "depth": 0.0,
+      "timestamp": "2016-01-17T18:57:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.37169,
+      "longitude": -89.33217,
+      "depth": 0.0,
+      "timestamp": "2016-01-18T04:16:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.38213,
+      "longitude": -89.32785,
+      "depth": 0.0,
+      "timestamp": "2016-01-18T13:36:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.39068,
+      "longitude": -89.32358,
+      "depth": 0.0,
+      "timestamp": "2016-01-18T22:45:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.40149,
+      "longitude": -89.31679,
+      "depth": 0.0,
+      "timestamp": "2016-01-19T08:18:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.41241,
+      "longitude": -89.29397,
+      "depth": 0.0,
+      "timestamp": "2016-01-19T17:42:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.42968,
+      "longitude": -89.26729,
+      "depth": 0.0,
+      "timestamp": "2016-01-20T03:27:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.44724,
+      "longitude": -89.2509,
+      "depth": 0.0,
+      "timestamp": "2016-01-20T12:43:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45243,
+      "longitude": -89.25479,
+      "depth": 0.0,
+      "timestamp": "2016-01-20T22:01:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45816,
+      "longitude": -89.21204,
+      "depth": 0.0,
+      "timestamp": "2016-01-21T07:38:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45873,
+      "longitude": -89.21145,
+      "depth": 0.0,
+      "timestamp": "2016-01-21T17:10:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46343,
+      "longitude": -89.22064,
+      "depth": 0.0,
+      "timestamp": "2016-01-22T02:41:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46338,
+      "longitude": -89.22198,
+      "depth": 0.0,
+      "timestamp": "2016-01-22T12:57:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47028,
+      "longitude": -89.21395,
+      "depth": 0.0,
+      "timestamp": "2016-01-22T21:35:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46612,
+      "longitude": -89.22114,
+      "depth": 0.0,
+      "timestamp": "2016-01-23T07:07:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.44962,
+      "longitude": -89.20226,
+      "depth": 0.0,
+      "timestamp": "2016-01-23T16:35:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45314,
+      "longitude": -89.23004,
+      "depth": 0.0,
+      "timestamp": "2016-01-24T02:08:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45982,
+      "longitude": -89.2232,
+      "depth": 0.0,
+      "timestamp": "2016-01-24T09:08:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45627,
+      "longitude": -89.26078,
+      "depth": 0.0,
+      "timestamp": "2016-01-24T14:12:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45785,
+      "longitude": -89.2384,
+      "depth": 0.0,
+      "timestamp": "2016-01-24T23:48:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46195,
+      "longitude": -89.24415,
+      "depth": 0.0,
+      "timestamp": "2016-01-25T09:23:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4551,
+      "longitude": -89.26449,
+      "depth": 0.0,
+      "timestamp": "2016-01-25T18:50:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4529,
+      "longitude": -89.21411,
+      "depth": 0.0,
+      "timestamp": "2016-01-26T04:25:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45963,
+      "longitude": -89.21695,
+      "depth": 0.0,
+      "timestamp": "2016-01-26T14:06:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45937,
+      "longitude": -89.21417,
+      "depth": 0.0,
+      "timestamp": "2016-01-26T23:32:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46156,
+      "longitude": -89.20651,
+      "depth": 0.0,
+      "timestamp": "2016-01-27T09:04:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4651,
+      "longitude": -89.22183,
+      "depth": 0.0,
+      "timestamp": "2016-01-27T18:23:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.30159,
+      "longitude": -89.03099,
+      "depth": 0.0,
+      "timestamp": "2016-01-28T04:12:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.51676,
+      "longitude": -89.33219,
+      "depth": 0.0,
+      "timestamp": "2016-01-28T13:27:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45812,
+      "longitude": -89.32292,
+      "depth": 0.0,
+      "timestamp": "2016-01-28T23:13:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45088,
+      "longitude": -89.28125,
+      "depth": 0.0,
+      "timestamp": "2016-01-29T05:24:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46213,
+      "longitude": -89.24266,
+      "depth": 0.0,
+      "timestamp": "2016-01-29T10:59:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46111,
+      "longitude": -89.24809,
+      "depth": 0.0,
+      "timestamp": "2016-01-29T20:34:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46654,
+      "longitude": -89.24098,
+      "depth": 0.0,
+      "timestamp": "2016-01-30T03:01:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46452,
+      "longitude": -89.22516,
+      "depth": 0.0,
+      "timestamp": "2016-01-30T08:25:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45175,
+      "longitude": -89.22631,
+      "depth": 0.0,
+      "timestamp": "2016-01-30T17:58:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4506,
+      "longitude": -89.21196,
+      "depth": 0.0,
+      "timestamp": "2016-01-31T03:25:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46096,
+      "longitude": -89.22307,
+      "depth": 0.0,
+      "timestamp": "2016-01-31T13:32:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46012,
+      "longitude": -89.30754,
+      "depth": 0.0,
+      "timestamp": "2016-01-31T23:36:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.44716,
+      "longitude": -89.2622,
+      "depth": 0.0,
+      "timestamp": "2016-02-01T09:24:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45308,
+      "longitude": -89.21796,
+      "depth": 0.0,
+      "timestamp": "2016-02-01T19:01:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45861,
+      "longitude": -89.22598,
+      "depth": 0.0,
+      "timestamp": "2016-02-02T04:30:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45419,
+      "longitude": -89.21101,
+      "depth": 0.0,
+      "timestamp": "2016-02-02T14:07:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45482,
+      "longitude": -89.22404,
+      "depth": 0.0,
+      "timestamp": "2016-02-03T00:41:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45294,
+      "longitude": -89.24515,
+      "depth": 0.0,
+      "timestamp": "2016-02-03T10:34:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46342,
+      "longitude": -89.2517,
+      "depth": 0.0,
+      "timestamp": "2016-02-03T20:14:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46598,
+      "longitude": -89.23824,
+      "depth": 0.0,
+      "timestamp": "2016-02-04T06:12:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45857,
+      "longitude": -89.24953,
+      "depth": 0.0,
+      "timestamp": "2016-02-04T16:01:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45707,
+      "longitude": -89.24956,
+      "depth": 0.0,
+      "timestamp": "2016-02-05T02:00:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4532,
+      "longitude": -89.24023,
+      "depth": 0.0,
+      "timestamp": "2016-02-05T11:44:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45552,
+      "longitude": -89.23419,
+      "depth": 0.0,
+      "timestamp": "2016-02-05T21:30:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47193,
+      "longitude": -89.26404,
+      "depth": 0.0,
+      "timestamp": "2016-02-06T07:28:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45385,
+      "longitude": -89.23638,
+      "depth": 0.0,
+      "timestamp": "2016-02-06T17:22:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4676,
+      "longitude": -89.24781,
+      "depth": 0.0,
+      "timestamp": "2016-02-07T03:30:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46542,
+      "longitude": -89.25045,
+      "depth": 0.0,
+      "timestamp": "2016-02-07T13:35:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46512,
+      "longitude": -89.22692,
+      "depth": 0.0,
+      "timestamp": "2016-02-08T00:28:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46224,
+      "longitude": -89.21147,
+      "depth": 0.0,
+      "timestamp": "2016-02-08T09:21:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45125,
+      "longitude": -89.22133,
+      "depth": 0.0,
+      "timestamp": "2016-02-08T19:04:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45789,
+      "longitude": -89.22261,
+      "depth": 0.0,
+      "timestamp": "2016-02-09T04:59:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45439,
+      "longitude": -89.23664,
+      "depth": 0.0,
+      "timestamp": "2016-02-09T15:17:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45793,
+      "longitude": -89.24582,
+      "depth": 0.0,
+      "timestamp": "2016-02-10T01:44:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45858,
+      "longitude": -89.24972,
+      "depth": 0.0,
+      "timestamp": "2016-02-10T11:34:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45441,
+      "longitude": -89.24842,
+      "depth": 0.0,
+      "timestamp": "2016-02-10T21:32:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45302,
+      "longitude": -89.25164,
+      "depth": 0.0,
+      "timestamp": "2016-02-11T07:38:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4509,
+      "longitude": -89.20602,
+      "depth": 0.0,
+      "timestamp": "2016-02-11T17:30:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45428,
+      "longitude": -89.20846,
+      "depth": 0.0,
+      "timestamp": "2016-02-12T03:42:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46645,
+      "longitude": -89.22934,
+      "depth": 0.0,
+      "timestamp": "2016-02-12T17:02:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47714,
+      "longitude": -89.23976,
+      "depth": 0.0,
+      "timestamp": "2016-02-13T02:56:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47714,
+      "longitude": -89.1967,
+      "depth": 0.0,
+      "timestamp": "2016-02-13T15:23:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48995,
+      "longitude": -89.20724,
+      "depth": 0.0,
+      "timestamp": "2016-02-14T01:45:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47392,
+      "longitude": -89.24002,
+      "depth": 0.0,
+      "timestamp": "2016-02-14T12:08:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45845,
+      "longitude": -89.21395,
+      "depth": 0.0,
+      "timestamp": "2016-02-14T22:47:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46132,
+      "longitude": -89.22606,
+      "depth": 0.0,
+      "timestamp": "2016-02-15T09:01:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45364,
+      "longitude": -89.21548,
+      "depth": 0.0,
+      "timestamp": "2016-02-15T19:11:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45777,
+      "longitude": -89.22699,
+      "depth": 0.0,
+      "timestamp": "2016-02-16T05:40:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45282,
+      "longitude": -89.23977,
+      "depth": 0.0,
+      "timestamp": "2016-02-16T16:00:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45877,
+      "longitude": -89.24709,
+      "depth": 0.0,
+      "timestamp": "2016-02-17T02:14:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45848,
+      "longitude": -89.26843,
+      "depth": 0.0,
+      "timestamp": "2016-02-17T12:18:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47024,
+      "longitude": -89.24652,
+      "depth": 0.0,
+      "timestamp": "2016-02-17T22:38:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46026,
+      "longitude": -89.21427,
+      "depth": 0.0,
+      "timestamp": "2016-02-18T08:50:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46126,
+      "longitude": -89.23904,
+      "depth": 0.0,
+      "timestamp": "2016-02-18T14:05:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45649,
+      "longitude": -89.22933,
+      "depth": 0.0,
+      "timestamp": "2016-02-18T19:09:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4549,
+      "longitude": -89.2203,
+      "depth": 0.0,
+      "timestamp": "2016-02-19T05:33:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45575,
+      "longitude": -89.25877,
+      "depth": 0.0,
+      "timestamp": "2016-02-19T15:54:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46219,
+      "longitude": -89.24695,
+      "depth": 0.0,
+      "timestamp": "2016-02-20T02:25:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.44805,
+      "longitude": -89.1992,
+      "depth": 0.0,
+      "timestamp": "2016-02-20T12:41:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4582,
+      "longitude": -89.20031,
+      "depth": 0.0,
+      "timestamp": "2016-02-20T23:03:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45333,
+      "longitude": -89.23799,
+      "depth": 0.0,
+      "timestamp": "2016-02-21T10:04:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4623,
+      "longitude": -89.23636,
+      "depth": 0.0,
+      "timestamp": "2016-02-21T20:54:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49064,
+      "longitude": -89.17069,
+      "depth": 0.0,
+      "timestamp": "2016-02-22T08:09:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48283,
+      "longitude": -89.2108,
+      "depth": 0.0,
+      "timestamp": "2016-02-22T18:51:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45991,
+      "longitude": -89.24983,
+      "depth": 0.0,
+      "timestamp": "2016-02-23T05:18:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45748,
+      "longitude": -89.24331,
+      "depth": 0.0,
+      "timestamp": "2016-02-23T16:14:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4667,
+      "longitude": -89.20337,
+      "depth": 0.0,
+      "timestamp": "2016-02-24T03:02:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47739,
+      "longitude": -89.23313,
+      "depth": 0.0,
+      "timestamp": "2016-02-24T13:41:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45522,
+      "longitude": -89.27,
+      "depth": 0.0,
+      "timestamp": "2016-02-25T00:15:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45818,
+      "longitude": -89.23806,
+      "depth": 0.0,
+      "timestamp": "2016-02-25T11:27:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47843,
+      "longitude": -89.19276,
+      "depth": 0.0,
+      "timestamp": "2016-02-25T23:22:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49443,
+      "longitude": -89.19719,
+      "depth": 0.0,
+      "timestamp": "2016-02-26T15:40:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.50298,
+      "longitude": -89.22803,
+      "depth": 0.0,
+      "timestamp": "2016-02-26T20:13:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.50115,
+      "longitude": -89.24928,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T00:47:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49514,
+      "longitude": -89.26763,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T05:20:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49163,
+      "longitude": -89.27097,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T10:17:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48993,
+      "longitude": -89.28287,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T14:44:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4873,
+      "longitude": -89.28064,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T19:04:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47951,
+      "longitude": -89.28466,
+      "depth": 0.0,
+      "timestamp": "2016-02-27T23:37:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47957,
+      "longitude": -89.28634,
+      "depth": 0.0,
+      "timestamp": "2016-02-28T04:12:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47966,
+      "longitude": -89.27152,
+      "depth": 0.0,
+      "timestamp": "2016-02-28T08:53:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47201,
+      "longitude": -89.26788,
+      "depth": 0.0,
+      "timestamp": "2016-02-28T13:35:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47935,
+      "longitude": -89.25057,
+      "depth": 0.0,
+      "timestamp": "2016-02-28T18:07:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48486,
+      "longitude": -89.23605,
+      "depth": 0.0,
+      "timestamp": "2016-02-28T22:54:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48442,
+      "longitude": -89.25508,
+      "depth": 0.0,
+      "timestamp": "2016-02-29T03:25:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48576,
+      "longitude": -89.26297,
+      "depth": 0.0,
+      "timestamp": "2016-02-29T07:56:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4837,
+      "longitude": -89.25226,
+      "depth": 0.0,
+      "timestamp": "2016-02-29T12:27:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47975,
+      "longitude": -89.26131,
+      "depth": 0.0,
+      "timestamp": "2016-02-29T16:59:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47701,
+      "longitude": -89.25971,
+      "depth": 0.0,
+      "timestamp": "2016-02-29T21:19:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47709,
+      "longitude": -89.25063,
+      "depth": 0.0,
+      "timestamp": "2016-03-01T01:53:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47972,
+      "longitude": -89.23871,
+      "depth": 0.0,
+      "timestamp": "2016-03-01T06:44:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48246,
+      "longitude": -89.25046,
+      "depth": 0.0,
+      "timestamp": "2016-03-01T11:30:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48817,
+      "longitude": -89.26381,
+      "depth": 0.0,
+      "timestamp": "2016-03-01T16:17:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49044,
+      "longitude": -89.2588,
+      "depth": 0.0,
+      "timestamp": "2016-03-01T20:49:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48747,
+      "longitude": -89.26493,
+      "depth": 0.0,
+      "timestamp": "2016-03-02T01:36:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49689,
+      "longitude": -89.27312,
+      "depth": 0.0,
+      "timestamp": "2016-03-02T06:31:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49483,
+      "longitude": -89.2624,
+      "depth": 0.0,
+      "timestamp": "2016-03-02T11:13:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48876,
+      "longitude": -89.27148,
+      "depth": 0.0,
+      "timestamp": "2016-03-02T16:11:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49228,
+      "longitude": -89.24666,
+      "depth": 0.0,
+      "timestamp": "2016-03-02T20:53:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48245,
+      "longitude": -89.24124,
+      "depth": 0.0,
+      "timestamp": "2016-03-03T04:25:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49218,
+      "longitude": -89.2281,
+      "depth": 0.0,
+      "timestamp": "2016-03-03T11:27:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48441,
+      "longitude": -89.24787,
+      "depth": 0.0,
+      "timestamp": "2016-03-03T18:32:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48643,
+      "longitude": -89.25651,
+      "depth": 0.0,
+      "timestamp": "2016-03-04T01:23:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46722,
+      "longitude": -89.25577,
+      "depth": 0.0,
+      "timestamp": "2016-03-04T15:14:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47637,
+      "longitude": -89.21818,
+      "depth": 0.0,
+      "timestamp": "2016-03-04T22:12:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47224,
+      "longitude": -89.19833,
+      "depth": 0.0,
+      "timestamp": "2016-03-05T05:34:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46811,
+      "longitude": -89.19371,
+      "depth": 0.0,
+      "timestamp": "2016-03-05T12:52:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46925,
+      "longitude": -89.20574,
+      "depth": 0.0,
+      "timestamp": "2016-03-05T19:53:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46925,
+      "longitude": -89.20071,
+      "depth": 0.0,
+      "timestamp": "2016-03-06T03:16:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4911,
+      "longitude": -89.22888,
+      "depth": 0.0,
+      "timestamp": "2016-03-06T12:52:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48416,
+      "longitude": -89.25342,
+      "depth": 0.0,
+      "timestamp": "2016-03-06T22:45:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46866,
+      "longitude": -89.24849,
+      "depth": 0.0,
+      "timestamp": "2016-03-07T08:26:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45935,
+      "longitude": -89.22418,
+      "depth": 0.0,
+      "timestamp": "2016-03-07T17:51:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46944,
+      "longitude": -89.22929,
+      "depth": 0.0,
+      "timestamp": "2016-03-08T04:19:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.4853,
+      "longitude": -89.2097,
+      "depth": 0.0,
+      "timestamp": "2016-03-08T13:56:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.50184,
+      "longitude": -89.23005,
+      "depth": 0.0,
+      "timestamp": "2016-03-08T23:51:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.50078,
+      "longitude": -89.26139,
+      "depth": 0.0,
+      "timestamp": "2016-03-09T10:53:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48147,
+      "longitude": -89.26016,
+      "depth": 0.0,
+      "timestamp": "2016-03-09T21:42:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.476,
+      "longitude": -89.24867,
+      "depth": 0.0,
+      "timestamp": "2016-03-10T08:33:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46377,
+      "longitude": -89.24204,
+      "depth": 0.0,
+      "timestamp": "2016-03-10T19:27:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45398,
+      "longitude": -89.22192,
+      "depth": 0.0,
+      "timestamp": "2016-03-11T06:12:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47572,
+      "longitude": -89.21978,
+      "depth": 0.0,
+      "timestamp": "2016-03-11T12:19:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48366,
+      "longitude": -89.23265,
+      "depth": 0.0,
+      "timestamp": "2016-03-11T18:36:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47996,
+      "longitude": -89.22922,
+      "depth": 0.0,
+      "timestamp": "2016-03-12T05:32:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48203,
+      "longitude": -89.23341,
+      "depth": 0.0,
+      "timestamp": "2016-03-12T16:40:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45303,
+      "longitude": -89.1897,
+      "depth": 0.0,
+      "timestamp": "2016-03-12T22:47:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.51417,
+      "longitude": -89.2007,
+      "depth": 0.0,
+      "timestamp": "2016-03-13T06:49:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.5133,
+      "longitude": -89.2143,
+      "depth": 0.0,
+      "timestamp": "2016-03-13T17:48:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.51202,
+      "longitude": -89.18667,
+      "depth": 0.0,
+      "timestamp": "2016-03-13T23:51:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.53043,
+      "longitude": -89.18565,
+      "depth": 0.0,
+      "timestamp": "2016-03-14T06:39:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54996,
+      "longitude": -89.16619,
+      "depth": 0.0,
+      "timestamp": "2016-03-14T19:33:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.55052,
+      "longitude": -89.15423,
+      "depth": 0.0,
+      "timestamp": "2016-03-15T06:26:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.58272,
+      "longitude": -89.11746,
+      "depth": 0.0,
+      "timestamp": "2016-03-15T19:38:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.58705,
+      "longitude": -89.1291,
+      "depth": 0.0,
+      "timestamp": "2016-03-16T05:23:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.59059,
+      "longitude": -89.12341,
+      "depth": 0.0,
+      "timestamp": "2016-03-16T15:37:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60265,
+      "longitude": -89.11279,
+      "depth": 0.0,
+      "timestamp": "2016-03-17T01:13:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62301,
+      "longitude": -89.10524,
+      "depth": 0.0,
+      "timestamp": "2016-03-17T10:56:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64173,
+      "longitude": -89.08762,
+      "depth": 0.0,
+      "timestamp": "2016-03-17T20:38:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66411,
+      "longitude": -89.07073,
+      "depth": 0.0,
+      "timestamp": "2016-03-18T06:35:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64605,
+      "longitude": -88.9847,
+      "depth": 0.0,
+      "timestamp": "2016-03-18T16:43:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62806,
+      "longitude": -88.92277,
+      "depth": 0.0,
+      "timestamp": "2016-03-19T02:21:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.61689,
+      "longitude": -88.84872,
+      "depth": 0.0,
+      "timestamp": "2016-03-19T12:06:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60968,
+      "longitude": -88.79352,
+      "depth": 0.0,
+      "timestamp": "2016-03-19T21:27:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62038,
+      "longitude": -88.7629,
+      "depth": 0.0,
+      "timestamp": "2016-03-20T06:42:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62993,
+      "longitude": -88.68304,
+      "depth": 0.0,
+      "timestamp": "2016-03-20T20:49:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64669,
+      "longitude": -88.6586,
+      "depth": 0.0,
+      "timestamp": "2016-03-21T06:05:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.68193,
+      "longitude": -88.64801,
+      "depth": 0.0,
+      "timestamp": "2016-03-21T15:16:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.68196,
+      "longitude": -88.64802,
+      "depth": 0.0,
+      "timestamp": "2016-03-21T23:08:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.68502,
+      "longitude": -88.64303,
+      "depth": 0.0,
+      "timestamp": "2016-03-22T04:33:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.74712,
+      "longitude": -88.53462,
+      "depth": 0.0,
+      "timestamp": "2016-03-22T14:06:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.78541,
+      "longitude": -88.48417,
+      "depth": 0.0,
+      "timestamp": "2016-03-22T23:30:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.82107,
+      "longitude": -88.44472,
+      "depth": 0.0,
+      "timestamp": "2016-03-23T09:00:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.84755,
+      "longitude": -88.38144,
+      "depth": 0.0,
+      "timestamp": "2016-03-23T18:46:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8857,
+      "longitude": -88.33066,
+      "depth": 0.0,
+      "timestamp": "2016-03-24T04:12:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9071,
+      "longitude": -88.29735,
+      "depth": 0.0,
+      "timestamp": "2016-03-24T11:25:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.93075,
+      "longitude": -88.27331,
+      "depth": 0.0,
+      "timestamp": "2016-03-24T16:54:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95614,
+      "longitude": -88.23622,
+      "depth": 0.0,
+      "timestamp": "2016-03-25T03:25:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98747,
+      "longitude": -88.19934,
+      "depth": 0.0,
+      "timestamp": "2016-03-25T12:45:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02519,
+      "longitude": -88.18033,
+      "depth": 0.0,
+      "timestamp": "2016-03-25T22:17:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.05323,
+      "longitude": -88.16724,
+      "depth": 0.0,
+      "timestamp": "2016-03-26T08:06:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.08186,
+      "longitude": -88.14103,
+      "depth": 0.0,
+      "timestamp": "2016-03-26T17:44:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.11931,
+      "longitude": -88.1268,
+      "depth": 0.0,
+      "timestamp": "2016-03-27T03:24:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.13721,
+      "longitude": -88.12209,
+      "depth": 0.0,
+      "timestamp": "2016-03-27T10:01:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.15379,
+      "longitude": -88.12511,
+      "depth": 0.0,
+      "timestamp": "2016-03-27T15:26:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.17392,
+      "longitude": -88.14273,
+      "depth": 0.0,
+      "timestamp": "2016-03-28T01:00:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.19845,
+      "longitude": -88.15579,
+      "depth": 0.0,
+      "timestamp": "2016-03-28T15:39:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.21393,
+      "longitude": -88.17853,
+      "depth": 0.0,
+      "timestamp": "2016-03-29T01:14:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.22682,
+      "longitude": -88.21204,
+      "depth": 0.0,
+      "timestamp": "2016-03-29T10:53:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.2304,
+      "longitude": -88.24257,
+      "depth": 0.0,
+      "timestamp": "2016-03-29T21:05:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.22203,
+      "longitude": -88.26363,
+      "depth": 0.0,
+      "timestamp": "2016-03-30T06:47:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.20931,
+      "longitude": -88.27326,
+      "depth": 0.0,
+      "timestamp": "2016-03-30T16:45:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.20931,
+      "longitude": -88.27338,
+      "depth": 0.0,
+      "timestamp": "2016-03-31T02:50:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.17092,
+      "longitude": -88.2804,
+      "depth": 0.0,
+      "timestamp": "2016-03-31T08:32:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.16811,
+      "longitude": -88.26233,
+      "depth": 0.0,
+      "timestamp": "2016-03-31T17:46:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.15365,
+      "longitude": -88.24809,
+      "depth": 0.0,
+      "timestamp": "2016-04-01T02:37:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.1381,
+      "longitude": -88.22584,
+      "depth": 0.0,
+      "timestamp": "2016-04-01T11:30:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.13115,
+      "longitude": -88.208,
+      "depth": 0.0,
+      "timestamp": "2016-04-01T16:37:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.11921,
+      "longitude": -88.18033,
+      "depth": 0.0,
+      "timestamp": "2016-04-02T03:27:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09816,
+      "longitude": -88.14715,
+      "depth": 0.0,
+      "timestamp": "2016-04-02T12:32:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09361,
+      "longitude": -88.11838,
+      "depth": 0.0,
+      "timestamp": "2016-04-02T21:46:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09988,
+      "longitude": -88.0883,
+      "depth": 0.0,
+      "timestamp": "2016-04-03T06:58:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.10109,
+      "longitude": -88.05912,
+      "depth": 0.0,
+      "timestamp": "2016-04-03T16:20:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.10127,
+      "longitude": -88.02939,
+      "depth": 0.0,
+      "timestamp": "2016-04-04T01:38:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.1003,
+      "longitude": -88.00542,
+      "depth": 0.0,
+      "timestamp": "2016-04-04T10:46:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.10055,
+      "longitude": -87.98249,
+      "depth": 0.0,
+      "timestamp": "2016-04-04T19:59:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09925,
+      "longitude": -87.96009,
+      "depth": 0.0,
+      "timestamp": "2016-04-05T03:56:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09578,
+      "longitude": -87.94937,
+      "depth": 0.0,
+      "timestamp": "2016-04-05T08:54:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.0885,
+      "longitude": -87.92563,
+      "depth": 0.0,
+      "timestamp": "2016-04-05T18:10:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.0864,
+      "longitude": -87.90424,
+      "depth": 0.0,
+      "timestamp": "2016-04-06T03:05:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.0811,
+      "longitude": -87.88051,
+      "depth": 0.0,
+      "timestamp": "2016-04-06T12:15:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07899,
+      "longitude": -87.85166,
+      "depth": 0.0,
+      "timestamp": "2016-04-06T20:35:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07226,
+      "longitude": -87.84036,
+      "depth": 0.0,
+      "timestamp": "2016-04-07T01:43:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07063,
+      "longitude": -87.80781,
+      "depth": 0.0,
+      "timestamp": "2016-04-07T11:57:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.05778,
+      "longitude": -87.74746,
+      "depth": 0.0,
+      "timestamp": "2016-04-07T22:44:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04363,
+      "longitude": -87.73661,
+      "depth": 0.0,
+      "timestamp": "2016-04-08T07:18:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03192,
+      "longitude": -87.7093,
+      "depth": 0.0,
+      "timestamp": "2016-04-08T15:41:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03634,
+      "longitude": -87.68792,
+      "depth": 0.0,
+      "timestamp": "2016-04-08T23:54:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03437,
+      "longitude": -87.66548,
+      "depth": 0.0,
+      "timestamp": "2016-04-09T08:08:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04543,
+      "longitude": -87.62987,
+      "depth": 0.0,
+      "timestamp": "2016-04-09T17:32:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04187,
+      "longitude": -87.6128,
+      "depth": 0.0,
+      "timestamp": "2016-04-10T02:12:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03748,
+      "longitude": -87.58551,
+      "depth": 0.0,
+      "timestamp": "2016-04-10T10:45:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03872,
+      "longitude": -87.5718,
+      "depth": 0.0,
+      "timestamp": "2016-04-10T19:24:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02978,
+      "longitude": -87.54949,
+      "depth": 0.0,
+      "timestamp": "2016-04-11T04:09:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03611,
+      "longitude": -87.51104,
+      "depth": 0.0,
+      "timestamp": "2016-04-11T17:11:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03652,
+      "longitude": -87.50096,
+      "depth": 0.0,
+      "timestamp": "2016-04-12T01:37:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02446,
+      "longitude": -87.49369,
+      "depth": 0.0,
+      "timestamp": "2016-04-12T09:58:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02166,
+      "longitude": -87.48069,
+      "depth": 0.0,
+      "timestamp": "2016-04-12T18:29:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01511,
+      "longitude": -87.49012,
+      "depth": 0.0,
+      "timestamp": "2016-04-13T03:55:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01226,
+      "longitude": -87.49554,
+      "depth": 0.0,
+      "timestamp": "2016-04-13T12:24:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00765,
+      "longitude": -87.50486,
+      "depth": 0.0,
+      "timestamp": "2016-04-13T21:31:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92847,
+      "longitude": -87.54794,
+      "depth": 0.0,
+      "timestamp": "2016-04-16T17:06:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92468,
+      "longitude": -87.56639,
+      "depth": 0.0,
+      "timestamp": "2016-04-17T01:38:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92389,
+      "longitude": -87.59101,
+      "depth": 0.0,
+      "timestamp": "2016-04-17T10:26:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.93357,
+      "longitude": -87.60127,
+      "depth": 0.0,
+      "timestamp": "2016-04-17T19:09:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.94578,
+      "longitude": -87.63219,
+      "depth": 0.0,
+      "timestamp": "2016-04-18T05:04:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.94557,
+      "longitude": -87.64178,
+      "depth": 0.0,
+      "timestamp": "2016-04-18T09:55:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95727,
+      "longitude": -87.67289,
+      "depth": 0.0,
+      "timestamp": "2016-04-18T18:47:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95898,
+      "longitude": -87.69217,
+      "depth": 0.0,
+      "timestamp": "2016-04-19T04:23:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96403,
+      "longitude": -87.70644,
+      "depth": 0.0,
+      "timestamp": "2016-04-19T08:34:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96003,
+      "longitude": -87.71757,
+      "depth": 0.0,
+      "timestamp": "2016-04-19T18:45:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96464,
+      "longitude": -87.7452,
+      "depth": 0.0,
+      "timestamp": "2016-04-20T03:08:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96435,
+      "longitude": -87.77232,
+      "depth": 0.0,
+      "timestamp": "2016-04-20T11:59:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96826,
+      "longitude": -87.78435,
+      "depth": 0.0,
+      "timestamp": "2016-04-20T20:48:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97451,
+      "longitude": -87.81152,
+      "depth": 0.0,
+      "timestamp": "2016-04-21T05:33:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9766,
+      "longitude": -87.8334,
+      "depth": 0.0,
+      "timestamp": "2016-04-21T14:15:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98003,
+      "longitude": -87.85179,
+      "depth": 0.0,
+      "timestamp": "2016-04-21T22:48:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97779,
+      "longitude": -87.87288,
+      "depth": 0.0,
+      "timestamp": "2016-04-22T07:38:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98408,
+      "longitude": -87.88512,
+      "depth": 0.0,
+      "timestamp": "2016-04-22T16:41:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98433,
+      "longitude": -87.90586,
+      "depth": 0.0,
+      "timestamp": "2016-04-23T01:34:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98389,
+      "longitude": -87.91184,
+      "depth": 0.0,
+      "timestamp": "2016-04-23T10:11:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98817,
+      "longitude": -87.92512,
+      "depth": 0.0,
+      "timestamp": "2016-04-23T18:53:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98207,
+      "longitude": -87.93623,
+      "depth": 0.0,
+      "timestamp": "2016-04-24T03:30:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9785,
+      "longitude": -87.93404,
+      "depth": 0.0,
+      "timestamp": "2016-04-24T12:09:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97126,
+      "longitude": -87.93955,
+      "depth": 0.0,
+      "timestamp": "2016-04-24T21:52:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97514,
+      "longitude": -87.92218,
+      "depth": 0.0,
+      "timestamp": "2016-04-25T06:30:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00433,
+      "longitude": -87.89003,
+      "depth": 0.0,
+      "timestamp": "2016-04-25T11:24:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00464,
+      "longitude": -87.88812,
+      "depth": 0.0,
+      "timestamp": "2016-04-25T21:30:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01181,
+      "longitude": -87.85288,
+      "depth": 0.0,
+      "timestamp": "2016-04-26T07:27:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01003,
+      "longitude": -87.85286,
+      "depth": 0.0,
+      "timestamp": "2016-04-26T18:06:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00257,
+      "longitude": -87.8399,
+      "depth": 0.0,
+      "timestamp": "2016-04-27T05:21:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00602,
+      "longitude": -87.83444,
+      "depth": 0.0,
+      "timestamp": "2016-04-27T14:25:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00922,
+      "longitude": -87.84338,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T00:58:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01119,
+      "longitude": -87.85851,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T02:51:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01418,
+      "longitude": -87.86357,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T04:32:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01119,
+      "longitude": -87.86353,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T09:02:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00693,
+      "longitude": -87.87536,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T13:51:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00782,
+      "longitude": -87.89476,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T18:11:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01264,
+      "longitude": -87.8983,
+      "depth": 0.0,
+      "timestamp": "2016-04-28T22:39:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00695,
+      "longitude": -87.90437,
+      "depth": 0.0,
+      "timestamp": "2016-04-29T03:22:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01075,
+      "longitude": -87.92073,
+      "depth": 0.0,
+      "timestamp": "2016-04-29T07:50:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02101,
+      "longitude": -87.92214,
+      "depth": 0.0,
+      "timestamp": "2016-04-29T12:13:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01821,
+      "longitude": -87.92443,
+      "depth": 0.0,
+      "timestamp": "2016-04-29T16:38:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01744,
+      "longitude": -87.94782,
+      "depth": 0.0,
+      "timestamp": "2016-04-30T00:32:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00514,
+      "longitude": -87.955,
+      "depth": 0.0,
+      "timestamp": "2016-04-30T06:53:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00154,
+      "longitude": -87.97125,
+      "depth": 0.0,
+      "timestamp": "2016-04-30T13:14:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99049,
+      "longitude": -87.98145,
+      "depth": 0.0,
+      "timestamp": "2016-04-30T20:37:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99288,
+      "longitude": -88.00119,
+      "depth": 0.0,
+      "timestamp": "2016-05-01T04:00:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04489,
+      "longitude": -87.7931,
+      "depth": 0.0,
+      "timestamp": "2016-05-01T11:34:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99388,
+      "longitude": -88.05773,
+      "depth": 0.0,
+      "timestamp": "2016-05-01T19:17:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98575,
+      "longitude": -88.04347,
+      "depth": 0.0,
+      "timestamp": "2016-05-02T02:30:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98404,
+      "longitude": -88.06446,
+      "depth": 0.0,
+      "timestamp": "2016-05-02T09:52:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97741,
+      "longitude": -88.0703,
+      "depth": 0.0,
+      "timestamp": "2016-05-02T17:38:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98278,
+      "longitude": -88.09283,
+      "depth": 0.0,
+      "timestamp": "2016-05-03T00:56:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97905,
+      "longitude": -88.0954,
+      "depth": 0.0,
+      "timestamp": "2016-05-03T08:26:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98542,
+      "longitude": -88.11511,
+      "depth": 0.0,
+      "timestamp": "2016-05-03T15:56:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97734,
+      "longitude": -88.12059,
+      "depth": 0.0,
+      "timestamp": "2016-05-03T23:25:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98596,
+      "longitude": -88.1392,
+      "depth": 0.0,
+      "timestamp": "2016-05-04T07:01:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9763,
+      "longitude": -88.14319,
+      "depth": 0.0,
+      "timestamp": "2016-05-04T14:23:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9849,
+      "longitude": -88.16071,
+      "depth": 0.0,
+      "timestamp": "2016-05-04T21:45:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9804,
+      "longitude": -88.17004,
+      "depth": 0.0,
+      "timestamp": "2016-05-05T05:04:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99489,
+      "longitude": -88.18443,
+      "depth": 0.0,
+      "timestamp": "2016-05-05T12:25:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99821,
+      "longitude": -88.19193,
+      "depth": 0.0,
+      "timestamp": "2016-05-05T19:45:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01437,
+      "longitude": -88.20444,
+      "depth": 0.0,
+      "timestamp": "2016-05-06T03:19:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.02114,
+      "longitude": -88.19935,
+      "depth": 0.0,
+      "timestamp": "2016-05-06T10:55:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04324,
+      "longitude": -88.19705,
+      "depth": 0.0,
+      "timestamp": "2016-05-06T18:36:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.05321,
+      "longitude": -88.18544,
+      "depth": 0.0,
+      "timestamp": "2016-05-07T02:31:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.08028,
+      "longitude": -88.17316,
+      "depth": 0.0,
+      "timestamp": "2016-05-07T10:12:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.086,
+      "longitude": -88.1682,
+      "depth": 0.0,
+      "timestamp": "2016-05-07T17:42:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.10549,
+      "longitude": -88.14217,
+      "depth": 0.0,
+      "timestamp": "2016-05-08T01:14:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.11744,
+      "longitude": -88.13967,
+      "depth": 0.0,
+      "timestamp": "2016-05-08T08:51:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.12713,
+      "longitude": -88.10448,
+      "depth": 0.0,
+      "timestamp": "2016-05-08T16:34:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.14396,
+      "longitude": -88.09716,
+      "depth": 0.0,
+      "timestamp": "2016-05-08T23:56:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.15301,
+      "longitude": -88.07993,
+      "depth": 0.0,
+      "timestamp": "2016-05-09T07:34:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.16533,
+      "longitude": -88.06622,
+      "depth": 0.0,
+      "timestamp": "2016-05-09T15:00:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.18092,
+      "longitude": -88.049,
+      "depth": 0.0,
+      "timestamp": "2016-05-09T22:17:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.19045,
+      "longitude": -88.03766,
+      "depth": 0.0,
+      "timestamp": "2016-05-10T05:38:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.20957,
+      "longitude": -87.99927,
+      "depth": 0.0,
+      "timestamp": "2016-05-10T13:09:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.223,
+      "longitude": -87.98863,
+      "depth": 0.0,
+      "timestamp": "2016-05-10T20:37:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.23941,
+      "longitude": -87.94977,
+      "depth": 0.0,
+      "timestamp": "2016-05-11T04:30:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.25581,
+      "longitude": -87.93653,
+      "depth": 0.0,
+      "timestamp": "2016-05-11T11:58:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.27569,
+      "longitude": -87.89942,
+      "depth": 0.0,
+      "timestamp": "2016-05-11T19:37:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.2944,
+      "longitude": -87.88236,
+      "depth": 0.0,
+      "timestamp": "2016-05-12T03:04:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.30914,
+      "longitude": -87.84143,
+      "depth": 0.0,
+      "timestamp": "2016-05-12T10:33:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.32854,
+      "longitude": -87.8213,
+      "depth": 0.0,
+      "timestamp": "2016-05-12T18:04:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.34767,
+      "longitude": -87.79448,
+      "depth": 0.0,
+      "timestamp": "2016-05-13T01:33:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.36854,
+      "longitude": -87.78894,
+      "depth": 0.0,
+      "timestamp": "2016-05-13T08:59:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.38711,
+      "longitude": -87.77157,
+      "depth": 0.0,
+      "timestamp": "2016-05-13T16:43:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.40876,
+      "longitude": -87.77112,
+      "depth": 0.0,
+      "timestamp": "2016-05-14T00:07:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.42727,
+      "longitude": -87.75355,
+      "depth": 0.0,
+      "timestamp": "2016-05-14T08:05:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.45615,
+      "longitude": -87.73846,
+      "depth": 0.0,
+      "timestamp": "2016-05-14T16:10:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.47449,
+      "longitude": -87.71624,
+      "depth": 0.0,
+      "timestamp": "2016-05-14T23:56:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.49939,
+      "longitude": -87.69189,
+      "depth": 0.0,
+      "timestamp": "2016-05-15T07:39:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52146,
+      "longitude": -87.67397,
+      "depth": 0.0,
+      "timestamp": "2016-05-15T15:22:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.5503,
+      "longitude": -87.65379,
+      "depth": 0.0,
+      "timestamp": "2016-05-15T23:23:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57619,
+      "longitude": -87.6318,
+      "depth": 0.0,
+      "timestamp": "2016-05-16T07:08:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60895,
+      "longitude": -87.60444,
+      "depth": 0.0,
+      "timestamp": "2016-05-16T14:52:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.63698,
+      "longitude": -87.58462,
+      "depth": 0.0,
+      "timestamp": "2016-05-16T22:36:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6734,
+      "longitude": -87.54501,
+      "depth": 0.0,
+      "timestamp": "2016-05-17T06:20:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.70213,
+      "longitude": -87.52268,
+      "depth": 0.0,
+      "timestamp": "2016-05-17T13:48:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.7399,
+      "longitude": -87.46832,
+      "depth": 0.0,
+      "timestamp": "2016-05-17T21:56:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.77751,
+      "longitude": -87.44245,
+      "depth": 0.0,
+      "timestamp": "2016-05-18T05:24:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.81255,
+      "longitude": -87.39603,
+      "depth": 0.0,
+      "timestamp": "2016-05-18T13:06:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.857,
+      "longitude": -87.37096,
+      "depth": 0.0,
+      "timestamp": "2016-05-18T20:51:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.89117,
+      "longitude": -87.33485,
+      "depth": 0.0,
+      "timestamp": "2016-05-19T04:35:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.93329,
+      "longitude": -87.30846,
+      "depth": 0.0,
+      "timestamp": "2016-05-19T12:14:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.97284,
+      "longitude": -87.26671,
+      "depth": 0.0,
+      "timestamp": "2016-05-19T19:49:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.01014,
+      "longitude": -87.2241,
+      "depth": 0.0,
+      "timestamp": "2016-05-20T03:28:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.04475,
+      "longitude": -87.18253,
+      "depth": 0.0,
+      "timestamp": "2016-05-20T11:02:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.08369,
+      "longitude": -87.13242,
+      "depth": 0.0,
+      "timestamp": "2016-05-20T18:35:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.11204,
+      "longitude": -87.08789,
+      "depth": 0.0,
+      "timestamp": "2016-05-21T02:01:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.14634,
+      "longitude": -87.0306,
+      "depth": 0.0,
+      "timestamp": "2016-05-21T09:44:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.1786,
+      "longitude": -86.96981,
+      "depth": 0.0,
+      "timestamp": "2016-05-21T17:27:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.21032,
+      "longitude": -86.89903,
+      "depth": 0.0,
+      "timestamp": "2016-05-22T00:59:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.26066,
+      "longitude": -86.73649,
+      "depth": 0.0,
+      "timestamp": "2016-05-22T16:14:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.31193,
+      "longitude": -86.3554,
+      "depth": 0.0,
+      "timestamp": "2016-05-24T01:11:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.31173,
+      "longitude": -86.26623,
+      "depth": 0.0,
+      "timestamp": "2016-05-24T08:51:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.28953,
+      "longitude": -85.96852,
+      "depth": 0.0,
+      "timestamp": "2016-05-25T11:50:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.27014,
+      "longitude": -85.88103,
+      "depth": 0.0,
+      "timestamp": "2016-05-25T19:38:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.25218,
+      "longitude": -85.78892,
+      "depth": 0.0,
+      "timestamp": "2016-05-26T05:07:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.18856,
+      "longitude": -85.59907,
+      "depth": 0.0,
+      "timestamp": "2016-05-27T01:13:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.16575,
+      "longitude": -85.53124,
+      "depth": 0.0,
+      "timestamp": "2016-05-27T08:54:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.13911,
+      "longitude": -85.454,
+      "depth": 0.0,
+      "timestamp": "2016-05-27T17:25:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.12062,
+      "longitude": -85.38799,
+      "depth": 0.0,
+      "timestamp": "2016-05-28T01:52:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.09376,
+      "longitude": -85.31921,
+      "depth": 0.0,
+      "timestamp": "2016-05-28T10:02:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.07659,
+      "longitude": -85.2365,
+      "depth": 0.0,
+      "timestamp": "2016-05-28T18:13:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.06295,
+      "longitude": -85.19222,
+      "depth": 0.0,
+      "timestamp": "2016-05-28T22:34:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.03639,
+      "longitude": -85.11773,
+      "depth": 0.0,
+      "timestamp": "2016-05-29T06:20:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -56.00738,
+      "longitude": -85.0393,
+      "depth": 0.0,
+      "timestamp": "2016-05-29T14:07:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.98473,
+      "longitude": -84.97457,
+      "depth": 0.0,
+      "timestamp": "2016-05-29T21:40:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.95699,
+      "longitude": -84.89919,
+      "depth": 0.0,
+      "timestamp": "2016-05-30T05:26:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.93439,
+      "longitude": -84.82857,
+      "depth": 0.0,
+      "timestamp": "2016-05-30T13:09:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.90658,
+      "longitude": -84.76104,
+      "depth": 0.0,
+      "timestamp": "2016-05-30T21:07:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.88428,
+      "longitude": -84.69165,
+      "depth": 0.0,
+      "timestamp": "2016-05-31T04:50:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.85764,
+      "longitude": -84.64207,
+      "depth": 0.0,
+      "timestamp": "2016-05-31T12:37:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.83423,
+      "longitude": -84.57944,
+      "depth": 0.0,
+      "timestamp": "2016-05-31T20:25:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.81366,
+      "longitude": -84.53125,
+      "depth": 0.0,
+      "timestamp": "2016-06-01T04:13:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.79065,
+      "longitude": -84.49319,
+      "depth": 0.0,
+      "timestamp": "2016-06-01T12:03:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.77237,
+      "longitude": -84.45227,
+      "depth": 0.0,
+      "timestamp": "2016-06-01T19:46:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.75149,
+      "longitude": -84.40076,
+      "depth": 0.0,
+      "timestamp": "2016-06-02T03:51:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.73474,
+      "longitude": -84.36462,
+      "depth": 0.0,
+      "timestamp": "2016-06-02T12:39:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.71507,
+      "longitude": -84.31661,
+      "depth": 0.0,
+      "timestamp": "2016-06-02T20:34:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.70511,
+      "longitude": -84.27396,
+      "depth": 0.0,
+      "timestamp": "2016-06-03T04:29:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6922,
+      "longitude": -84.23885,
+      "depth": 0.0,
+      "timestamp": "2016-06-03T12:34:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.68952,
+      "longitude": -84.19384,
+      "depth": 0.0,
+      "timestamp": "2016-06-03T20:32:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6864,
+      "longitude": -84.14598,
+      "depth": 0.0,
+      "timestamp": "2016-06-04T05:23:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6808,
+      "longitude": -84.10986,
+      "depth": 0.0,
+      "timestamp": "2016-06-04T13:17:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.67731,
+      "longitude": -84.07475,
+      "depth": 0.0,
+      "timestamp": "2016-06-04T21:15:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.67328,
+      "longitude": -84.03012,
+      "depth": 0.0,
+      "timestamp": "2016-06-05T06:18:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.67116,
+      "longitude": -84.0152,
+      "depth": 0.0,
+      "timestamp": "2016-06-05T13:00:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.67291,
+      "longitude": -83.99083,
+      "depth": 0.0,
+      "timestamp": "2016-06-05T19:13:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.67099,
+      "longitude": -83.96965,
+      "depth": 0.0,
+      "timestamp": "2016-06-06T02:24:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.66694,
+      "longitude": -83.94021,
+      "depth": 0.0,
+      "timestamp": "2016-06-06T09:42:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6621,
+      "longitude": -83.92271,
+      "depth": 0.0,
+      "timestamp": "2016-06-06T17:10:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.65774,
+      "longitude": -83.89486,
+      "depth": 0.0,
+      "timestamp": "2016-06-07T00:50:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.65639,
+      "longitude": -83.85696,
+      "depth": 0.0,
+      "timestamp": "2016-06-07T12:30:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.65363,
+      "longitude": -83.8204,
+      "depth": 0.0,
+      "timestamp": "2016-06-07T20:03:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.65051,
+      "longitude": -83.77749,
+      "depth": 0.0,
+      "timestamp": "2016-06-08T02:33:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.65214,
+      "longitude": -83.73565,
+      "depth": 0.0,
+      "timestamp": "2016-06-08T09:48:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.64047,
+      "longitude": -83.69813,
+      "depth": 0.0,
+      "timestamp": "2016-06-08T17:45:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.63745,
+      "longitude": -83.65826,
+      "depth": 0.0,
+      "timestamp": "2016-06-09T00:20:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.62337,
+      "longitude": -83.63117,
+      "depth": 0.0,
+      "timestamp": "2016-06-09T07:32:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.62311,
+      "longitude": -83.6275,
+      "depth": 0.0,
+      "timestamp": "2016-06-09T08:50:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.61504,
+      "longitude": -83.60068,
+      "depth": 0.0,
+      "timestamp": "2016-06-09T16:42:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.61411,
+      "longitude": -83.59858,
+      "depth": 0.0,
+      "timestamp": "2016-06-09T23:47:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59732,
+      "longitude": -83.56186,
+      "depth": 0.0,
+      "timestamp": "2016-06-10T06:19:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58986,
+      "longitude": -83.54459,
+      "depth": 0.0,
+      "timestamp": "2016-06-10T13:21:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.5815,
+      "longitude": -83.54895,
+      "depth": 0.0,
+      "timestamp": "2016-06-10T21:05:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57678,
+      "longitude": -83.54522,
+      "depth": 0.0,
+      "timestamp": "2016-06-11T03:40:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57629,
+      "longitude": -83.54173,
+      "depth": 0.0,
+      "timestamp": "2016-06-11T11:01:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57198,
+      "longitude": -83.54288,
+      "depth": 0.0,
+      "timestamp": "2016-06-11T18:08:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.56848,
+      "longitude": -83.5385,
+      "depth": 0.0,
+      "timestamp": "2016-06-11T19:36:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57174,
+      "longitude": -83.53041,
+      "depth": 0.0,
+      "timestamp": "2016-06-12T02:41:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57447,
+      "longitude": -83.52238,
+      "depth": 0.0,
+      "timestamp": "2016-06-12T10:28:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57782,
+      "longitude": -83.51029,
+      "depth": 0.0,
+      "timestamp": "2016-06-12T17:40:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57599,
+      "longitude": -83.49636,
+      "depth": 0.0,
+      "timestamp": "2016-06-13T00:18:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58027,
+      "longitude": -83.48707,
+      "depth": 0.0,
+      "timestamp": "2016-06-13T07:25:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57864,
+      "longitude": -83.46746,
+      "depth": 0.0,
+      "timestamp": "2016-06-13T19:08:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58197,
+      "longitude": -83.44552,
+      "depth": 0.0,
+      "timestamp": "2016-06-14T02:10:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58269,
+      "longitude": -83.43112,
+      "depth": 0.0,
+      "timestamp": "2016-06-14T09:22:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58483,
+      "longitude": -83.40566,
+      "depth": 0.0,
+      "timestamp": "2016-06-14T15:52:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58709,
+      "longitude": -83.39235,
+      "depth": 0.0,
+      "timestamp": "2016-06-14T23:09:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59398,
+      "longitude": -83.38873,
+      "depth": 0.0,
+      "timestamp": "2016-06-15T00:49:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59492,
+      "longitude": -83.35999,
+      "depth": 0.0,
+      "timestamp": "2016-06-15T08:01:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60002,
+      "longitude": -83.33379,
+      "depth": 0.0,
+      "timestamp": "2016-06-15T15:06:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60061,
+      "longitude": -83.30348,
+      "depth": 0.0,
+      "timestamp": "2016-06-15T23:02:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60388,
+      "longitude": -83.27362,
+      "depth": 0.0,
+      "timestamp": "2016-06-16T05:35:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60532,
+      "longitude": -83.23554,
+      "depth": 0.0,
+      "timestamp": "2016-06-16T12:41:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60503,
+      "longitude": -83.20529,
+      "depth": 0.0,
+      "timestamp": "2016-06-16T19:48:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60109,
+      "longitude": -83.17013,
+      "depth": 0.0,
+      "timestamp": "2016-06-17T03:40:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59645,
+      "longitude": -83.13687,
+      "depth": 0.0,
+      "timestamp": "2016-06-17T11:04:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58612,
+      "longitude": -83.09536,
+      "depth": 0.0,
+      "timestamp": "2016-06-17T18:10:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.5771,
+      "longitude": -83.07412,
+      "depth": 0.0,
+      "timestamp": "2016-06-18T00:49:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57566,
+      "longitude": -83.07148,
+      "depth": 0.0,
+      "timestamp": "2016-06-18T08:55:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.55198,
+      "longitude": -83.02532,
+      "depth": 0.0,
+      "timestamp": "2016-06-18T15:46:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.53796,
+      "longitude": -83.01235,
+      "depth": 0.0,
+      "timestamp": "2016-06-18T22:55:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.53164,
+      "longitude": -83.00638,
+      "depth": 0.0,
+      "timestamp": "2016-06-19T07:04:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52501,
+      "longitude": -82.99824,
+      "depth": 0.0,
+      "timestamp": "2016-06-19T14:10:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52157,
+      "longitude": -82.99974,
+      "depth": 0.0,
+      "timestamp": "2016-06-19T20:40:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52042,
+      "longitude": -83.00253,
+      "depth": 0.0,
+      "timestamp": "2016-06-20T03:52:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52833,
+      "longitude": -83.00477,
+      "depth": 0.0,
+      "timestamp": "2016-06-20T11:49:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.53384,
+      "longitude": -82.99252,
+      "depth": 0.0,
+      "timestamp": "2016-06-20T19:20:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.54898,
+      "longitude": -82.98922,
+      "depth": 0.0,
+      "timestamp": "2016-06-21T01:55:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.55302,
+      "longitude": -82.967,
+      "depth": 0.0,
+      "timestamp": "2016-06-21T10:00:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.56771,
+      "longitude": -82.9525,
+      "depth": 0.0,
+      "timestamp": "2016-06-21T17:18:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.57344,
+      "longitude": -82.92773,
+      "depth": 0.0,
+      "timestamp": "2016-06-22T00:44:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58715,
+      "longitude": -82.89536,
+      "depth": 0.0,
+      "timestamp": "2016-06-22T08:10:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59491,
+      "longitude": -82.86508,
+      "depth": 0.0,
+      "timestamp": "2016-06-22T15:33:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60618,
+      "longitude": -82.81929,
+      "depth": 0.0,
+      "timestamp": "2016-06-22T22:32:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.6046,
+      "longitude": -82.78109,
+      "depth": 0.0,
+      "timestamp": "2016-06-23T06:44:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60452,
+      "longitude": -82.73894,
+      "depth": 0.0,
+      "timestamp": "2016-06-23T14:03:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.60037,
+      "longitude": -82.70027,
+      "depth": 0.0,
+      "timestamp": "2016-06-23T20:46:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.59961,
+      "longitude": -82.69601,
+      "depth": 0.0,
+      "timestamp": "2016-06-24T05:06:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58648,
+      "longitude": -82.62382,
+      "depth": 0.0,
+      "timestamp": "2016-06-24T12:01:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.58496,
+      "longitude": -82.61786,
+      "depth": 0.0,
+      "timestamp": "2016-06-25T03:16:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.56076,
+      "longitude": -82.50172,
+      "depth": 0.0,
+      "timestamp": "2016-06-25T11:30:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.53468,
+      "longitude": -82.47838,
+      "depth": 0.0,
+      "timestamp": "2016-06-25T18:27:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.52883,
+      "longitude": -82.43826,
+      "depth": 0.0,
+      "timestamp": "2016-06-26T03:21:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.50043,
+      "longitude": -82.43997,
+      "depth": 0.0,
+      "timestamp": "2016-06-26T10:09:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.48603,
+      "longitude": -82.43601,
+      "depth": 0.0,
+      "timestamp": "2016-06-26T18:18:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.4834,
+      "longitude": -82.43774,
+      "depth": 0.0,
+      "timestamp": "2016-06-27T01:10:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.43617,
+      "longitude": -82.46596,
+      "depth": 0.0,
+      "timestamp": "2016-06-27T09:22:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.41598,
+      "longitude": -82.50653,
+      "depth": 0.0,
+      "timestamp": "2016-06-27T16:48:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.39774,
+      "longitude": -82.52478,
+      "depth": 0.0,
+      "timestamp": "2016-06-28T00:18:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.3876,
+      "longitude": -82.56427,
+      "depth": 0.0,
+      "timestamp": "2016-06-28T08:55:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.38253,
+      "longitude": -82.56957,
+      "depth": 0.0,
+      "timestamp": "2016-06-28T15:41:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.38997,
+      "longitude": -82.58362,
+      "depth": 0.0,
+      "timestamp": "2016-06-28T23:54:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.38997,
+      "longitude": -82.58362,
+      "depth": 0.0,
+      "timestamp": "2016-06-29T07:38:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.40957,
+      "longitude": -82.58886,
+      "depth": 0.0,
+      "timestamp": "2016-06-29T15:12:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.41286,
+      "longitude": -82.55853,
+      "depth": 0.0,
+      "timestamp": "2016-06-29T23:41:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.43308,
+      "longitude": -82.53606,
+      "depth": 0.0,
+      "timestamp": "2016-06-30T06:31:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.4338,
+      "longitude": -82.49967,
+      "depth": 0.0,
+      "timestamp": "2016-06-30T14:49:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.45306,
+      "longitude": -82.4445,
+      "depth": 0.0,
+      "timestamp": "2016-07-01T00:27:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.44912,
+      "longitude": -82.409,
+      "depth": 0.0,
+      "timestamp": "2016-07-01T08:14:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.45188,
+      "longitude": -82.35268,
+      "depth": 0.0,
+      "timestamp": "2016-07-01T16:20:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.45087,
+      "longitude": -82.32471,
+      "depth": 0.0,
+      "timestamp": "2016-07-01T23:16:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.44713,
+      "longitude": -82.26605,
+      "depth": 0.0,
+      "timestamp": "2016-07-02T06:39:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.43988,
+      "longitude": -82.23445,
+      "depth": 0.0,
+      "timestamp": "2016-07-02T13:51:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.42821,
+      "longitude": -82.17769,
+      "depth": 0.0,
+      "timestamp": "2016-07-02T21:15:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.40692,
+      "longitude": -82.1594,
+      "depth": 0.0,
+      "timestamp": "2016-07-03T04:35:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.38799,
+      "longitude": -82.11288,
+      "depth": 0.0,
+      "timestamp": "2016-07-03T12:43:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.36294,
+      "longitude": -82.1092,
+      "depth": 0.0,
+      "timestamp": "2016-07-03T20:29:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.3343,
+      "longitude": -82.07729,
+      "depth": 0.0,
+      "timestamp": "2016-07-04T04:04:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.31818,
+      "longitude": -82.08118,
+      "depth": 0.0,
+      "timestamp": "2016-07-04T11:42:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.29541,
+      "longitude": -82.05785,
+      "depth": 0.0,
+      "timestamp": "2016-07-04T18:51:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.27689,
+      "longitude": -82.07036,
+      "depth": 0.0,
+      "timestamp": "2016-07-05T03:08:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.2491,
+      "longitude": -82.05387,
+      "depth": 0.0,
+      "timestamp": "2016-07-05T10:39:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.23894,
+      "longitude": -82.06797,
+      "depth": 0.0,
+      "timestamp": "2016-07-05T19:47:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.2142,
+      "longitude": -82.06887,
+      "depth": 0.0,
+      "timestamp": "2016-07-06T02:58:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.20793,
+      "longitude": -82.05739,
+      "depth": 0.0,
+      "timestamp": "2016-07-06T11:19:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.1868,
+      "longitude": -82.0588,
+      "depth": 0.0,
+      "timestamp": "2016-07-06T18:46:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.18342,
+      "longitude": -82.03951,
+      "depth": 0.0,
+      "timestamp": "2016-07-07T03:04:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.16678,
+      "longitude": -82.04472,
+      "depth": 0.0,
+      "timestamp": "2016-07-07T10:07:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.15522,
+      "longitude": -82.01538,
+      "depth": 0.0,
+      "timestamp": "2016-07-07T18:07:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.14489,
+      "longitude": -82.0133,
+      "depth": 0.0,
+      "timestamp": "2016-07-08T01:45:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.12992,
+      "longitude": -81.98933,
+      "depth": 0.0,
+      "timestamp": "2016-07-08T09:55:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.11674,
+      "longitude": -81.9864,
+      "depth": 0.0,
+      "timestamp": "2016-07-08T17:26:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07444,
+      "longitude": -81.96337,
+      "depth": 0.0,
+      "timestamp": "2016-07-09T09:36:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.05411,
+      "longitude": -81.93681,
+      "depth": 0.0,
+      "timestamp": "2016-07-09T17:00:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.04225,
+      "longitude": -81.9221,
+      "depth": 0.0,
+      "timestamp": "2016-07-10T01:26:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01216,
+      "longitude": -81.89534,
+      "depth": 0.0,
+      "timestamp": "2016-07-10T08:12:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00011,
+      "longitude": -81.87543,
+      "depth": 0.0,
+      "timestamp": "2016-07-10T15:39:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96647,
+      "longitude": -81.84018,
+      "depth": 0.0,
+      "timestamp": "2016-07-11T00:53:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.94789,
+      "longitude": -81.82514,
+      "depth": 0.0,
+      "timestamp": "2016-07-11T07:36:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.91086,
+      "longitude": -81.81399,
+      "depth": 0.0,
+      "timestamp": "2016-07-11T16:36:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.88864,
+      "longitude": -81.81145,
+      "depth": 0.0,
+      "timestamp": "2016-07-11T23:31:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.86008,
+      "longitude": -81.81831,
+      "depth": 0.0,
+      "timestamp": "2016-07-12T07:18:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.84047,
+      "longitude": -81.81303,
+      "depth": 0.0,
+      "timestamp": "2016-07-12T15:29:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.80997,
+      "longitude": -81.82186,
+      "depth": 0.0,
+      "timestamp": "2016-07-12T23:48:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.78062,
+      "longitude": -81.82529,
+      "depth": 0.0,
+      "timestamp": "2016-07-13T07:12:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.74632,
+      "longitude": -81.85192,
+      "depth": 0.0,
+      "timestamp": "2016-07-13T16:16:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.70936,
+      "longitude": -81.88296,
+      "depth": 0.0,
+      "timestamp": "2016-07-14T00:12:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.67597,
+      "longitude": -81.92855,
+      "depth": 0.0,
+      "timestamp": "2016-07-14T07:09:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64252,
+      "longitude": -81.97536,
+      "depth": 0.0,
+      "timestamp": "2016-07-14T15:20:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60873,
+      "longitude": -82.04505,
+      "depth": 0.0,
+      "timestamp": "2016-07-14T22:49:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.5792,
+      "longitude": -82.10248,
+      "depth": 0.0,
+      "timestamp": "2016-07-15T06:19:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.55354,
+      "longitude": -82.18017,
+      "depth": 0.0,
+      "timestamp": "2016-07-15T14:30:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.50567,
+      "longitude": -82.30552,
+      "depth": 0.0,
+      "timestamp": "2016-07-16T06:39:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48231,
+      "longitude": -82.37661,
+      "depth": 0.0,
+      "timestamp": "2016-07-16T14:28:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47081,
+      "longitude": -82.44315,
+      "depth": 0.0,
+      "timestamp": "2016-07-16T21:23:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45712,
+      "longitude": -82.52569,
+      "depth": 0.0,
+      "timestamp": "2016-07-17T05:08:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45509,
+      "longitude": -82.59131,
+      "depth": 0.0,
+      "timestamp": "2016-07-17T12:53:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45872,
+      "longitude": -82.67081,
+      "depth": 0.0,
+      "timestamp": "2016-07-17T21:10:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.46383,
+      "longitude": -82.73902,
+      "depth": 0.0,
+      "timestamp": "2016-07-18T04:06:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47649,
+      "longitude": -82.81012,
+      "depth": 0.0,
+      "timestamp": "2016-07-18T12:22:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.485,
+      "longitude": -82.86784,
+      "depth": 0.0,
+      "timestamp": "2016-07-18T20:33:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52187,
+      "longitude": -82.94537,
+      "depth": 0.0,
+      "timestamp": "2016-07-19T04:19:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54851,
+      "longitude": -83.00311,
+      "depth": 0.0,
+      "timestamp": "2016-07-19T11:09:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.58305,
+      "longitude": -83.06833,
+      "depth": 0.0,
+      "timestamp": "2016-07-19T19:26:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.61746,
+      "longitude": -83.11352,
+      "depth": 0.0,
+      "timestamp": "2016-07-20T03:04:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66516,
+      "longitude": -83.16546,
+      "depth": 0.0,
+      "timestamp": "2016-07-20T10:46:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.70621,
+      "longitude": -83.19253,
+      "depth": 0.0,
+      "timestamp": "2016-07-20T17:49:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.75921,
+      "longitude": -83.22012,
+      "depth": 0.0,
+      "timestamp": "2016-07-21T02:15:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.79846,
+      "longitude": -83.22673,
+      "depth": 0.0,
+      "timestamp": "2016-07-21T09:54:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.84765,
+      "longitude": -83.2256,
+      "depth": 0.0,
+      "timestamp": "2016-07-21T16:51:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.87937,
+      "longitude": -83.2104,
+      "depth": 0.0,
+      "timestamp": "2016-07-22T01:11:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92133,
+      "longitude": -83.1809,
+      "depth": 0.0,
+      "timestamp": "2016-07-22T08:38:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.93294,
+      "longitude": -83.15747,
+      "depth": 0.0,
+      "timestamp": "2016-07-22T13:43:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96154,
+      "longitude": -83.12556,
+      "depth": 0.0,
+      "timestamp": "2016-07-22T20:33:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97581,
+      "longitude": -83.0704,
+      "depth": 0.0,
+      "timestamp": "2016-07-23T04:15:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99424,
+      "longitude": -83.02104,
+      "depth": 0.0,
+      "timestamp": "2016-07-23T12:08:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99792,
+      "longitude": -82.95904,
+      "depth": 0.0,
+      "timestamp": "2016-07-23T20:39:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00548,
+      "longitude": -82.90912,
+      "depth": 0.0,
+      "timestamp": "2016-07-24T04:16:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00322,
+      "longitude": -82.84013,
+      "depth": 0.0,
+      "timestamp": "2016-07-24T11:54:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00111,
+      "longitude": -82.7792,
+      "depth": 0.0,
+      "timestamp": "2016-07-24T19:55:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98286,
+      "longitude": -82.70423,
+      "depth": 0.0,
+      "timestamp": "2016-07-25T02:46:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96922,
+      "longitude": -82.64112,
+      "depth": 0.0,
+      "timestamp": "2016-07-25T10:31:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.93243,
+      "longitude": -82.58031,
+      "depth": 0.0,
+      "timestamp": "2016-07-25T18:26:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.90524,
+      "longitude": -82.5286,
+      "depth": 0.0,
+      "timestamp": "2016-07-26T02:48:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.85756,
+      "longitude": -82.50229,
+      "depth": 0.0,
+      "timestamp": "2016-07-26T09:48:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.82211,
+      "longitude": -82.48685,
+      "depth": 0.0,
+      "timestamp": "2016-07-26T17:27:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.77049,
+      "longitude": -82.50627,
+      "depth": 0.0,
+      "timestamp": "2016-07-27T02:00:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.73869,
+      "longitude": -82.57408,
+      "depth": 0.0,
+      "timestamp": "2016-07-27T12:41:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69944,
+      "longitude": -82.62319,
+      "depth": 0.0,
+      "timestamp": "2016-07-27T20:18:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.65979,
+      "longitude": -82.67924,
+      "depth": 0.0,
+      "timestamp": "2016-07-28T04:02:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.63299,
+      "longitude": -82.76513,
+      "depth": 0.0,
+      "timestamp": "2016-07-28T11:49:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.61057,
+      "longitude": -82.85614,
+      "depth": 0.0,
+      "timestamp": "2016-07-28T19:47:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60539,
+      "longitude": -82.96253,
+      "depth": 0.0,
+      "timestamp": "2016-07-29T03:38:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60366,
+      "longitude": -83.05982,
+      "depth": 0.0,
+      "timestamp": "2016-07-29T10:42:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64173,
+      "longitude": -83.21642,
+      "depth": 0.0,
+      "timestamp": "2016-07-30T00:13:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.67033,
+      "longitude": -83.2978,
+      "depth": 0.0,
+      "timestamp": "2016-07-30T09:08:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69478,
+      "longitude": -83.34562,
+      "depth": 0.0,
+      "timestamp": "2016-07-30T16:27:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.72418,
+      "longitude": -83.39501,
+      "depth": 0.0,
+      "timestamp": "2016-07-31T01:17:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.74091,
+      "longitude": -83.41943,
+      "depth": 0.0,
+      "timestamp": "2016-07-31T08:49:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.76903,
+      "longitude": -83.44129,
+      "depth": 0.0,
+      "timestamp": "2016-07-31T17:26:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.77702,
+      "longitude": -83.46565,
+      "depth": 0.0,
+      "timestamp": "2016-08-01T01:38:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.80122,
+      "longitude": -83.46713,
+      "depth": 0.0,
+      "timestamp": "2016-08-01T09:45:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.81614,
+      "longitude": -83.48306,
+      "depth": 0.0,
+      "timestamp": "2016-08-01T17:08:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.83492,
+      "longitude": -83.47568,
+      "depth": 0.0,
+      "timestamp": "2016-08-02T02:02:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.85634,
+      "longitude": -83.47312,
+      "depth": 0.0,
+      "timestamp": "2016-08-02T10:10:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.87672,
+      "longitude": -83.4438,
+      "depth": 0.0,
+      "timestamp": "2016-08-02T18:40:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.89728,
+      "longitude": -83.41461,
+      "depth": 0.0,
+      "timestamp": "2016-08-03T01:59:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.90757,
+      "longitude": -83.35463,
+      "depth": 0.0,
+      "timestamp": "2016-08-03T10:10:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92608,
+      "longitude": -83.30183,
+      "depth": 0.0,
+      "timestamp": "2016-08-03T19:18:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.91391,
+      "longitude": -83.24446,
+      "depth": 0.0,
+      "timestamp": "2016-08-04T04:08:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.90872,
+      "longitude": -83.17639,
+      "depth": 0.0,
+      "timestamp": "2016-08-04T12:20:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.89096,
+      "longitude": -83.13728,
+      "depth": 0.0,
+      "timestamp": "2016-08-04T19:45:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.86923,
+      "longitude": -83.09049,
+      "depth": 0.0,
+      "timestamp": "2016-08-05T04:44:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.85068,
+      "longitude": -83.06876,
+      "depth": 0.0,
+      "timestamp": "2016-08-05T12:59:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.82395,
+      "longitude": -83.04833,
+      "depth": 0.0,
+      "timestamp": "2016-08-05T20:30:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.79826,
+      "longitude": -83.04065,
+      "depth": 0.0,
+      "timestamp": "2016-08-06T04:41:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.76925,
+      "longitude": -83.03658,
+      "depth": 0.0,
+      "timestamp": "2016-08-06T13:04:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.74997,
+      "longitude": -83.04733,
+      "depth": 0.0,
+      "timestamp": "2016-08-06T20:59:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.71745,
+      "longitude": -83.06707,
+      "depth": 0.0,
+      "timestamp": "2016-08-07T06:10:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69794,
+      "longitude": -83.09173,
+      "depth": 0.0,
+      "timestamp": "2016-08-07T14:19:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.67697,
+      "longitude": -83.13269,
+      "depth": 0.0,
+      "timestamp": "2016-08-07T23:19:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66406,
+      "longitude": -83.18143,
+      "depth": 0.0,
+      "timestamp": "2016-08-08T06:37:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.65232,
+      "longitude": -83.22799,
+      "depth": 0.0,
+      "timestamp": "2016-08-08T15:33:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.65196,
+      "longitude": -83.23403,
+      "depth": 0.0,
+      "timestamp": "2016-08-08T23:54:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64545,
+      "longitude": -83.3539,
+      "depth": 0.0,
+      "timestamp": "2016-08-09T07:17:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.65971,
+      "longitude": -83.42113,
+      "depth": 0.0,
+      "timestamp": "2016-08-09T15:48:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.67238,
+      "longitude": -83.48682,
+      "depth": 0.0,
+      "timestamp": "2016-08-10T00:19:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69524,
+      "longitude": -83.54234,
+      "depth": 0.0,
+      "timestamp": "2016-08-10T08:57:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.73414,
+      "longitude": -83.61733,
+      "depth": 0.0,
+      "timestamp": "2016-08-10T18:19:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.75911,
+      "longitude": -83.65685,
+      "depth": 0.0,
+      "timestamp": "2016-08-11T02:30:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.7963,
+      "longitude": -83.68443,
+      "depth": 0.0,
+      "timestamp": "2016-08-11T10:38:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8255,
+      "longitude": -83.71042,
+      "depth": 0.0,
+      "timestamp": "2016-08-11T19:02:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.86202,
+      "longitude": -83.71233,
+      "depth": 0.0,
+      "timestamp": "2016-08-12T04:00:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.89021,
+      "longitude": -83.71983,
+      "depth": 0.0,
+      "timestamp": "2016-08-12T12:15:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.89021,
+      "longitude": -83.71984,
+      "depth": 0.0,
+      "timestamp": "2016-08-12T20:28:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95222,
+      "longitude": -83.68842,
+      "depth": 0.0,
+      "timestamp": "2016-08-13T03:39:46Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97332,
+      "longitude": -83.64966,
+      "depth": 0.0,
+      "timestamp": "2016-08-13T12:15:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00032,
+      "longitude": -83.61996,
+      "depth": 0.0,
+      "timestamp": "2016-08-13T21:01:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.0034,
+      "longitude": -83.57504,
+      "depth": 0.0,
+      "timestamp": "2016-08-14T05:05:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01505,
+      "longitude": -83.52104,
+      "depth": 0.0,
+      "timestamp": "2016-08-14T13:09:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01325,
+      "longitude": -83.46794,
+      "depth": 0.0,
+      "timestamp": "2016-08-14T21:56:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.00489,
+      "longitude": -83.39745,
+      "depth": 0.0,
+      "timestamp": "2016-08-15T05:57:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98232,
+      "longitude": -83.34801,
+      "depth": 0.0,
+      "timestamp": "2016-08-15T14:51:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97979,
+      "longitude": -83.34741,
+      "depth": 0.0,
+      "timestamp": "2016-08-15T15:33:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95411,
+      "longitude": -83.28829,
+      "depth": 0.0,
+      "timestamp": "2016-08-16T00:29:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9325,
+      "longitude": -83.25325,
+      "depth": 0.0,
+      "timestamp": "2016-08-16T08:41:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.89619,
+      "longitude": -83.21947,
+      "depth": 0.0,
+      "timestamp": "2016-08-16T17:49:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8664,
+      "longitude": -83.19228,
+      "depth": 0.0,
+      "timestamp": "2016-08-17T01:24:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.83036,
+      "longitude": -83.18248,
+      "depth": 0.0,
+      "timestamp": "2016-08-17T10:22:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.79373,
+      "longitude": -83.16935,
+      "depth": 0.0,
+      "timestamp": "2016-08-17T19:10:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.76105,
+      "longitude": -83.1748,
+      "depth": 0.0,
+      "timestamp": "2016-08-18T03:23:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.7264,
+      "longitude": -83.17744,
+      "depth": 0.0,
+      "timestamp": "2016-08-18T11:48:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69968,
+      "longitude": -83.19193,
+      "depth": 0.0,
+      "timestamp": "2016-08-18T20:04:36Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66346,
+      "longitude": -83.20422,
+      "depth": 0.0,
+      "timestamp": "2016-08-19T05:27:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62865,
+      "longitude": -83.22695,
+      "depth": 0.0,
+      "timestamp": "2016-08-19T15:18:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60445,
+      "longitude": -83.26051,
+      "depth": 0.0,
+      "timestamp": "2016-08-19T23:38:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.58672,
+      "longitude": -83.29268,
+      "depth": 0.0,
+      "timestamp": "2016-08-20T08:03:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.57626,
+      "longitude": -83.34009,
+      "depth": 0.0,
+      "timestamp": "2016-08-20T18:12:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.57169,
+      "longitude": -83.35192,
+      "depth": 0.0,
+      "timestamp": "2016-08-20T23:07:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.56447,
+      "longitude": -83.38073,
+      "depth": 0.0,
+      "timestamp": "2016-08-21T03:13:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.56448,
+      "longitude": -83.38073,
+      "depth": 0.0,
+      "timestamp": "2016-08-21T12:41:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54253,
+      "longitude": -83.48956,
+      "depth": 0.0,
+      "timestamp": "2016-08-22T04:38:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54109,
+      "longitude": -83.48269,
+      "depth": 0.0,
+      "timestamp": "2016-08-22T05:13:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52729,
+      "longitude": -83.41942,
+      "depth": 0.0,
+      "timestamp": "2016-08-22T11:10:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.51714,
+      "longitude": -83.44856,
+      "depth": 0.0,
+      "timestamp": "2016-08-22T20:52:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52397,
+      "longitude": -83.48814,
+      "depth": 0.0,
+      "timestamp": "2016-08-23T04:21:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52736,
+      "longitude": -83.52963,
+      "depth": 0.0,
+      "timestamp": "2016-08-23T12:26:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54125,
+      "longitude": -83.57686,
+      "depth": 0.0,
+      "timestamp": "2016-08-23T21:20:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.55341,
+      "longitude": -83.64193,
+      "depth": 0.0,
+      "timestamp": "2016-08-24T05:17:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.57488,
+      "longitude": -83.68677,
+      "depth": 0.0,
+      "timestamp": "2016-08-24T14:24:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60039,
+      "longitude": -83.74541,
+      "depth": 0.0,
+      "timestamp": "2016-08-24T22:30:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.62403,
+      "longitude": -83.78557,
+      "depth": 0.0,
+      "timestamp": "2016-08-25T07:53:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66525,
+      "longitude": -83.81939,
+      "depth": 0.0,
+      "timestamp": "2016-08-25T16:32:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69883,
+      "longitude": -83.86137,
+      "depth": 0.0,
+      "timestamp": "2016-08-26T00:19:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.73577,
+      "longitude": -83.88148,
+      "depth": 0.0,
+      "timestamp": "2016-08-26T09:29:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.77946,
+      "longitude": -83.90412,
+      "depth": 0.0,
+      "timestamp": "2016-08-26T18:09:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.81373,
+      "longitude": -83.91522,
+      "depth": 0.0,
+      "timestamp": "2016-08-27T02:41:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.85092,
+      "longitude": -83.91122,
+      "depth": 0.0,
+      "timestamp": "2016-08-27T10:29:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.88681,
+      "longitude": -83.88957,
+      "depth": 0.0,
+      "timestamp": "2016-08-27T19:20:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.91951,
+      "longitude": -83.86137,
+      "depth": 0.0,
+      "timestamp": "2016-08-28T04:36:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.92208,
+      "longitude": -83.85751,
+      "depth": 0.0,
+      "timestamp": "2016-08-28T12:35:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97319,
+      "longitude": -83.78045,
+      "depth": 0.0,
+      "timestamp": "2016-08-28T21:14:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98703,
+      "longitude": -83.73518,
+      "depth": 0.0,
+      "timestamp": "2016-08-29T06:46:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.9921,
+      "longitude": -83.68501,
+      "depth": 0.0,
+      "timestamp": "2016-08-29T15:24:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99354,
+      "longitude": -83.62864,
+      "depth": 0.0,
+      "timestamp": "2016-08-29T23:52:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98837,
+      "longitude": -83.57119,
+      "depth": 0.0,
+      "timestamp": "2016-08-30T08:24:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.97257,
+      "longitude": -83.54197,
+      "depth": 0.0,
+      "timestamp": "2016-08-30T12:46:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95001,
+      "longitude": -83.51371,
+      "depth": 0.0,
+      "timestamp": "2016-08-30T18:29:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.86761,
+      "longitude": -83.38037,
+      "depth": 0.0,
+      "timestamp": "2016-08-31T16:00:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.82699,
+      "longitude": -83.35353,
+      "depth": 0.0,
+      "timestamp": "2016-09-01T00:31:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.77063,
+      "longitude": -83.33643,
+      "depth": 0.0,
+      "timestamp": "2016-09-01T10:54:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.74382,
+      "longitude": -83.33745,
+      "depth": 0.0,
+      "timestamp": "2016-09-01T14:56:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69297,
+      "longitude": -83.34155,
+      "depth": 0.0,
+      "timestamp": "2016-09-02T00:25:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.64828,
+      "longitude": -83.36243,
+      "depth": 0.0,
+      "timestamp": "2016-09-02T09:08:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60649,
+      "longitude": -83.39359,
+      "depth": 0.0,
+      "timestamp": "2016-09-02T17:22:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60648,
+      "longitude": -83.39357,
+      "depth": 0.0,
+      "timestamp": "2016-09-03T02:37:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.47624,
+      "longitude": -83.82387,
+      "depth": 0.0,
+      "timestamp": "2016-09-06T02:47:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.48731,
+      "longitude": -83.88422,
+      "depth": 0.0,
+      "timestamp": "2016-09-06T11:31:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49716,
+      "longitude": -83.9402,
+      "depth": 0.0,
+      "timestamp": "2016-09-06T20:46:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.51184,
+      "longitude": -83.98415,
+      "depth": 0.0,
+      "timestamp": "2016-09-07T05:55:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52569,
+      "longitude": -84.0391,
+      "depth": 0.0,
+      "timestamp": "2016-09-07T14:27:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.53864,
+      "longitude": -84.09078,
+      "depth": 0.0,
+      "timestamp": "2016-09-07T22:08:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.55522,
+      "longitude": -84.13995,
+      "depth": 0.0,
+      "timestamp": "2016-09-08T07:55:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.57343,
+      "longitude": -84.18048,
+      "depth": 0.0,
+      "timestamp": "2016-09-08T16:37:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.59525,
+      "longitude": -84.2212,
+      "depth": 0.0,
+      "timestamp": "2016-09-09T00:48:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.61469,
+      "longitude": -84.25442,
+      "depth": 0.0,
+      "timestamp": "2016-09-09T09:35:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.6363,
+      "longitude": -84.28115,
+      "depth": 0.0,
+      "timestamp": "2016-09-09T18:19:47Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.65733,
+      "longitude": -84.30878,
+      "depth": 0.0,
+      "timestamp": "2016-09-10T03:10:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.67755,
+      "longitude": -84.33248,
+      "depth": 0.0,
+      "timestamp": "2016-09-10T12:53:09Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69596,
+      "longitude": -84.35102,
+      "depth": 0.0,
+      "timestamp": "2016-09-10T22:06:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.71792,
+      "longitude": -84.36814,
+      "depth": 0.0,
+      "timestamp": "2016-09-11T06:14:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.73927,
+      "longitude": -84.38686,
+      "depth": 0.0,
+      "timestamp": "2016-09-11T15:15:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.75688,
+      "longitude": -84.39671,
+      "depth": 0.0,
+      "timestamp": "2016-09-12T00:57:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.78117,
+      "longitude": -84.40139,
+      "depth": 0.0,
+      "timestamp": "2016-09-12T10:12:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.81129,
+      "longitude": -84.41014,
+      "depth": 0.0,
+      "timestamp": "2016-09-12T19:34:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8112,
+      "longitude": -84.41009,
+      "depth": 0.0,
+      "timestamp": "2016-09-13T04:32:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.81436,
+      "longitude": -84.4099,
+      "depth": 0.0,
+      "timestamp": "2016-09-13T13:50:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.87274,
+      "longitude": -84.40342,
+      "depth": 0.0,
+      "timestamp": "2016-09-13T22:38:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8924,
+      "longitude": -84.39994,
+      "depth": 0.0,
+      "timestamp": "2016-09-14T07:25:41Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.90723,
+      "longitude": -84.4018,
+      "depth": 0.0,
+      "timestamp": "2016-09-14T16:17:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.91821,
+      "longitude": -84.3905,
+      "depth": 0.0,
+      "timestamp": "2016-09-15T01:49:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.93735,
+      "longitude": -84.38002,
+      "depth": 0.0,
+      "timestamp": "2016-09-15T09:49:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.95174,
+      "longitude": -84.37188,
+      "depth": 0.0,
+      "timestamp": "2016-09-15T19:55:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.96265,
+      "longitude": -84.35568,
+      "depth": 0.0,
+      "timestamp": "2016-09-16T03:30:33Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.98036,
+      "longitude": -84.34154,
+      "depth": 0.0,
+      "timestamp": "2016-09-16T13:10:39Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.99758,
+      "longitude": -84.32163,
+      "depth": 0.0,
+      "timestamp": "2016-09-16T22:00:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.0104,
+      "longitude": -84.30067,
+      "depth": 0.0,
+      "timestamp": "2016-09-17T05:50:50Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.01037,
+      "longitude": -84.30069,
+      "depth": 0.0,
+      "timestamp": "2016-09-17T15:16:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.03942,
+      "longitude": -84.24213,
+      "depth": 0.0,
+      "timestamp": "2016-09-18T00:41:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.05156,
+      "longitude": -84.20915,
+      "depth": 0.0,
+      "timestamp": "2016-09-18T10:18:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.06312,
+      "longitude": -84.171,
+      "depth": 0.0,
+      "timestamp": "2016-09-18T19:01:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07544,
+      "longitude": -84.13543,
+      "depth": 0.0,
+      "timestamp": "2016-09-19T03:44:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.08232,
+      "longitude": -84.09276,
+      "depth": 0.0,
+      "timestamp": "2016-09-19T11:57:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.08933,
+      "longitude": -84.04879,
+      "depth": 0.0,
+      "timestamp": "2016-09-19T20:30:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09289,
+      "longitude": -83.99801,
+      "depth": 0.0,
+      "timestamp": "2016-09-20T06:42:43Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09511,
+      "longitude": -83.94216,
+      "depth": 0.0,
+      "timestamp": "2016-09-20T15:48:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09859,
+      "longitude": -83.88277,
+      "depth": 0.0,
+      "timestamp": "2016-09-21T00:46:22Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.09107,
+      "longitude": -83.82371,
+      "depth": 0.0,
+      "timestamp": "2016-09-21T10:35:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.07641,
+      "longitude": -83.75557,
+      "depth": 0.0,
+      "timestamp": "2016-09-21T19:28:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -55.06696,
+      "longitude": -83.68283,
+      "depth": 0.0,
+      "timestamp": "2016-09-22T04:41:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.848,
+      "longitude": -83.0808,
+      "depth": 0.0,
+      "timestamp": "2016-09-25T14:49:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.8087,
+      "longitude": -83.0279,
+      "depth": 0.0,
+      "timestamp": "2016-09-25T23:53:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.77115,
+      "longitude": -82.98909,
+      "depth": 0.0,
+      "timestamp": "2016-09-26T08:18:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.73242,
+      "longitude": -82.94656,
+      "depth": 0.0,
+      "timestamp": "2016-09-26T17:55:34Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.69519,
+      "longitude": -82.9083,
+      "depth": 0.0,
+      "timestamp": "2016-09-27T03:36:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.66445,
+      "longitude": -82.88482,
+      "depth": 0.0,
+      "timestamp": "2016-09-27T12:43:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.6284,
+      "longitude": -82.85243,
+      "depth": 0.0,
+      "timestamp": "2016-09-27T22:17:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60406,
+      "longitude": -82.82082,
+      "depth": 0.0,
+      "timestamp": "2016-09-28T06:23:23Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.60406,
+      "longitude": -82.82083,
+      "depth": 0.0,
+      "timestamp": "2016-09-28T16:05:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.54696,
+      "longitude": -82.74511,
+      "depth": 0.0,
+      "timestamp": "2016-09-29T01:49:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.52002,
+      "longitude": -82.7078,
+      "depth": 0.0,
+      "timestamp": "2016-09-29T10:02:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.49059,
+      "longitude": -82.66415,
+      "depth": 0.0,
+      "timestamp": "2016-09-29T19:52:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.45742,
+      "longitude": -82.62327,
+      "depth": 0.0,
+      "timestamp": "2016-09-30T04:27:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.41775,
+      "longitude": -82.58631,
+      "depth": 0.0,
+      "timestamp": "2016-09-30T14:35:18Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.38041,
+      "longitude": -82.55025,
+      "depth": 0.0,
+      "timestamp": "2016-09-30T23:39:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.34417,
+      "longitude": -82.52558,
+      "depth": 0.0,
+      "timestamp": "2016-10-01T08:46:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.30187,
+      "longitude": -82.50396,
+      "depth": 0.0,
+      "timestamp": "2016-10-01T18:34:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.25676,
+      "longitude": -82.46535,
+      "depth": 0.0,
+      "timestamp": "2016-10-02T03:33:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.22062,
+      "longitude": -82.44712,
+      "depth": 0.0,
+      "timestamp": "2016-10-02T13:19:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.18315,
+      "longitude": -82.42576,
+      "depth": 0.0,
+      "timestamp": "2016-10-02T22:21:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.14703,
+      "longitude": -82.39836,
+      "depth": 0.0,
+      "timestamp": "2016-10-03T07:51:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.11385,
+      "longitude": -82.36514,
+      "depth": 0.0,
+      "timestamp": "2016-10-03T17:10:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.08615,
+      "longitude": -82.33454,
+      "depth": 0.0,
+      "timestamp": "2016-10-04T01:37:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.05379,
+      "longitude": -82.28949,
+      "depth": 0.0,
+      "timestamp": "2016-10-04T11:08:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.02465,
+      "longitude": -82.23055,
+      "depth": 0.0,
+      "timestamp": "2016-10-04T20:29:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.02282,
+      "longitude": -82.22488,
+      "depth": 0.0,
+      "timestamp": "2016-10-04T21:50:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -54.00928,
+      "longitude": -82.20332,
+      "depth": 0.0,
+      "timestamp": "2016-10-05T02:23:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.98996,
+      "longitude": -82.1656,
+      "depth": 0.0,
+      "timestamp": "2016-10-05T12:02:25Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.96273,
+      "longitude": -82.11681,
+      "depth": 0.0,
+      "timestamp": "2016-10-05T21:20:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.94109,
+      "longitude": -82.07599,
+      "depth": 0.0,
+      "timestamp": "2016-10-06T06:14:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.92827,
+      "longitude": -82.03369,
+      "depth": 0.0,
+      "timestamp": "2016-10-06T14:31:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.91046,
+      "longitude": -81.99468,
+      "depth": 0.0,
+      "timestamp": "2016-10-06T22:53:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.91046,
+      "longitude": -81.99468,
+      "depth": 0.0,
+      "timestamp": "2016-10-07T09:35:52Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.9086,
+      "longitude": -81.99139,
+      "depth": 0.0,
+      "timestamp": "2016-10-07T14:42:51Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.8663,
+      "longitude": -81.91609,
+      "depth": 0.0,
+      "timestamp": "2016-10-08T00:20:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.85618,
+      "longitude": -81.90173,
+      "depth": 0.0,
+      "timestamp": "2016-10-08T05:34:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.83149,
+      "longitude": -81.88467,
+      "depth": 0.0,
+      "timestamp": "2016-10-08T14:37:48Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.80258,
+      "longitude": -81.86469,
+      "depth": 0.0,
+      "timestamp": "2016-10-08T22:58:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.80014,
+      "longitude": -81.86408,
+      "depth": 0.0,
+      "timestamp": "2016-10-09T08:19:16Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.74434,
+      "longitude": -81.84496,
+      "depth": 0.0,
+      "timestamp": "2016-10-09T17:29:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.71706,
+      "longitude": -81.82871,
+      "depth": 0.0,
+      "timestamp": "2016-10-10T03:30:26Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.68744,
+      "longitude": -81.82584,
+      "depth": 0.0,
+      "timestamp": "2016-10-10T11:51:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.65692,
+      "longitude": -81.80329,
+      "depth": 0.0,
+      "timestamp": "2016-10-10T21:08:03Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.62499,
+      "longitude": -81.80322,
+      "depth": 0.0,
+      "timestamp": "2016-10-11T05:59:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.60499,
+      "longitude": -81.79065,
+      "depth": 0.0,
+      "timestamp": "2016-10-11T11:06:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.57405,
+      "longitude": -81.78984,
+      "depth": 0.0,
+      "timestamp": "2016-10-11T20:19:01Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.53637,
+      "longitude": -81.78075,
+      "depth": 0.0,
+      "timestamp": "2016-10-12T04:57:24Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.50571,
+      "longitude": -81.77784,
+      "depth": 0.0,
+      "timestamp": "2016-10-12T14:46:38Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.50572,
+      "longitude": -81.77784,
+      "depth": 0.0,
+      "timestamp": "2016-10-12T23:28:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.42627,
+      "longitude": -81.76672,
+      "depth": 0.0,
+      "timestamp": "2016-10-13T09:32:20Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.39146,
+      "longitude": -81.77935,
+      "depth": 0.0,
+      "timestamp": "2016-10-13T18:53:37Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.34825,
+      "longitude": -81.78048,
+      "depth": 0.0,
+      "timestamp": "2016-10-14T03:40:11Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.32514,
+      "longitude": -81.78952,
+      "depth": 0.0,
+      "timestamp": "2016-10-14T09:07:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.28541,
+      "longitude": -81.78934,
+      "depth": 0.0,
+      "timestamp": "2016-10-14T18:40:05Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.25079,
+      "longitude": -81.79815,
+      "depth": 0.0,
+      "timestamp": "2016-10-15T04:03:00Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.22792,
+      "longitude": -81.78992,
+      "depth": 0.0,
+      "timestamp": "2016-10-15T09:11:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.19928,
+      "longitude": -81.81092,
+      "depth": 0.0,
+      "timestamp": "2016-10-15T18:41:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.15551,
+      "longitude": -81.83657,
+      "depth": 0.0,
+      "timestamp": "2016-10-16T04:17:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.11693,
+      "longitude": -81.83927,
+      "depth": 0.0,
+      "timestamp": "2016-10-16T13:41:02Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.08652,
+      "longitude": -81.85056,
+      "depth": 0.0,
+      "timestamp": "2016-10-16T23:36:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.04649,
+      "longitude": -81.8719,
+      "depth": 0.0,
+      "timestamp": "2016-10-17T09:16:35Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -53.00459,
+      "longitude": -81.88079,
+      "depth": 0.0,
+      "timestamp": "2016-10-17T18:40:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.96529,
+      "longitude": -81.89166,
+      "depth": 0.0,
+      "timestamp": "2016-10-18T04:16:08Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.9247,
+      "longitude": -81.89271,
+      "depth": 0.0,
+      "timestamp": "2016-10-18T13:04:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.88845,
+      "longitude": -81.88568,
+      "depth": 0.0,
+      "timestamp": "2016-10-18T23:16:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.84583,
+      "longitude": -81.88532,
+      "depth": 0.0,
+      "timestamp": "2016-10-19T08:45:12Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.79502,
+      "longitude": -81.87202,
+      "depth": 0.0,
+      "timestamp": "2016-10-19T18:40:49Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.75689,
+      "longitude": -81.84873,
+      "depth": 0.0,
+      "timestamp": "2016-10-20T04:18:55Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.72385,
+      "longitude": -81.82506,
+      "depth": 0.0,
+      "timestamp": "2016-10-20T13:05:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.68308,
+      "longitude": -81.78587,
+      "depth": 0.0,
+      "timestamp": "2016-10-20T22:39:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.64513,
+      "longitude": -81.76695,
+      "depth": 0.0,
+      "timestamp": "2016-10-21T08:02:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.60532,
+      "longitude": -81.73903,
+      "depth": 0.0,
+      "timestamp": "2016-10-21T17:34:57Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.57278,
+      "longitude": -81.70268,
+      "depth": 0.0,
+      "timestamp": "2016-10-22T03:24:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.54875,
+      "longitude": -81.68205,
+      "depth": 0.0,
+      "timestamp": "2016-10-22T13:11:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.51787,
+      "longitude": -81.65986,
+      "depth": 0.0,
+      "timestamp": "2016-10-22T22:00:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.49827,
+      "longitude": -81.64113,
+      "depth": 0.0,
+      "timestamp": "2016-10-23T08:14:59Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.47416,
+      "longitude": -81.62126,
+      "depth": 0.0,
+      "timestamp": "2016-10-23T17:58:30Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.44972,
+      "longitude": -81.58885,
+      "depth": 0.0,
+      "timestamp": "2016-10-24T03:40:56Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.43573,
+      "longitude": -81.57252,
+      "depth": 0.0,
+      "timestamp": "2016-10-24T13:32:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.41272,
+      "longitude": -81.56418,
+      "depth": 0.0,
+      "timestamp": "2016-10-24T23:10:28Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.39333,
+      "longitude": -81.5428,
+      "depth": 0.0,
+      "timestamp": "2016-10-25T08:50:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.37878,
+      "longitude": -81.52678,
+      "depth": 0.0,
+      "timestamp": "2016-10-25T19:21:17Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.35494,
+      "longitude": -81.51287,
+      "depth": 0.0,
+      "timestamp": "2016-10-26T05:28:27Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.33832,
+      "longitude": -81.48794,
+      "depth": 0.0,
+      "timestamp": "2016-10-26T15:17:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.32845,
+      "longitude": -81.47278,
+      "depth": 0.0,
+      "timestamp": "2016-10-27T01:01:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.30807,
+      "longitude": -81.4575,
+      "depth": 0.0,
+      "timestamp": "2016-10-27T10:54:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.29224,
+      "longitude": -81.41264,
+      "depth": 0.0,
+      "timestamp": "2016-10-27T20:47:10Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.28958,
+      "longitude": -81.38377,
+      "depth": 0.0,
+      "timestamp": "2016-10-28T06:40:13Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.28021,
+      "longitude": -81.36421,
+      "depth": 0.0,
+      "timestamp": "2016-10-28T16:47:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.27429,
+      "longitude": -81.3196,
+      "depth": 0.0,
+      "timestamp": "2016-10-29T02:48:21Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.27219,
+      "longitude": -81.28868,
+      "depth": 0.0,
+      "timestamp": "2016-10-29T12:53:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.272,
+      "longitude": -81.28554,
+      "depth": 0.0,
+      "timestamp": "2016-10-29T22:36:54Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.2685,
+      "longitude": -81.2132,
+      "depth": 0.0,
+      "timestamp": "2016-10-30T08:06:15Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.26182,
+      "longitude": -81.18796,
+      "depth": 0.0,
+      "timestamp": "2016-10-30T14:50:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.26996,
+      "longitude": -81.16472,
+      "depth": 0.0,
+      "timestamp": "2016-10-30T19:55:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.26532,
+      "longitude": -81.13428,
+      "depth": 0.0,
+      "timestamp": "2016-10-31T05:55:31Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.26585,
+      "longitude": -81.09693,
+      "depth": 0.0,
+      "timestamp": "2016-10-31T15:38:29Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.27408,
+      "longitude": -81.05673,
+      "depth": 0.0,
+      "timestamp": "2016-11-01T01:31:42Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.27622,
+      "longitude": -81.01456,
+      "depth": 0.0,
+      "timestamp": "2016-11-01T11:36:40Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.27709,
+      "longitude": -81.01072,
+      "depth": 0.0,
+      "timestamp": "2016-11-01T20:56:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.28802,
+      "longitude": -80.95366,
+      "depth": 0.0,
+      "timestamp": "2016-11-02T04:05:04Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.29687,
+      "longitude": -80.91065,
+      "depth": 0.0,
+      "timestamp": "2016-11-02T14:09:07Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.30681,
+      "longitude": -80.87651,
+      "depth": 0.0,
+      "timestamp": "2016-11-02T23:59:53Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.32061,
+      "longitude": -80.84639,
+      "depth": 0.0,
+      "timestamp": "2016-11-03T09:49:44Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.32893,
+      "longitude": -80.82513,
+      "depth": 0.0,
+      "timestamp": "2016-11-03T19:47:14Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.33006,
+      "longitude": -80.82264,
+      "depth": 0.0,
+      "timestamp": "2016-11-04T05:14:06Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.34814,
+      "longitude": -80.78023,
+      "depth": 0.0,
+      "timestamp": "2016-11-04T12:54:19Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.3516,
+      "longitude": -80.76816,
+      "depth": 0.0,
+      "timestamp": "2016-11-04T18:25:45Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.35876,
+      "longitude": -80.74126,
+      "depth": 0.0,
+      "timestamp": "2016-11-05T04:25:58Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.36614,
+      "longitude": -80.72477,
+      "depth": 0.0,
+      "timestamp": "2016-11-05T10:41:32Z",
+      "temperature": null,
+      "salinity": null
+    },
+    {
+      "latitude": -52.37065,
+      "longitude": -80.70958,
+      "depth": 0.0,
+      "timestamp": "2016-11-05T16:26:25Z",
+      "temperature": null,
+      "salinity": null
+    }
+  ],
+  "soundings": [],
+  "cached_at": 1789637047.70925
+}

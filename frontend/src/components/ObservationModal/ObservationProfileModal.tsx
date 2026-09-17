@@ -205,25 +205,29 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
       if (activeObs) {
         void loadData(activeObs);
       } else {
-        // Create fallback default observation if opened without a marker click
-        const fallback: SelectedObservation = {
-          type: 'glider',
-          data: {
-            id: 'G102',
-            name: 'Glider G102',
-            mission: 'Arabian Sea Hydrographic Transect',
-            waypoints: [
-              {
-                latitude: 15.42,
-                longitude: 72.18,
-                depth: 505,
-                timestamp: '2024-09-12T14:12:00Z',
-                temperature: 18.4,
-                salinity: 35.1,
+        // Fallback default observation from real loaded gliders
+        const realGliders = OceanState.getInstance().getGliders();
+        const fallbackGlider = realGliders[0];
+        const fallback: SelectedObservation = fallbackGlider
+          ? { type: 'glider', data: fallbackGlider }
+          : {
+              type: 'glider',
+              data: {
+                id: 'ru29-20180812T0220',
+                name: 'RU29 Challenger Glider (Bay of Bengal)',
+                mission: 'Bay of Bengal / Sri Lanka Dome Hydrographic Survey',
+                waypoints: [
+                  {
+                    latitude: 5.81753,
+                    longitude: 80.44168,
+                    depth: 500,
+                    timestamp: '2018-11-01T14:55:49Z',
+                    temperature: 28.5,
+                    salinity: 34.4,
+                  },
+                ],
               },
-            ],
-          },
-        };
+            };
         void loadData(fallback);
       }
     }, 0);

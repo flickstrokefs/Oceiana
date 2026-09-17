@@ -8,6 +8,8 @@ import type {
   SpatialFieldValue,
   UnderwaterRegionId,
   UnderwaterRegion,
+  GliderTrajectory,
+  ArgoProfile,
 } from '../types/ocean';
 import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
@@ -46,6 +48,8 @@ export class OceanState {
   } | null = null;
   private flyToLocationToken = 0;
   private time: Date = new Date();
+  private gliders: GliderTrajectory[] = [];
+  private argoProfiles: ArgoProfile[] = [];
 
   private provider: OceanDataProvider;
   private listeners: Set<OceanStateListener> = new Set();
@@ -70,6 +74,23 @@ export class OceanState {
     return this.provider;
   }
 
+  public setGliders(gliders: GliderTrajectory[]): void {
+    this.gliders = gliders;
+    this.notify();
+  }
+
+  public getGliders(): GliderTrajectory[] {
+    return this.gliders;
+  }
+
+  public setArgoProfiles(profiles: ArgoProfile[]): void {
+    this.argoProfiles = profiles;
+    this.notify();
+  }
+
+  public getArgoProfiles(): ArgoProfile[] {
+    return this.argoProfiles;
+  }
 
 private meshResolution: 7 | 9 | 12 = 9;
 
@@ -96,16 +117,21 @@ return {
   flyToObservationToken: this.flyToObservationToken,
   time: new Date(this.time),
   selectedOceanDomain: this.selectedOceanDomain,
+  gliders: [...this.gliders],
+  argoProfiles: [...this.argoProfiles],
 };
 }
 
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {
-      // If no observation is selected, default to the first glider
+      // If no observation is selected, default to the first real glider
       if (!this.selectedObservation) {
-        const gliders = this.provider.getGliderTrajectories();
-        if (gliders.length > 0) {
-          this.selectedObservation = { type: 'glider', data: gliders[0] };
+        const candidateGliders =
+          this.gliders.length > 0
+            ? this.gliders
+            : this.provider.getGliderTrajectories();
+        if (candidateGliders.length > 0) {
+          this.selectedObservation = { type: 'glider', data: candidateGliders[0] };
         }
       }
       this.observationModalOpen = true;

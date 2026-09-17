@@ -73,6 +73,13 @@ export interface GliderTrajectory {
   name: string;
   mission: string;
   waypoints: GliderWaypoint[];
+  region?: string;
+  macroRegion?: string;
+  platform?: string;
+  operator?: string;
+  status?: string;
+  battery?: number;
+  provenance?: 'REAL' | 'ESTIMATED' | 'SYNTHETIC';
 }
 
 export type UnderwaterRegionId =
@@ -16657,4 +16664,6 @@ export interface OceanStateSnapshot {
     | 'indian-ocean'
     | 'southern-ocean'
     | null;
+  gliders?: GliderTrajectory[];
+  argoProfiles?: ArgoProfile[];
 }

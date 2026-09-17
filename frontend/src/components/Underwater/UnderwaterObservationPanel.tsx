@@ -39,46 +39,50 @@ export const UnderwaterObservationPanel: React.FC =
       const provider =
         oceanState.getProvider();
 
-      setArgoList(
-        provider.getArgoProfiles(),
-      );
+      const initialArgo = oceanState.getArgoProfiles();
+      if (initialArgo.length > 0) {
+        setArgoList(initialArgo);
+      } else {
+        setArgoList(provider.getArgoProfiles());
+      }
 
-      setGliderList(
-        provider.getGliderTrajectories(),
-      );
+      const initialGliders = oceanState.getGliders();
+      if (initialGliders.length > 0) {
+        setGliderList(initialGliders);
+      } else {
+        setGliderList(provider.getGliderTrajectories());
+      }
 
-      const unsub =
-        oceanState.subscribe(
-          (snapshot) => {
-            setCurrentDepth(
-              snapshot.parameters.depth,
-            );
-          },
-        );
+      const unsub = oceanState.subscribe((snapshot) => {
+        setCurrentDepth(snapshot.parameters.depth);
+        if (snapshot.gliders && snapshot.gliders.length > 0) {
+          setGliderList(snapshot.gliders);
+        }
+        if (snapshot.argoProfiles && snapshot.argoProfiles.length > 0) {
+          setArgoList(snapshot.argoProfiles);
+        }
+      });
 
       return unsub;
     }, []);
 
-    const handleSelectArgo = (
-      argo: ArgoProfile,
-    ) => {
-      OceanState
-        .getInstance()
-        .selectObservation({
-          type: 'argo',
-          data: argo,
-        });
+    const handleSelectArgo = (argo: ArgoProfile) => {
+      OceanState.getInstance().selectObservation({
+        type: 'argo',
+        data: argo,
+      });
+      OceanState.getInstance().requestFlyToLocation(argo.latitude, argo.longitude, 650000);
     };
 
-    const handleSelectGlider = (
-      glider: GliderTrajectory,
-    ) => {
-      OceanState
-        .getInstance()
-        .selectObservation({
-          type: 'glider',
-          data: glider,
-        });
+    const handleSelectGlider = (glider: GliderTrajectory) => {
+      OceanState.getInstance().selectObservation({
+        type: 'glider',
+        data: glider,
+      });
+      const latest = glider.waypoints[glider.waypoints.length - 1];
+      if (latest) {
+        OceanState.getInstance().requestFlyToLocation(latest.latitude, latest.longitude, 650000);
+      }
     };
 
     return (
@@ -166,14 +170,15 @@ export const UnderwaterObservationPanel: React.FC =
 
               {argoList.map(
                 (argo) => {
+                  const nodes = argo.nodes || [];
                   let nearestNode =
-                    argo.nodes[0];
+                    nodes[0] || { depth: 0, temperature: 0, salinity: 0 };
 
                   let minDiff =
                     Infinity;
 
                   for (
-                    const n of argo.nodes
+                    const n of nodes
                   ) {
                     const diff =
                       Math.abs(

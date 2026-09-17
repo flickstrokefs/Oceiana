@@ -46,6 +46,30 @@ class Settings(BaseSettings):
         description="INCOIS ERDDAP catalog URL",
     )
 
+    # Autonomous Glider DAC configuration (IOOS National Glider DAC)
+    GLIDER_ERDDAP_URL: str = Field(
+        default="https://gliders.ioos.us/erddap",
+        description="Authoritative IOOS Glider DAC ERDDAP URL",
+    )
+    GLIDER_DATASETS: List[str] = Field(
+        default=[
+            "ru29-20180812T0220",
+            "amlr01-20191206T0452-delayed",
+            "amlr02-20191206T1236-delayed",
+            "amlr03-20191206T0529-delayed",
+            "gs_565-20151220T1746-delayed",
+        ],
+        description="Real glider datasets in authorized regions (Bay of Bengal & Southern Ocean)",
+    )
+    GLIDER_CACHE_TTL_SECONDS: int = Field(
+        default=86400,
+        description="Glider cache TTL in seconds",
+    )
+    GLIDER_REQUEST_TIMEOUT: int = Field(
+        default=30,
+        description="Glider ERDDAP request timeout in seconds",
+    )
+
     # Scientific limits & defaults
     MAX_OBSERVATIONS_QUERY_LIMIT: int = 10000
     STANDARD_PRESSURE_STEP: float = 10.0
