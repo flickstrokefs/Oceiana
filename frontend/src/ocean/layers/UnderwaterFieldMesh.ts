@@ -79,13 +79,7 @@ export class UnderwaterFieldMesh {
   private regionCenterLon = 0;
   private regionCenterLat = 0;
 
-  /*
-   * IHO polygons can contain thousands of vertices.
-   *
-   * This is ONLY used for the expensive grid clipping.
-   * The original definition.footprint is never modified.
-   */
-  private readonly maxClipVertices = 2000;
+
 
   constructor(
     viewer: Cesium.Viewer,
@@ -379,179 +373,19 @@ export class UnderwaterFieldMesh {
     FootprintPoint[] {
     const raw = this.getFootprint();
 
-    if (raw.length <= this.maxClipVertices) {
+    const maxPoints = 1200;
+
+    if (raw.length <= maxPoints) {
       return raw;
     }
 
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT take every Nth IHO vertex. That destroys sharp
-     * boundary features and can badly distort the Southern Ocean.
-     *
-     * Instead, unwrap longitude across the dateline and use
-     * topology-friendly Ramer-Douglas-Peucker simplification.
-     * This keeps the important turns in the IHO boundary while
-     * reducing the working footprint to about 2,000 vertices.
-     *
-     * The original definition.footprint is never modified.
-     */
-    const unwrapped: FootprintPoint[] = [];
+    const step = raw.length / maxPoints;
+    const result: FootprintPoint[] = [];
 
-    let previousLongitude = raw[0].longitude;
-
-    unwrapped.push({
-      longitude: previousLongitude,
-      latitude: raw[0].latitude,
-    });
-
-    for (let i = 1; i < raw.length; i++) {
-      let longitude = raw[i].longitude;
-
-      while (longitude - previousLongitude > 180) {
-        longitude -= 360;
-      }
-
-      while (longitude - previousLongitude < -180) {
-        longitude += 360;
-      }
-
-      unwrapped.push({
-        longitude,
-        latitude: raw[i].latitude,
-      });
-
-      previousLongitude = longitude;
+    for (let i = 0; i < maxPoints; i++) {
+      result.push(raw[Math.floor(i * step)]);
     }
 
-    /*
-     * Binary-search the RDP tolerance so the result stays close
-     * to the requested 2,000-vertex budget. The tolerance is in
-     * degrees because the simplification happens in lon/lat space.
-     */
-    let low = 0;
-    let high = 1;
-
-    while (
-      this.simplifyFootprint(unwrapped, high).length >
-      this.maxClipVertices
-    ) {
-      high *= 2;
-    }
-
-    for (let i = 0; i < 28; i++) {
-      const tolerance = (low + high) / 2;
-      const count =
-        this.simplifyFootprint(
-          unwrapped,
-          tolerance,
-        ).length;
-
-      if (count > this.maxClipVertices) {
-        low = tolerance;
-      } else {
-        high = tolerance;
-      }
-    }
-
-    const simplified = this.simplifyFootprint(
-      unwrapped,
-      high,
-    );
-
-    /*
-     * Convert longitude back to the conventional [-180, 180]
-     * range before the existing geographic conversion is used.
-     */
-    return simplified.map((point) => ({
-      longitude: this.normalizeLongitude(point.longitude),
-      latitude: point.latitude,
-    }));
-  }
-
-  private simplifyFootprint(
-    points: FootprintPoint[],
-    tolerance: number,
-  ): FootprintPoint[] {
-    if (points.length <= 2) {
-      return points.slice();
-    }
-
-    const squaredTolerance = tolerance * tolerance;
-
-    const simplifyRange = (
-      start: number,
-      end: number,
-    ): FootprintPoint[] => {
-      if (end <= start + 1) {
-        return [points[start]];
-      }
-
-      const a = points[start];
-      const b = points[end];
-
-      const dx = b.longitude - a.longitude;
-      const dy = b.latitude - a.latitude;
-      const denominator = dx * dx + dy * dy;
-
-      let maxDistanceSquared = -1;
-      let splitIndex = -1;
-
-      for (
-        let i = start + 1;
-        i < end;
-        i++
-      ) {
-        const p = points[i];
-        let distanceSquared: number;
-
-        if (denominator <= Number.EPSILON) {
-          const px = p.longitude - a.longitude;
-          const py = p.latitude - a.latitude;
-          distanceSquared = px * px + py * py;
-        } else {
-          const t = Math.max(
-            0,
-            Math.min(
-              1,
-              (
-                (p.longitude - a.longitude) * dx +
-                (p.latitude - a.latitude) * dy
-              ) / denominator,
-            ),
-          );
-
-          const projectionX = a.longitude + t * dx;
-          const projectionY = a.latitude + t * dy;
-          const px = p.longitude - projectionX;
-          const py = p.latitude - projectionY;
-          distanceSquared = px * px + py * py;
-        }
-
-        if (distanceSquared > maxDistanceSquared) {
-          maxDistanceSquared = distanceSquared;
-          splitIndex = i;
-        }
-      }
-
-      if (
-        splitIndex !== -1 &&
-        maxDistanceSquared > squaredTolerance
-      ) {
-        const left = simplifyRange(start, splitIndex);
-        const right = simplifyRange(splitIndex, end);
-        return left.slice(0, -1).concat(right);
-      }
-
-      return [points[start]];
-    };
-
-    const result = simplifyRange(
-      0,
-      points.length - 1,
-    );
-
-    result.push(points[points.length - 1]);
     return result;
   }
 
