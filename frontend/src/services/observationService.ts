@@ -275,7 +275,7 @@ async function fetchRemoteProfile(
   selected: SelectedObservation
 ): Promise<ObservationProfilePayload | null> {
   const id = selected.data.id;
-  const url = `${API_BASE}/api/observations/${encodeURIComponent(id)}/profile?type=${selected.type}`;
+  const url = `${API_URL}/api/observations/${encodeURIComponent(id)}/profile?type=${selected.type}`;
 
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
