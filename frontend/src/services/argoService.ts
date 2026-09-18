@@ -1,6 +1,6 @@
 import type { ArgoProfile, ArgoNode } from '../types/ocean';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export interface BackendArgoProfileSummary {
   profile_id: number;
@@ -29,7 +29,7 @@ export interface BackendArgoReading {
 
 export async function fetchArgoProfiles(region?: string): Promise<ArgoProfile[]> {
   const query = region ? `?region=${encodeURIComponent(region)}` : '';
-  const res = await fetch(`${API_BASE}/api/argo/profiles${query}`);
+  const res = await fetch(`${API_URL}/api/argo/profiles${query}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch Argo profiles: ${res.statusText}`);
   }
@@ -62,7 +62,7 @@ export async function fetchArgoProfiles(region?: string): Promise<ArgoProfile[]>
 }
 
 export async function fetchArgoReadings(profileId: number): Promise<BackendArgoReading[]> {
-  const res = await fetch(`${API_BASE}/api/argo/profiles/${profileId}`);
+  const res = await fetch(`${API_URL}/api/argo/profiles/${profileId}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch soundings for profile ${profileId}: ${res.statusText}`);
   }
