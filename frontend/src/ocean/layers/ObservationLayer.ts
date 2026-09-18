@@ -98,6 +98,7 @@ export class ObservationLayer {
   }
 
   private renderArgoProfile(argo: ArgoProfile): void {
+    if (this.viewer.isDestroyed() || !this.viewer.entities) return;
     const pos = Cesium.Cartesian3.fromDegrees(argo.longitude, argo.latitude, 2000);
 
     // 1. Surface Beacon Pin - Restrained 8px solid technical dot
@@ -182,6 +183,7 @@ export class ObservationLayer {
   }
 
   private renderGliderTrajectory(glider: GliderTrajectory): void {
+    if (this.viewer.isDestroyed() || !this.viewer.entities) return;
     const surfacePositions = glider.waypoints.map((wp) =>
       Cesium.Cartesian3.fromDegrees(wp.longitude, wp.latitude, 2000)
     );
