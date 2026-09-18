@@ -107,40 +107,24 @@ export class DepthSliceRenderer {
         let b = 0;
         let a = 185;
 
-        if (variable === 'temperature') {
-          // Temperature field: 2°C (deep ocean) to 32°C (warm pool)
-          const temp = sample.temperature;
-          const norm = Math.min(1.0, Math.max(0.0, (temp - 2.0) / 30.0));
-          // Turbo/Rainbow spectrum: blue (0.0) -> cyan (0.35) -> green (0.55) -> yellow (0.75) -> red (1.0)
-          const hue = (1.0 - norm) * 240.0;
-          [r, g, b] = this.hslToRgb(hue / 360, 0.92, 0.48);
-        } else if (variable === 'salinity') {
-          // Salinity field: 28 PSU to 38 PSU
-          const sal = sample.salinity;
-          const norm = Math.min(1.0, Math.max(0.0, (sal - 28.0) / 10.0));
-          r = Math.round(norm * 140);
-          g = Math.round((1.0 - norm) * 220 + norm * 50);
-          b = Math.round(230 + norm * 25);
+        let scalar = sample.temperature;
+        if (variable === 'salinity') {
+          scalar = sample.salinity;
         } else if (variable === 'chlorophyll') {
-          // Chlorophyll field: 0 to 6 mg/m³
-          const chl = sample.chlorophyll;
-          const norm = Math.min(1.0, Math.max(0.0, chl / 5.5));
-          r = Math.round(norm * 30);
-          g = Math.round(norm * 255 + (1.0 - norm) * 35);
-          b = Math.round((1.0 - norm) * 180 + norm * 50);
-          // Attenuate below euphotic zone (> 200m)
-          if (depth > 200) {
-            a = Math.max(25, Math.round(185 * Math.exp(-(depth - 200) / 250)));
-          }
-        } else {
-          // Current speed magnitude
-          const speed = Math.sqrt(
+          scalar = sample.chlorophyll;
+        } else if (variable === 'current') {
+          scalar = Math.sqrt(
             sample.velocity.u * sample.velocity.u + sample.velocity.v * sample.velocity.v
           );
-          const norm = Math.min(1.0, speed / 3.0);
-          r = Math.round(norm * 255);
-          g = Math.round(norm * 210 + (1 - norm) * 40);
-          b = Math.round((1 - norm) * 255);
+        }
+
+        const cesiumColor = oceanState.getCesiumColorForActiveVariable(scalar);
+        r = Math.round(cesiumColor.red * 255);
+        g = Math.round(cesiumColor.green * 255);
+        b = Math.round(cesiumColor.blue * 255);
+
+        if (variable === 'chlorophyll' && depth > 200) {
+          a = Math.max(25, Math.round(185 * Math.exp(-(depth - 200) / 250)));
         }
 
         data[idx] = r;
@@ -208,29 +192,6 @@ export class DepthSliceRenderer {
   public setDepth(depth: number): void {
     this.currentDepth = depth;
     this.update();
-  }
-
-  private hslToRgb(h: number, s: number, l: number): [number, number, number] {
-    let r, g, b;
-    if (s === 0) {
-      r = g = b = l;
-    } else {
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = this.hueToRgb(p, q, h + 1 / 3);
-      g = this.hueToRgb(p, q, h);
-      b = this.hueToRgb(p, q, h - 1 / 3);
-    }
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-  }
-
-  private hueToRgb(p: number, q: number, t: number): number {
-    if (t < 0) t += 1;
-    if (t > 1) t -= 1;
-    if (t < 1 / 6) return p + (q - p) * 6 * t;
-    if (t < 1 / 2) return q;
-    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-    return p;
   }
 
   public destroy(): void {

@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
-import { ChevronDown, Database, Table2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronDown, Database, Table2, Navigation } from 'lucide-react';
+import { OceanState } from '../../ocean/OceanState';
+import type { ArgoProfile, GliderTrajectory } from '../../types/ocean';
 
 export const DataInstrumentsPanel: React.FC = () => {
   const [modelOpen, setModelOpen] = useState(true);
   const [instrumentOpen, setInstrumentOpen] = useState(true);
   const [comparisonOpen, setComparisonOpen] = useState(true);
   const [comparisonTab, setComparisonTab] = useState<'glider' | 'argo' | 'all'>('all');
+  const [glidersList, setGlidersList] = useState<GliderTrajectory[]>(() => OceanState.getInstance().getGliders());
+  const [argoList, setArgoList] = useState<ArgoProfile[]>(() => OceanState.getInstance().getArgoProfiles());
+
+  useEffect(() => {
+    const unsub = OceanState.getInstance().subscribe((snapshot) => {
+      if (snapshot.gliders && snapshot.gliders.length > 0) {
+        setGlidersList(snapshot.gliders);
+      }
+      if (snapshot.argoProfiles && snapshot.argoProfiles.length > 0) {
+        setArgoList(snapshot.argoProfiles);
+      }
+    });
+    return unsub;
+  }, []);
 
   // Model variable selections
   const [modelVars, setModelVars] = useState({
@@ -33,6 +49,14 @@ export const DataInstrumentsPanel: React.FC = () => {
 
   const toggleInstrument = (key: keyof typeof instruments) => {
     setInstruments((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleFlyToGlider = (glider: GliderTrajectory) => {
+    OceanState.getInstance().selectObservation({ type: 'glider', data: glider });
+    const latest = glider.waypoints[glider.waypoints.length - 1];
+    if (latest) {
+      OceanState.getInstance().requestFlyToLocation(latest.latitude, latest.longitude, 750000);
+    }
   };
 
   return (
@@ -155,6 +179,11 @@ export const DataInstrumentsPanel: React.FC = () => {
                     onChange={() => toggleInstrument('argo')}
                   />
                   <span className="check-label">Argo floats</span>
+                  {argoList.length > 0 && (
+                    <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#c79a5b', fontFamily: 'monospace', fontWeight: 600 }}>
+                      {argoList.length} ACTIVE
+                    </span>
+                  )}
                 </label>
 
                 <label className="checkbox-row">
@@ -164,7 +193,45 @@ export const DataInstrumentsPanel: React.FC = () => {
                     onChange={() => toggleInstrument('gliders')}
                   />
                   <span className="check-label">Gliders</span>
+                  {glidersList.length > 0 && (
+                    <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#00f0ff', fontFamily: 'monospace', fontWeight: 600 }}>
+                      {glidersList.length} ACTIVE
+                    </span>
+                  )}
                 </label>
+
+                {instruments.gliders && glidersList.length > 0 && (
+                  <div style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 6px 0' }}>
+                    {glidersList.map((g) => {
+                      return (
+                        <div
+                          key={g.id}
+                          onClick={() => handleFlyToGlider(g)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '4px 6px',
+                            background: 'rgba(0, 240, 255, 0.05)',
+                            border: '1px solid rgba(0, 240, 255, 0.18)',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                          }}
+                          title={`Focus camera on ${g.name}`}
+                        >
+                          <span style={{ color: '#cbd5e1', fontSize: '10px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
+                            ● {g.name.replace(/\(.*\)/, '').trim()}
+                          </span>
+                          <span style={{ color: '#00f0ff', fontSize: '9px', fontFamily: 'monospace', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                            <Navigation size={9} />
+                            VIEW
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <label className="checkbox-row">
                   <input

@@ -1,7 +1,19 @@
+import os
 from pathlib import Path
 from typing import List
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+except ImportError:
+    from pydantic import BaseModel
+    try:
+        from pydantic import BaseSettings
+    except ImportError:
+        BaseSettings = BaseModel
+
+    def SettingsConfigDict(**kwargs):
+        return kwargs
 
 
 class Settings(BaseSettings):
@@ -14,9 +26,11 @@ class Settings(BaseSettings):
 
     # Network / Server
     API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8000
+    API_PORT: int = int(os.environ.get("PORT", 8000))
     API_BASE_PATH: str = "/api"
     CORS_ORIGINS: List[str] = [
+        "https://oceianaxoxo.vercel.app",
+        "http://oceianaxoxo.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",
@@ -45,6 +59,25 @@ class Settings(BaseSettings):
         default="https://erddap.incois.gov.in/erddap",
         description="INCOIS ERDDAP catalog URL",
     )
+
+    # Autonomous Glider DAC configuration (IFREMER OceanGliders GDAC)
+    GLIDER_ERDDAP_URL: str = Field(
+        default="https://erddap.ifremer.fr/erddap",
+        description="Authoritative IFREMER OceanGliders GDAC ERDDAP URL",
+    )
+    GLIDER_DATASET_ID: str = Field(
+        default="OceanGlidersGDACTrajectories",
+        description="Authoritative IFREMER OceanGliders GDAC dataset ID",
+    )
+    GLIDER_CACHE_TTL_SECONDS: int = Field(
+        default=604800,
+        description="Glider cache TTL in seconds (7 days)",
+    )
+    GLIDER_REQUEST_TIMEOUT: int = Field(
+        default=45,
+        description="Glider ERDDAP request timeout in seconds",
+    )
+
 
     # Scientific limits & defaults
     MAX_OBSERVATIONS_QUERY_LIMIT: int = 10000

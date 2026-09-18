@@ -181,9 +181,11 @@ function pickCompanionArgo(
 function composeLocalProfile(
   selected: SelectedObservation
 ): ObservationProfilePayload {
-  const provider = OceanState.getInstance().getProvider();
+  const oceanState = OceanState.getInstance();
+  const provider = oceanState.getProvider();
   const argos = provider.getArgoProfiles();
-  const gliders = provider.getGliderTrajectories();
+  const realGliders = oceanState.getGliders();
+  const gliders = realGliders.length > 0 ? realGliders : provider.getGliderTrajectories();
 
   let lat: number;
   let lon: number;

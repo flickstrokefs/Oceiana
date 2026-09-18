@@ -1,4 +1,4 @@
-﻿import * as Cesium from 'cesium';
+import * as Cesium from 'cesium';
 
 import {
   UW_BOUNDS,
@@ -7,6 +7,7 @@ import {
   geoToWorld,
 } from '../utils/underwaterCoords';
 
+import { OceanState } from '../OceanState';
 import { UnderwaterFieldMesh } from './UnderwaterFieldMesh';
 
 import type {
@@ -45,6 +46,7 @@ export class UnderwaterRegionPolygon {
   private isHovered = false;
   private isVisible = false;
   private isDestroyed = false;
+  private colorTransitionCleanup: (() => void) | null = null;
 
   // ============================================================
   // EXISTING STRUCTURE
@@ -1531,6 +1533,10 @@ export class UnderwaterRegionPolygon {
     );
   }
 
+  public getIsVisible(): boolean {
+    return this.isVisible;
+  }
+
   // ============================================================
   // OBSERVATION POINT STYLING
   // ============================================================
@@ -1669,62 +1675,41 @@ export class UnderwaterRegionPolygon {
     variable: OceanVariable,
     alpha: number,
   ): Cesium.Color {
-    let normalized = 0;
-
-    if (
-      variable ===
-      'temperature'
-    ) {
-      normalized =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            (
-              temperature -
-              2
-            ) /
-            28,
-          ),
-        );
-    } else if (
-      variable ===
-      'salinity'
-    ) {
-      normalized =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            (
-              salinity -
-              32
-            ) /
-            6,
-          ),
-        );
-    } else {
-      normalized =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            value / 5,
-          ),
-        );
+    let scalar = value;
+    if (variable === 'temperature') {
+      scalar = temperature;
+    } else if (variable === 'salinity') {
+      scalar = salinity;
     }
+    return OceanState.getInstance().getCesiumColorForActiveVariable(scalar, alpha);
+  }
 
-    const hue =
-      240 -
-      normalized *
-      240;
+  public reapplyColors(): void {
+    if (this.isDestroyed || this.pointCollection.isDestroyed()) return;
+    if (this.colorTransitionCleanup) this.colorTransitionCleanup();
 
-    return Cesium.Color.fromHsl(
-      hue / 360,
-      0.90,
-      0.50,
-      alpha,
-    );
+    const transitions = this.pointRecords.map((record) => ({
+      record,
+      from: record.primitive.color.clone(),
+      to: this.getColor(record.temperature, record.salinity, record.value, this.currentVariable, record.primitive.color.alpha),
+    }));
+    const start = performance.now();
+    const duration = 360;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const renderListener = () => {
+      if (this.isDestroyed || this.pointCollection.isDestroyed()) return;
+      const t = Math.min(1, (performance.now() - start) / duration);
+      const e = ease(t);
+      for (const item of transitions) Cesium.Color.lerp(item.from, item.to, e, item.record.primitive.color);
+      if (t >= 1 && this.colorTransitionCleanup) {
+        const cleanup = this.colorTransitionCleanup;
+        this.colorTransitionCleanup = null;
+        cleanup();
+      }
+    };
+    this.colorTransitionCleanup = this.viewer.scene.postRender.addEventListener(renderListener);
+    renderListener();
+    this.fieldMesh.reapplyColors();
   }
 
   // ============================================================
@@ -1918,6 +1903,8 @@ export class UnderwaterRegionPolygon {
     }
 
     this.isDestroyed = true;
+
+    if (this.colorTransitionCleanup) { this.colorTransitionCleanup(); this.colorTransitionCleanup = null; }
 
     // Destroy the actual scientific field mesh.
     this.fieldMesh.destroy();

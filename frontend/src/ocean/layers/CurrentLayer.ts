@@ -93,7 +93,8 @@ export class CurrentLayer {
         p.primitive.position = Cesium.Cartesian3.fromDegrees(p.lon, p.lat, 4000);
 
         const alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.85;
-        p.primitive.color = new Cesium.Color(0.0, 0.95, 1.0, alpha);
+        const speed = Math.sqrt(u * u + v * v);
+        p.primitive.color = oceanState.getCesiumColorForVariable('current', speed, alpha);
       }
     };
 

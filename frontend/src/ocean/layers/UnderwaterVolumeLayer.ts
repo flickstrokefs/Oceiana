@@ -5,6 +5,7 @@ import { OceanState } from '../OceanState';
 import {
   UNDERWATER_REGIONS,
   type UnderwaterRegionId,
+  type OceanDomainId,
   type OceanVariable,
 } from '../../types/ocean';
 
@@ -25,6 +26,9 @@ export class UnderwaterVolumeLayer {
 
   private currentVariable: OceanVariable =
     'temperature';
+
+  private activeDomainId:
+    OceanDomainId | null = 'indian-ocean';
 
   private activeRegionId:
     UnderwaterRegionId | null = null;
@@ -50,6 +54,9 @@ export class UnderwaterVolumeLayer {
 
     this.currentVariable =
       snapshot.activeVariable;
+
+    this.activeDomainId =
+      snapshot.selectedOceanDomain ?? (snapshot.underwaterRegion === 'southern-ocean' ? 'southern-ocean' : 'indian-ocean');
 
     this.activeRegionId =
       snapshot.underwaterRegion;
@@ -88,90 +95,112 @@ export class UnderwaterVolumeLayer {
       return;
     }
 
-    /*
-     * Nothing selected:
-     * hide all water-body boxes.
-     *
-     * OceanDomainLayer handles the
-     * Indian Ocean / Southern Ocean
-     * parent boundaries.
-     */
-    if (!this.activeRegionId) {
-      for (const box of this.boxes) {
-        box.setVisible(false);
-        box.setActive(false);
-      }
+    const domain =
+      this.activeDomainId ??
+      (this.activeRegionId === 'southern-ocean'
+        ? 'southern-ocean'
+        : 'indian-ocean');
 
+    if (domain === 'southern-ocean') {
+      for (const box of this.boxes) {
+        const isSO = box.definition.id === 'southern-ocean';
+        box.setVisible(isSO);
+        box.setActive(isSO);
+      }
       return;
     }
 
     /*
-     * Show ONLY the selected water body.
+     * INDIAN OCEAN DOMAIN
+     *
+     * When Indian Ocean is selected, ALL of Indian Ocean basin
+     * and ALL its constituent marginal seas (Arabian Sea, Bay of Bengal,
+     * Andaman Sea, Laccadive Sea, Java Sea) are rendered in 3D grids and meshes.
      */
-    for (const box of this.boxes) {
-      const isActive =
-        box.definition.id ===
-        this.activeRegionId;
+    const indianOceanIds = new Set<string>([
+      'indian-ocean',
+      'arabian-sea',
+      'bay-of-bengal',
+      'andaman-sea',
+      'laccadive-sea',
+      'java-sea',
+    ]);
 
-      box.setVisible(isActive);
+    for (const box of this.boxes) {
+      const isIndian = indianOceanIds.has(box.definition.id);
+
+      if (!isIndian) {
+        box.setVisible(false);
+        box.setActive(false);
+        continue;
+      }
+
+      // Render grid and mesh for all Indian Ocean water bodies
+      box.setVisible(true);
+
+      // If a specific sub-sea is selected, focus/activate it;
+      // if 'indian-ocean' or null is selected, all Indian Ocean bodies are active!
+      const isActive =
+        !this.activeRegionId ||
+        this.activeRegionId === 'indian-ocean' ||
+        box.definition.id === this.activeRegionId;
+
       box.setActive(isActive);
     }
   }
 
   public async fetchActiveRegionData(): Promise<void> {
     if (
-      !this.activeRegionId ||
       this.isDestroyed ||
-      this.viewer.isDestroyed()
+      this.viewer.isDestroyed() ||
+      !this.visible
     ) {
-      return;
-    }
-
-    const targetRegionId =
-      this.activeRegionId;
-
-    const targetBox =
-      this.boxes.find(
-        (box) =>
-          box.definition.id ===
-          targetRegionId,
-      );
-
-    if (!targetBox) {
       return;
     }
 
     const currentSequence =
       ++this.querySequence;
 
-    try {
-      const data =
-        await fetchUnderwaterRegionData({
-          regionId:
-            targetRegionId,
+    const visibleBoxes = this.boxes.filter(
+      (box) => box.getIsVisible(),
+    );
 
-          depth:
-            this.currentDepth,
-
-          variable:
-            this.currentVariable,
-        });
-
-      if (
-        this.isDestroyed ||
-        currentSequence !==
-          this.querySequence
-      ) {
-        return;
-      }
-
-      targetBox.setData(data);
-    } catch (error) {
-      console.error(
-        'Failed to load underwater region data:',
-        error,
-      );
+    if (visibleBoxes.length === 0) {
+      return;
     }
+
+    await Promise.all(
+      visibleBoxes.map(async (box) => {
+        try {
+          const data =
+            await fetchUnderwaterRegionData({
+              regionId:
+                box.definition.id,
+
+              depth:
+                this.currentDepth,
+
+              variable:
+                this.currentVariable,
+            });
+
+          if (
+            this.isDestroyed ||
+            currentSequence !==
+              this.querySequence
+          ) {
+            return;
+          }
+
+          box.setData(data);
+        } catch (error) {
+          console.error(
+            `Failed to load underwater region data for ${box.definition.id}:`,
+            error,
+          );
+        }
+      }),
+    );
   }
 
   private initInteraction(): void {
@@ -285,25 +314,47 @@ export class UnderwaterVolumeLayer {
     );
   }
 
-  public setRegion(
-    regionId:
-      UnderwaterRegionId | null,
+  public setDomainAndRegion(
+    domainId: OceanDomainId | null,
+    regionId: UnderwaterRegionId | null,
   ): void {
     if (
-      this.activeRegionId ===
-      regionId
+      this.activeDomainId === domainId &&
+      this.activeRegionId === regionId
     ) {
       return;
     }
 
-    this.activeRegionId =
-      regionId;
+    this.activeDomainId = domainId;
+    this.activeRegionId = regionId;
 
     this.applyRegionVisibility();
 
-    if (regionId) {
+    if (this.visible) {
       void this.fetchActiveRegionData();
     }
+  }
+
+  public setRegion(
+    regionId: UnderwaterRegionId | null,
+  ): void {
+    const domain: OceanDomainId =
+      regionId === 'southern-ocean'
+        ? 'southern-ocean'
+        : 'indian-ocean';
+
+    this.setDomainAndRegion(domain, regionId);
+  }
+
+  public setDomain(
+    domainId: OceanDomainId | null,
+  ): void {
+    const region: UnderwaterRegionId | null =
+      domainId === 'southern-ocean'
+        ? 'southern-ocean'
+        : (this.activeRegionId && this.activeRegionId !== 'southern-ocean' ? this.activeRegionId : 'indian-ocean');
+
+    this.setDomainAndRegion(domainId, region);
   }
 
   public setDepth(
@@ -318,7 +369,7 @@ export class UnderwaterVolumeLayer {
       box.setDepth(depth);
     }
 
-    if (this.activeRegionId) {
+    if (this.visible) {
       void this.fetchActiveRegionData();
     }
   }
@@ -329,6 +380,20 @@ export class UnderwaterVolumeLayer {
     this.visible = visible;
 
     this.applyRegionVisibility();
+
+    if (visible) {
+      void this.fetchActiveRegionData();
+    }
+  }
+
+  public reapplyColors(): void {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    for (const box of this.boxes) {
+      box.reapplyColors();
+    }
   }
 
   public destroy(): void {

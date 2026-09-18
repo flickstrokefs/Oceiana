@@ -1,8 +1,10 @@
-﻿import * as Cesium from 'cesium';
+import * as Cesium from 'cesium';
 
 import {
   UW_DIMENSIONS,
 } from '../utils/underwaterCoords';
+
+import { OceanState } from '../OceanState';
 
 import type {
   OceanVariable,
@@ -28,6 +30,11 @@ interface CellRecord {
   id: string;
   depth: number;
   baseColor: Cesium.Color;
+  sample?: {
+    temperature: number;
+    salinity: number;
+    value: number;
+  };
 }
 
 interface FootprintPoint {
@@ -55,6 +62,7 @@ export class UnderwaterFieldMesh {
   private destroyed = false;
 
   private resolution: 7 | 9 | 12 = 9;
+  private colorTransitionCleanup: (() => void) | null = null;
 
   /*
    * ------------------------------------------------------------
@@ -77,7 +85,7 @@ export class UnderwaterFieldMesh {
    * This is ONLY used for the expensive grid clipping.
    * The original definition.footprint is never modified.
    */
-  private readonly maxClipVertices = 500;
+  private readonly maxClipVertices = 2000;
 
   constructor(
     viewer: Cesium.Viewer,
@@ -369,42 +377,198 @@ export class UnderwaterFieldMesh {
    */
   private getClippingFootprint():
     FootprintPoint[] {
-    const raw =
-      this.getFootprint();
+    const raw = this.getFootprint();
 
-    if (
-      raw.length <=
-      this.maxClipVertices
-    ) {
+    if (raw.length <= this.maxClipVertices) {
       return raw;
     }
 
     /*
-     * Preserve the shape reasonably while avoiding
-     * thousands of polygon-edge tests for every grid cell.
+     * IMPORTANT:
+     *
+     * Do NOT take every Nth IHO vertex. That destroys sharp
+     * boundary features and can badly distort the Southern Ocean.
+     *
+     * Instead, unwrap longitude across the dateline and use
+     * topology-friendly Ramer-Douglas-Peucker simplification.
+     * This keeps the important turns in the IHO boundary while
+     * reducing the working footprint to about 2,000 vertices.
+     *
+     * The original definition.footprint is never modified.
      */
-    const result:
-      FootprintPoint[] = [];
+    const unwrapped: FootprintPoint[] = [];
 
-    const step =
-      raw.length /
-      this.maxClipVertices;
+    let previousLongitude = raw[0].longitude;
 
-    for (
-      let i = 0;
-      i < this.maxClipVertices;
-      i++
-    ) {
-      result.push(
-        raw[
-          Math.floor(
-            i * step,
-          )
-        ],
-      );
+    unwrapped.push({
+      longitude: previousLongitude,
+      latitude: raw[0].latitude,
+    });
+
+    for (let i = 1; i < raw.length; i++) {
+      let longitude = raw[i].longitude;
+
+      while (longitude - previousLongitude > 180) {
+        longitude -= 360;
+      }
+
+      while (longitude - previousLongitude < -180) {
+        longitude += 360;
+      }
+
+      unwrapped.push({
+        longitude,
+        latitude: raw[i].latitude,
+      });
+
+      previousLongitude = longitude;
     }
 
+    /*
+     * Binary-search the RDP tolerance so the result stays close
+     * to the requested 2,000-vertex budget. The tolerance is in
+     * degrees because the simplification happens in lon/lat space.
+     */
+    let low = 0;
+    let high = 1;
+
+    while (
+      this.simplifyFootprint(unwrapped, high).length >
+      this.maxClipVertices
+    ) {
+      high *= 2;
+    }
+
+    for (let i = 0; i < 28; i++) {
+      const tolerance = (low + high) / 2;
+      const count =
+        this.simplifyFootprint(
+          unwrapped,
+          tolerance,
+        ).length;
+
+      if (count > this.maxClipVertices) {
+        low = tolerance;
+      } else {
+        high = tolerance;
+      }
+    }
+
+    const simplified = this.simplifyFootprint(
+      unwrapped,
+      high,
+    );
+
+    /*
+     * Convert longitude back to the conventional [-180, 180]
+     * range before the existing geographic conversion is used.
+     */
+    return simplified.map((point) => ({
+      longitude: this.normalizeLongitude(point.longitude),
+      latitude: point.latitude,
+    }));
+  }
+
+  private simplifyFootprint(
+    points: FootprintPoint[],
+    tolerance: number,
+  ): FootprintPoint[] {
+    if (points.length <= 2) {
+      return points.slice();
+    }
+
+    const squaredTolerance = tolerance * tolerance;
+
+    const simplifyRange = (
+      start: number,
+      end: number,
+    ): FootprintPoint[] => {
+      if (end <= start + 1) {
+        return [points[start]];
+      }
+
+      const a = points[start];
+      const b = points[end];
+
+      const dx = b.longitude - a.longitude;
+      const dy = b.latitude - a.latitude;
+      const denominator = dx * dx + dy * dy;
+
+      let maxDistanceSquared = -1;
+      let splitIndex = -1;
+
+      for (
+        let i = start + 1;
+        i < end;
+        i++
+      ) {
+        const p = points[i];
+        let distanceSquared: number;
+
+        if (denominator <= Number.EPSILON) {
+          const px = p.longitude - a.longitude;
+          const py = p.latitude - a.latitude;
+          distanceSquared = px * px + py * py;
+        } else {
+          const t = Math.max(
+            0,
+            Math.min(
+              1,
+              (
+                (p.longitude - a.longitude) * dx +
+                (p.latitude - a.latitude) * dy
+              ) / denominator,
+            ),
+          );
+
+          const projectionX = a.longitude + t * dx;
+          const projectionY = a.latitude + t * dy;
+          const px = p.longitude - projectionX;
+          const py = p.latitude - projectionY;
+          distanceSquared = px * px + py * py;
+        }
+
+        if (distanceSquared > maxDistanceSquared) {
+          maxDistanceSquared = distanceSquared;
+          splitIndex = i;
+        }
+      }
+
+      if (
+        splitIndex !== -1 &&
+        maxDistanceSquared > squaredTolerance
+      ) {
+        const left = simplifyRange(start, splitIndex);
+        const right = simplifyRange(splitIndex, end);
+        return left.slice(0, -1).concat(right);
+      }
+
+      return [points[start]];
+    };
+
+    const result = simplifyRange(
+      0,
+      points.length - 1,
+    );
+
+    result.push(points[points.length - 1]);
     return result;
+  }
+
+  private normalizeLongitude(
+    longitude: number,
+  ): number {
+    let normalized = longitude;
+
+    while (normalized > 180) {
+      normalized -= 360;
+    }
+
+    while (normalized < -180) {
+      normalized += 360;
+    }
+
+    return normalized;
   }
 
   // ============================================================
@@ -431,8 +595,9 @@ export class UnderwaterFieldMesh {
 
     const longitudeDelta =
       Cesium.Math.toRadians(
-        longitude -
-          this.regionCenterLon,
+        this.normalizeLongitude(
+          longitude - this.regionCenterLon,
+        ),
       );
 
     const latitudeDelta =
@@ -800,6 +965,11 @@ export class UnderwaterFieldMesh {
             depth,
             baseColor:
               color,
+            sample: {
+              temperature: sample.temperature,
+              salinity: sample.salinity,
+              value: sample.value,
+            },
           });
 
           this.appendWireframe(
@@ -1789,50 +1959,46 @@ export class UnderwaterFieldMesh {
     variable: OceanVariable,
     alpha: number,
   ): Cesium.Color {
-    let normalized = 0;
-
-    if (
-      variable ===
-      'temperature'
-    ) {
-      normalized =
-        (
-          temperature - 2
-        ) / 28;
-    } else if (
-      variable ===
-      'salinity'
-    ) {
-      normalized =
-        (
-          salinity - 32
-        ) / 6;
-    } else {
-      normalized =
-        value / 5;
+    let scalar = value;
+    if (variable === 'temperature') {
+      scalar = temperature;
+    } else if (variable === 'salinity') {
+      scalar = salinity;
     }
+    return OceanState.getInstance().getCesiumColorForActiveVariable(scalar, alpha);
+  }
 
-    normalized =
-      Math.max(
-        0,
-        Math.min(
-          1,
-          normalized,
-        ),
-      );
+  public reapplyColors(): void {
+    if (this.destroyed || !this.fieldPrimitive) return;
 
-    const hue =
-      (
-        1 -
-        normalized
-      ) * 240;
+    if (this.colorTransitionCleanup) this.colorTransitionCleanup();
 
-    return Cesium.Color.fromHsl(
-      hue / 360,
-      0.90,
-      0.52,
-      alpha,
-    );
+    const transitions = this.cells
+      .filter((cell) => !!cell.sample)
+      .map((cell) => ({
+        cell,
+        from: cell.baseColor.clone(),
+        to: this.getColor(cell.sample!.temperature, cell.sample!.salinity, cell.sample!.value, this.currentVariable, 0.42),
+      }));
+
+    const start = performance.now();
+    const duration = 360;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const renderListener = () => {
+      if (this.destroyed || !this.fieldPrimitive) return;
+      const t = Math.min(1, (performance.now() - start) / duration);
+      const e = ease(t);
+      for (const item of transitions) Cesium.Color.lerp(item.from, item.to, e, item.cell.baseColor);
+      this.updateDepthEmphasis();
+      if (t >= 1 && this.colorTransitionCleanup) {
+        const cleanup = this.colorTransitionCleanup;
+        this.colorTransitionCleanup = null;
+        cleanup();
+      }
+    };
+    const remove = this.viewer.scene.postRender.addEventListener(renderListener);
+    this.colorTransitionCleanup = remove;
+    renderListener();
   }
 
   // ============================================================
@@ -1986,6 +2152,7 @@ export class UnderwaterFieldMesh {
 
     this.destroyed = true;
 
+    if (this.colorTransitionCleanup) { this.colorTransitionCleanup(); this.colorTransitionCleanup = null; }
     this.clearMesh();
 
     this.dataPoints = [];

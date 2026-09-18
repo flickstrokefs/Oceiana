@@ -8,10 +8,15 @@ import type {
   SpatialFieldValue,
   UnderwaterRegionId,
   UnderwaterRegion,
+  GliderTrajectory,
+  ArgoProfile,
 } from '../types/ocean';
 import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
 import { MockOceanProvider } from './provider/MockOceanProvider';
+import * as Cesium from 'cesium';
+import type { ColorRange } from './color/colorTypes';
+import { DEFAULT_COLOR_RANGES, loadStoredRanges, saveStoredRanges, getColorForValue, cesiumColorFromHex } from './color/colorRangeUtils';
 
 export type OceanStateListener = (snapshot: OceanStateSnapshot) => void;
 
@@ -46,9 +51,12 @@ export class OceanState {
   } | null = null;
   private flyToLocationToken = 0;
   private time: Date = new Date();
+  private gliders: GliderTrajectory[] = [];
+  private argoProfiles: ArgoProfile[] = [];
 
   private provider: OceanDataProvider;
   private listeners: Set<OceanStateListener> = new Set();
+  private colorRanges: Record<OceanVariable, ColorRange[]> = loadStoredRanges();
 
   private constructor(provider?: OceanDataProvider) {
     this.provider = provider || new MockOceanProvider();
@@ -70,6 +78,23 @@ export class OceanState {
     return this.provider;
   }
 
+  public setGliders(gliders: GliderTrajectory[]): void {
+    this.gliders = gliders;
+    this.notify();
+  }
+
+  public getGliders(): GliderTrajectory[] {
+    return this.gliders;
+  }
+
+  public setArgoProfiles(profiles: ArgoProfile[]): void {
+    this.argoProfiles = profiles;
+    this.notify();
+  }
+
+  public getArgoProfiles(): ArgoProfile[] {
+    return this.argoProfiles;
+  }
 
 private meshResolution: 7 | 9 | 12 = 9;
 
@@ -84,6 +109,24 @@ public getMeshResolution(): 7 | 9 | 12 {
   return this.meshResolution;
 }
 
+public getColorRanges(variable: OceanVariable = this.activeVariable): ColorRange[] {
+  return (this.colorRanges[variable] || []).map((r) => ({ ...r }));
+}
+
+public setColorRanges(variable: OceanVariable, ranges: ColorRange[]): void {
+  this.colorRanges[variable] = ranges.map((r) => ({ ...r }));
+  saveStoredRanges(this.colorRanges);
+  this.notify();
+}
+
+public getCesiumColorForVariable(variable: OceanVariable, value: number, alpha = 1): Cesium.Color {
+  const ranges = this.colorRanges[variable] || DEFAULT_COLOR_RANGES[variable] || [];
+  return cesiumColorFromHex(getColorForValue(value, ranges), alpha);
+}
+
+public getCesiumColorForActiveVariable(value: number, alpha = 1): Cesium.Color {
+  return this.getCesiumColorForVariable(this.activeVariable, value, alpha);
+}
 public getSnapshot(): OceanStateSnapshot {
 return {
   parameters: { ...this.parameters },
@@ -96,16 +139,27 @@ return {
   flyToObservationToken: this.flyToObservationToken,
   time: new Date(this.time),
   selectedOceanDomain: this.selectedOceanDomain,
+  gliders: [...this.gliders],
+  argoProfiles: [...this.argoProfiles],
+  colorRanges: {
+    temperature: this.getColorRanges('temperature'),
+    salinity: this.getColorRanges('salinity'),
+    current: this.getColorRanges('current'),
+    chlorophyll: this.getColorRanges('chlorophyll'),
+  },
 };
 }
 
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {
-      // If no observation is selected, default to the first glider
+      // If no observation is selected, default to the first real glider
       if (!this.selectedObservation) {
-        const gliders = this.provider.getGliderTrajectories();
-        if (gliders.length > 0) {
-          this.selectedObservation = { type: 'glider', data: gliders[0] };
+        const candidateGliders =
+          this.gliders.length > 0
+            ? this.gliders
+            : this.provider.getGliderTrajectories();
+        if (candidateGliders.length > 0) {
+          this.selectedObservation = { type: 'glider', data: candidateGliders[0] };
         }
       }
       this.observationModalOpen = true;
@@ -174,7 +228,7 @@ return {
   this.selectedOceanDomain = domain;
 
   if (domain === 'indian-ocean') {
-    this.underwaterRegion = null;
+    this.underwaterRegion = 'indian-ocean';
   }
 
   if (domain === 'southern-ocean') {

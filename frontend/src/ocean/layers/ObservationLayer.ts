@@ -1,6 +1,8 @@
 import * as Cesium from 'cesium';
 import { OceanState } from '../OceanState';
 import type { ArgoProfile, GliderTrajectory, SelectedObservation } from '../../types/ocean';
+import { fetchGliders } from '../../services/gliderService';
+import { fetchArgoProfiles } from '../../services/argoService';
 
 type ObsEntityMeta = {
   obsId: string;
@@ -11,6 +13,8 @@ type ObsEntityMeta = {
 export class ObservationLayer {
   private viewer: Cesium.Viewer;
   private entities: Cesium.Entity[] = [];
+  private gliderEntities: Cesium.Entity[] = [];
+  private argoEntities: Cesium.Entity[] = [];
   private entityMeta = new Map<Cesium.Entity, ObsEntityMeta>();
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
   private unsubscribeState: (() => void) | null = null;
@@ -24,21 +28,77 @@ export class ObservationLayer {
   }
 
   private renderObservations(): void {
-    const oceanState = OceanState.getInstance();
-    const provider = oceanState.getProvider();
+    void this.loadRealArgoProfiles();
+    void this.loadRealGliders();
+  }
 
-    const argoProfiles = provider.getArgoProfiles();
-    for (const argo of argoProfiles) {
-      this.renderArgoProfile(argo);
-    }
-
-    const gliders = provider.getGliderTrajectories();
-    for (const glider of gliders) {
-      this.renderGliderTrajectory(glider);
+  private async loadRealArgoProfiles(): Promise<void> {
+    try {
+      const argoProfiles = await fetchArgoProfiles();
+      OceanState.getInstance().setArgoProfiles(argoProfiles);
+      this.clearArgoEntities();
+      for (const argo of argoProfiles) {
+        this.renderArgoProfile(argo);
+      }
+      if (this.highlightedId) {
+        this.applyHighlight(this.highlightedId);
+      }
+    } catch (err) {
+      console.warn('[ObservationLayer] Could not fetch real Argo profiles from backend:', err);
+      // Fallback to provider
+      const provider = OceanState.getInstance().getProvider();
+      for (const argo of provider.getArgoProfiles()) {
+        this.renderArgoProfile(argo);
+      }
     }
   }
 
+  private clearArgoEntities(): void {
+    for (const e of this.argoEntities) {
+      if (!this.viewer.isDestroyed()) {
+        this.viewer.entities.remove(e);
+      }
+      this.entityMeta.delete(e);
+      const idx = this.entities.indexOf(e);
+      if (idx !== -1) {
+        this.entities.splice(idx, 1);
+      }
+    }
+    this.argoEntities = [];
+  }
+
+  private async loadRealGliders(): Promise<void> {
+    try {
+      const gliders = await fetchGliders();
+      OceanState.getInstance().setGliders(gliders);
+      this.clearGliderEntities();
+      for (const glider of gliders) {
+        this.renderGliderTrajectory(glider);
+      }
+      if (this.highlightedId) {
+        this.applyHighlight(this.highlightedId);
+      }
+    } catch (err) {
+      console.warn('[ObservationLayer] Could not fetch real gliders from backend:', err);
+    }
+  }
+
+  private clearGliderEntities(): void {
+    for (const e of this.gliderEntities) {
+      if (!this.viewer.isDestroyed()) {
+        this.viewer.entities.remove(e);
+      }
+      this.entityMeta.delete(e);
+      const idx = this.entities.indexOf(e);
+      if (idx !== -1) {
+        this.entities.splice(idx, 1);
+      }
+    }
+    this.gliderEntities = [];
+  }
+
   private renderArgoProfile(argo: ArgoProfile): void {
+    if (this.viewer.isDestroyed() || !this.viewer.entities) return;
     const pos = Cesium.Cartesian3.fromDegrees(argo.longitude, argo.latitude, 2000);
 
     // 1. Surface Beacon Pin - Restrained 8px solid technical dot
@@ -57,6 +117,10 @@ export class ObservationLayer {
           const snapshot = OceanState.getInstance().getSnapshot();
           const depth = snapshot.parameters.depth;
           const isUnderwater = snapshot.mode === 'underwater';
+
+          if (!argo.nodes || argo.nodes.length === 0) {
+            return `● ${argo.stationCode}`;
+          }
 
           // Find closest CTD reading
           let closest = argo.nodes[0];
@@ -89,6 +153,7 @@ export class ObservationLayer {
       },
     });
     this.entities.push(beacon);
+    this.argoEntities.push(beacon);
     this.entityMeta.set(beacon, { obsId: argo.id, obsType: 'argo', role: 'marker' });
 
     // 2. Subtle Coverage Ring
@@ -113,10 +178,12 @@ export class ObservationLayer {
       },
     });
     this.entities.push(rangeRing);
+    this.argoEntities.push(rangeRing);
     this.entityMeta.set(rangeRing, { obsId: argo.id, obsType: 'argo', role: 'ring' });
   }
 
   private renderGliderTrajectory(glider: GliderTrajectory): void {
+    if (this.viewer.isDestroyed() || !this.viewer.entities) return;
     const surfacePositions = glider.waypoints.map((wp) =>
       Cesium.Cartesian3.fromDegrees(wp.longitude, wp.latitude, 2000)
     );
@@ -140,6 +207,7 @@ export class ObservationLayer {
       },
     });
     this.entities.push(trajectoryLine);
+    this.gliderEntities.push(trajectoryLine);
     this.entityMeta.set(trajectoryLine, {
       obsId: glider.id,
       obsType: 'glider',
@@ -159,20 +227,20 @@ export class ObservationLayer {
         name: glider.name + ' Active Unit',
         position: gliderPos,
         point: {
-          pixelSize: 8,
-          color: Cesium.Color.fromCssColorString('#5b8fc7'), // Restrained GIS blue
-          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-          outlineWidth: 1.5,
+          pixelSize: 10,
+          color: Cesium.Color.fromCssColorString('#00f0ff'), // Vibrant ARIEL cyan/teal
+          outlineColor: Cesium.Color.fromCssColorString('#020b1c'),
+          outlineWidth: 2.0,
         },
         label: {
           text: `● ${glider.name}`,
-          font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
+          font: '600 11px "IBM Plex Sans", -apple-system, sans-serif',
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
-          outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-          outlineWidth: 2,
+          fillColor: Cesium.Color.fromCssColorString('#e2e8f0'),
+          outlineColor: Cesium.Color.fromCssColorString('#020617'),
+          outlineWidth: 2.5,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -10),
+          pixelOffset: new Cesium.Cartesian2(0, -12),
         },
         properties: {
           obsType: 'glider',
@@ -181,10 +249,40 @@ export class ObservationLayer {
         },
       });
       this.entities.push(headMarker);
+      this.gliderEntities.push(headMarker);
       this.entityMeta.set(headMarker, {
         obsId: glider.id,
         obsType: 'glider',
         role: 'marker',
+      });
+
+      // Operational range beacon ring
+      const gliderRing = this.viewer.entities.add({
+        id: `obs-glider-ring-${glider.id}`,
+        name: glider.name + ' Range',
+        position: gliderPos,
+        ellipse: {
+          semiMinorAxis: 40000.0,
+          semiMajorAxis: 40000.0,
+          material: new Cesium.ColorMaterialProperty(
+            new Cesium.Color(0.0, 0.94, 1.0, 0.06)
+          ),
+          outline: true,
+          outlineColor: new Cesium.Color(0.0, 0.94, 1.0, 0.5),
+          outlineWidth: 1.5,
+        },
+        properties: {
+          obsType: 'glider',
+          obsId: glider.id,
+          data: glider,
+        },
+      });
+      this.entities.push(gliderRing);
+      this.gliderEntities.push(gliderRing);
+      this.entityMeta.set(gliderRing, {
+        obsId: glider.id,
+        obsType: 'glider',
+        role: 'ring',
       });
     }
   }
@@ -266,6 +364,8 @@ export class ObservationLayer {
     if (this.handler) {
       this.handler.destroy();
     }
+    this.clearGliderEntities();
+    this.clearArgoEntities();
     for (const e of this.entities) {
       if (!this.viewer.isDestroyed()) {
         this.viewer.entities.remove(e);
