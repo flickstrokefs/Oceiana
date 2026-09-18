@@ -8,6 +8,11 @@ if (typeof window !== 'undefined') {
   const win = window as unknown as { CESIUM_BASE_URL?: string };
   win.CESIUM_BASE_URL = '/cesium/';
 }
+try {
+  (Cesium.buildModuleUrl as unknown as { setBaseUrl?: (url: string) => void }).setBaseUrl?.('/cesium/');
+} catch (_e) {
+  // Ignored if already defined
+}
 
 Cesium.Ion.defaultAccessToken = '';
 
@@ -20,33 +25,36 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<OceanEngine | null>(null);
+  const onEngineReadyRef = useRef(onEngineReady);
+
+  // Keep latest callback reference without triggering viewer re-initialization
+  useEffect(() => {
+    onEngineReadyRef.current = onEngineReady;
+  }, [onEngineReady]);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    let viewer: Cesium.Viewer;
+    let viewer: Cesium.Viewer | null = null;
+    let engine: OceanEngine | null = null;
 
     try {
-      // Check for Cesium Ion Token
+      // Check for optional Cesium Ion Token
       const ionToken =
         import.meta.env.VITE_CESIUM_ION_TOKEN ||
         (typeof window !== 'undefined' && (window as unknown as { CESIUM_ION_TOKEN?: string }).CESIUM_ION_TOKEN);
 
-      let baseImageryProvider: Promise<Cesium.ImageryProvider>;
-
       if (ionToken) {
         Cesium.Ion.defaultAccessToken = ionToken;
-        baseImageryProvider = Cesium.createWorldImageryAsync();
-      } else {
-        // High-resolution public satellite imagery (Esri World Imagery)
-        baseImageryProvider = Cesium.ArcGisMapServerImageryProvider.fromUrl(
-          'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
-          { enablePickFeatures: false }
-        );
       }
 
+      // 1. Instant, reliable offline NaturalEarthII imagery (0 network latency, 100% stable)
+      const localProvider = Cesium.TileMapServiceImageryProvider.fromUrl(
+        Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII')
+      );
+
       viewer = new Cesium.Viewer(containerRef.current, {
-        baseLayer: Cesium.ImageryLayer.fromProviderAsync(baseImageryProvider),
+        baseLayer: Cesium.ImageryLayer.fromProviderAsync(localProvider),
         animation: false,
         timeline: false,
         geocoder: false,
@@ -61,27 +69,75 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
         useDefaultRenderLoop: true,
         shadows: false,
         creditContainer: document.createElement('div'),
+        contextOptions: {
+          webgl: {
+            alpha: false,
+            depth: true,
+            stencil: false,
+            antialias: true,
+            failIfMajorPerformanceCaveat: false,
+          },
+        },
       });
+
+      // 2. Asynchronously overlay high-resolution satellite imagery (Esri World Imagery or Ion)
+      (async () => {
+        try {
+          let highResProvider: Cesium.ImageryProvider;
+          if (ionToken) {
+            highResProvider = await Cesium.createWorldImageryAsync();
+          } else {
+            highResProvider = await Cesium.ArcGisMapServerImageryProvider.fromUrl(
+              'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+              { enablePickFeatures: false }
+            );
+          }
+          if (viewer && !viewer.isDestroyed()) {
+            viewer.imageryLayers.addImageryProvider(highResProvider);
+          }
+        } catch (satelliteErr) {
+          console.warn('[Cesium Satellite Imagery Overlay Fallback]:', satelliteErr);
+        }
+      })();
     } catch (err) {
       console.warn('Primary viewer initialization fallback:', err);
-      viewer = new Cesium.Viewer(containerRef.current, {
-        baseLayer: false,
-        animation: false,
-        timeline: false,
-        geocoder: false,
-        homeButton: false,
-        sceneModePicker: false,
-        baseLayerPicker: false,
-        navigationHelpButton: false,
-        infoBox: false,
-        selectionIndicator: false,
-        fullscreenButton: false,
-        vrButton: false,
-        useDefaultRenderLoop: true,
-        shadows: false,
-        creditContainer: document.createElement('div'),
-      });
+      try {
+        viewer = new Cesium.Viewer(containerRef.current, {
+          baseLayer: false,
+          animation: false,
+          timeline: false,
+          geocoder: false,
+          homeButton: false,
+          sceneModePicker: false,
+          baseLayerPicker: false,
+          navigationHelpButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+          fullscreenButton: false,
+          vrButton: false,
+          useDefaultRenderLoop: true,
+          shadows: false,
+          creditContainer: document.createElement('div'),
+        });
+      } catch (fatalErr) {
+        console.error('Critical WebGL / Cesium initialization error:', fatalErr);
+        const panel = document.createElement('div');
+        panel.id = 'cesium-custom-error-panel';
+        panel.style.cssText =
+          'position:fixed;top:24px;left:24px;right:24px;background:rgba(15,23,42,0.96);border:1px solid #ef4444;color:#f8fafc;padding:24px;border-radius:12px;z-index:99999;font-family:monospace;font-size:13px;backdrop-filter:blur(12px);';
+        panel.innerHTML = `
+          <div style="font-size:16px;font-weight:bold;color:#ef4444;margin-bottom:8px;">⚠️ 3D Geospatial Engine (WebGL) Notice</div>
+          <p style="color:#94a3b8;margin:0 0 12px 0;">Cesium requires WebGL hardware acceleration to be enabled in your browser.</p>
+          <div style="font-size:11px;color:#cbd5e1;background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;">
+            Tip: In Chrome/Edge, navigate to <strong>chrome://settings/system</strong> and verify that <em>"Use graphics acceleration when available"</em> is enabled.
+          </div>
+        `;
+        document.body.appendChild(panel);
+        return;
+      }
     }
+
+    if (!viewer) return;
 
     // Comprehensive error formatting for CesiumWidget error panel
     if (viewer.cesiumWidget) {
@@ -131,20 +187,23 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
     viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#020b1c');
     viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#020617');
 
-    const engine = new OceanEngine(viewer);
+    engine = new OceanEngine(viewer);
     engineRef.current = engine;
 
-    if (onEngineReady) {
-      onEngineReady(engine);
+    if (onEngineReadyRef.current) {
+      onEngineReadyRef.current(engine);
     }
 
     return () => {
-      engine.destroy();
-      if (!viewer.isDestroyed()) {
+      if (engine) {
+        engine.destroy();
+        engineRef.current = null;
+      }
+      if (viewer && !viewer.isDestroyed()) {
         viewer.destroy();
       }
     };
-  }, [onEngineReady]);
+  }, []); // Run ONLY ONCE on mount! Do not re-mount when callback reference updates
 
   return (
     // INTEGRATION — Underwater 3D structure / ocean volume mesh:

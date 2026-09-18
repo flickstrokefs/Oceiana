@@ -253,7 +253,7 @@ const HazardAssessmentInner: React.FC<HazardAssessmentViewProps> = ({ engine }) 
       setAnalyzing(false);
       setGridLoading(false);
     }
-  }, [variable, threshold, region, selectedSector, showAnomalyOverlay, globeOpacity]);
+  }, [variable, threshold, region, showAnomalyOverlay, globeOpacity]);
 
   // Initial load
   useEffect(() => {

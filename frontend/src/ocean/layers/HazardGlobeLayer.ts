@@ -312,14 +312,30 @@ export class HazardGlobeLayer {
 
     const dataUrl = canvas.toDataURL('image/png');
 
-    const provider = new Cesium.SingleTileImageryProvider({
-      url: dataUrl,
-      rectangle: Cesium.Rectangle.fromDegrees(minLon, minLat, maxLon, maxLat),
-    });
-
-    const layer = this.viewer.imageryLayers.addImageryProvider(provider);
-    layer.alpha = Math.max(0.1, Math.min(1.0, opacity));
-    this.gridImageryLayer = layer;
+    try {
+      if (typeof Cesium.SingleTileImageryProvider.fromUrl === 'function') {
+        Cesium.SingleTileImageryProvider.fromUrl(dataUrl, {
+          rectangle: Cesium.Rectangle.fromDegrees(minLon, minLat, maxLon, maxLat),
+        }).then((provider) => {
+          if (this.viewer.isDestroyed()) return;
+          const layer = this.viewer.imageryLayers.addImageryProvider(provider);
+          layer.alpha = Math.max(0.1, Math.min(1.0, opacity));
+          this.gridImageryLayer = layer;
+        }).catch((err) => {
+          console.warn('[HazardGlobeLayer] SingleTileImageryProvider.fromUrl error:', err);
+        });
+      } else {
+        const provider = new Cesium.SingleTileImageryProvider({
+          url: dataUrl,
+          rectangle: Cesium.Rectangle.fromDegrees(minLon, minLat, maxLon, maxLat),
+        });
+        const layer = this.viewer.imageryLayers.addImageryProvider(provider);
+        layer.alpha = Math.max(0.1, Math.min(1.0, opacity));
+        this.gridImageryLayer = layer;
+      }
+    } catch (err) {
+      console.warn('[HazardGlobeLayer] SingleTileImageryProvider creation failed:', err);
+    }
   }
 
   public setGridOpacity(opacity: number): void {
