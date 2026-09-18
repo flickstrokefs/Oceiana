@@ -5565,3 +5565,769 @@ body, html, #root {
   .underwater-legend-panel.legend-panel-expanded { max-height: calc(100vh - 88px); }
   .editor-ranges-list { max-height: 160px; }
 }
+
+/* ============================================================
+   OPERATIONAL OCEANOGRAPHIC WORKSTATION DESIGN SYSTEM
+   Hazard Assessment & Fishery Advisories (Screens 5 & 6)
+   ============================================================ */
+
+.hazard-view,
+.fishery-view {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px 20px;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+/* --- Top Operations Command Bar --- */
+.ops-top-controls {
+  background: #111418;
+  border: 1px solid #20242b;
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.ops-control-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.ops-control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ops-control-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #88909e;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 500;
+}
+
+.ops-select,
+.ops-input {
+  background: #090b0e;
+  border: 1px solid #282e39;
+  color: #f0f2f6;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  padding: 6px 10px;
+  border-radius: 3px;
+  outline: none;
+  min-width: 180px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ops-input {
+  min-width: 90px;
+  font-family: var(--font-mono);
+}
+
+.ops-select:focus,
+.ops-input:focus {
+  border-color: #2d5e94;
+  box-shadow: 0 0 0 1px #2d5e94;
+}
+
+.ops-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #1f6fb3, #124d7c);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(31, 111, 179, 0.4);
+  transition: all 0.15s ease;
+}
+
+.ops-btn-action:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2783d1, #175e96);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 111, 179, 0.5);
+}
+
+.ops-btn-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Operational Alert Banners --- */
+.ops-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ops-alert-error {
+  background: rgba(180, 30, 45, 0.15);
+  border: 1px solid rgba(224, 69, 85, 0.6);
+  color: #ff9da8;
+}
+
+.ops-alert-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e04555;
+  color: #ffffff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.ops-alert-retry-btn:hover {
+  background: #c93645;
+}
+
+/* --- KPI Analytical Cards Grid (Hazard Assessment) --- */
+.ops-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1080px) {
+  .ops-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ops-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ops-kpi-card {
+  background: #111418;
+  border: 1px solid #20242b;
+  border-top: 2px solid #2d5e94;
+  border-radius: 4px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 78px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.ops-kpi-card.kpi-critical { border-top-color: #e04555; }
+.ops-kpi-card.kpi-elevated { border-top-color: #b8864a; }
+.ops-kpi-card.kpi-normal { border-top-color: #65a357; }
+.ops-kpi-card.kpi-info { border-top-color: #2d5e94; }
+
+.ops-kpi-title {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #88909e;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 500;
+}
+
+.ops-kpi-val {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: #f0f2f6;
+  margin-top: 4px;
+}
+
+.ops-kpi-sub {
+  font-size: 10px;
+  color: #505664;
+  margin-top: 2px;
+}
+
+/* --- Fishery Oceanographic Conditions Grid --- */
+.fishery-conditions-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 1200px) {
+  .fishery-conditions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .fishery-conditions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.fishery-condition-card {
+  background: #111418;
+  border: 1px solid #20242b;
+  border-top: 2px solid #283242;
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 72px;
+  transition: border-color 0.15s;
+}
+
+.fishery-condition-card:hover {
+  border-color: #2c3647;
+}
+
+.fishery-cond-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #88909e;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.fishery-cond-val {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: #f0f2f6;
+  margin-top: 3px;
+}
+
+.fishery-cond-meta {
+  font-size: 9.5px;
+  color: #505664;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Main Split Screen Layout --- */
+.ops-split-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 14px;
+  min-height: 480px;
+}
+
+@media (max-width: 1080px) {
+  .ops-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ops-panel {
+  background: #111418;
+  border: 1px solid #20242b;
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  min-height: 440px;
+}
+
+.ops-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #20242b;
+  padding-bottom: 8px;
+}
+
+.ops-panel-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #c5c9d2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ops-panel-meta {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #88909e;
+}
+
+/* --- Geospatial Canvas & Overlay --- */
+.geospatial-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  flex: 1;
+  border: 1px solid #1c212a;
+  border-radius: 3px;
+  background: #06080b;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geospatial-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: crosshair;
+}
+
+.geospatial-provenance-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  background: rgba(9, 11, 14, 0.92);
+  border: 1px solid #252d3a;
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(4px);
+}
+
+.geospatial-provenance-badge.badge-official {
+  color: #65a357;
+  border-color: rgba(101, 163, 87, 0.4);
+}
+
+.geospatial-provenance-badge.badge-model {
+  color: #5bb0f5;
+  border-color: rgba(91, 176, 245, 0.4);
+}
+
+.geospatial-provenance-badge.badge-derived {
+  color: #b8864a;
+  border-color: rgba(184, 134, 74, 0.4);
+}
+
+.geospatial-tooltip {
+  position: absolute;
+  z-index: 40;
+  background: rgba(9, 11, 15, 0.96);
+  border: 1px solid #2d5e94;
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: #c5c9d2;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+  min-width: 170px;
+  backdrop-filter: blur(6px);
+}
+
+.geospatial-tooltip-title {
+  font-weight: 600;
+  color: #ffffff;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #20242b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.geospatial-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 1px 0;
+}
+
+.geospatial-crosshair-dot {
+  position: absolute;
+  pointer-events: none;
+  border: 1.5px solid #5bb0f5;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+}
+
+.geospatial-crosshair-dot::after {
+  content: '';
+  width: 3px;
+  height: 3px;
+  background: #5bb0f5;
+  border-radius: 50%;
+}
+
+.geospatial-legend-wrap {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 20;
+  background: rgba(9, 11, 14, 0.9);
+  border: 1px solid #20242b;
+  border-radius: 3px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(4px);
+}
+
+.geospatial-legend-gradient {
+  width: 140px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid #252d3a;
+}
+
+.geospatial-legend-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #88909e;
+}
+
+.geospatial-empty-state {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #505664;
+  min-height: 380px;
+}
+
+/* --- Exceedance Table (Hazard Assessment) --- */
+.ops-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-align: left;
+}
+
+.ops-table th {
+  padding: 8px 10px;
+  color: #88909e;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #20242b;
+}
+
+.ops-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid #161920;
+  color: #c5c9d2;
+}
+
+.ops-table tr:hover td {
+  background: rgba(45, 94, 148, 0.08);
+}
+
+.badge-risk {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.badge-risk.badge-critical {
+  background: rgba(224, 69, 85, 0.15);
+  border: 1px solid #e04555;
+  color: #ff6b7b;
+}
+
+.badge-risk.badge-high {
+  background: rgba(184, 134, 74, 0.15);
+  border: 1px solid #b8864a;
+  color: #d49c57;
+}
+
+.badge-risk.badge-moderate {
+  background: rgba(200, 160, 50, 0.15);
+  border: 1px solid #c8a032;
+  color: #ffd15c;
+}
+
+.badge-risk.badge-low {
+  background: rgba(101, 163, 87, 0.15);
+  border: 1px solid #65a357;
+  color: #7ec46e;
+}
+
+/* --- PFZ Zones List & Cards (Fishery Advisories) --- */
+.pfz-filter-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.pfz-filter-btn {
+  padding: 3px 9px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  background: #161920;
+  border: 1px solid #20242b;
+  color: #88909e;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.pfz-filter-btn:hover {
+  color: #c5c9d2;
+  border-color: #2c323e;
+}
+
+.pfz-filter-btn.active {
+  background: #2d5e94;
+  border-color: #2d5e94;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.pfz-list-scroll {
+  max-height: 440px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.pfz-zone-card {
+  background: #14171d;
+  border: 1px solid #20242b;
+  border-radius: 3px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pfz-zone-card:hover {
+  border-color: #2d5e94;
+  background: #171c24;
+}
+
+.pfz-zone-card.selected {
+  border-color: #3b82f6;
+  background: #18202d;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+}
+
+.pfz-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pfz-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.pfz-card-badge {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.pfz-card-badge.badge-incois {
+  background: rgba(101, 163, 87, 0.15);
+  border: 1px solid #65a357;
+  color: #7ec46e;
+}
+
+.pfz-card-badge.badge-derived {
+  background: rgba(45, 94, 148, 0.2);
+  border: 1px solid #2d5e94;
+  color: #5bb0f5;
+}
+
+.pfz-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  color: #88909e;
+}
+
+.pfz-confidence-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: #1e2430;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.pfz-confidence-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #2d5e94, #65a357);
+}
+
+/* --- Provenance Audit Card --- */
+.provenance-card {
+  background: #111418;
+  border: 1px solid #20242b;
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.provenance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #20242b;
+}
+
+.provenance-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.provenance-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.provenance-badge.badge-official {
+  background: rgba(101, 163, 87, 0.15);
+  border: 1px solid #65a357;
+  color: #7ec46e;
+}
+
+.provenance-badge.badge-model {
+  background: rgba(45, 94, 148, 0.2);
+  border: 1px solid #2d5e94;
+  color: #5bb0f5;
+}
+
+.provenance-badge.badge-derived {
+  background: rgba(184, 134, 74, 0.15);
+  border: 1px solid #b8864a;
+  color: #d49c57;
+}
+
+.provenance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px 16px;
+  color: #c5c9d2;
+}
+
+.provenance-item-label {
+  color: #505664;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.provenance-item-val {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.provenance-footer {
+  border-top: 1px solid #1c212a;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #88909e;
+}
+

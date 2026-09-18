@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # Workspace data path (parent directory / data)
     WORKSPACE_RAW_DATA: Path = Path(__file__).resolve().parent.parent.parent.parent / "data" / "raw"
 
-    # INCOIS / Remote Data Endpoints (optional adapters)
+    # INCOIS / Remote Data Endpoints
     INCOIS_API_URL: str = Field(
         default="https://data.incois.gov.in/api",
         description="Official INCOIS data service endpoint",
@@ -45,6 +45,14 @@ class Settings(BaseSettings):
     INCOIS_ERDDAP_URL: str = Field(
         default="https://erddap.incois.gov.in/erddap",
         description="INCOIS ERDDAP catalog URL",
+    )
+    INCOIS_BASE_URL: str = Field(
+        default="https://incois.gov.in",
+        description="INCOIS official portal base URL",
+    )
+    INCOIS_PFZ_URL: str = Field(
+        default="https://incois.gov.in/portal/pfz/",
+        description="INCOIS Potential Fishing Zone advisory endpoint",
     )
 
     # Autonomous Glider DAC configuration (IFREMER OceanGliders GDAC)
@@ -65,11 +73,22 @@ class Settings(BaseSettings):
         description="Glider ERDDAP request timeout in seconds",
     )
 
+    # Copernicus Marine Service credentials
+    COPERNICUS_MARINE_USERNAME: Optional[str] = Field(
+        default=None,
+        description="Copernicus Marine Service username",
+    )
+    COPERNICUS_MARINE_PASSWORD: Optional[str] = Field(
+        default=None,
+        description="Copernicus Marine Service password",
+    )
 
-    # Scientific limits & defaults
+    # Scientific limits, caching & defaults
     MAX_OBSERVATIONS_QUERY_LIMIT: int = 10000
     STANDARD_PRESSURE_STEP: float = 10.0
     DEFAULT_CACHE_TTL_SECONDS: int = 300
+    SCIENTIFIC_CACHE_TTL_SECONDS: int = 3600  # 1 hour for live/recent data
+    SCIENTIFIC_FORECAST_CACHE_TTL_SECONDS: int = 21600  # 6 hours for forecast cycles
 
     model_config = SettingsConfigDict(
         env_file=".env",

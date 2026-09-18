@@ -88,11 +88,38 @@ This performs:
 
 ---
 
-## 6. Testing
+## 5. Operational Oceanographic Providers & Caching
+
+The backend integrates real oceanographic data providers:
+- **Copernicus Marine Service (Physics, Waves, Biogeochemistry)**:
+  - `copernicus_physics_provider.py`: In-situ/model current speed $\sqrt{u^2+v^2}$, SSHA, and potential temperature from `GLOBAL_ANALYSISFORECAST_PHY_001_024`. Fallback to INCOIS ERDDAP geostrophic currents.
+  - `copernicus_waves_provider.py`: True significant wave height ($H_s$ / `VHM0`) from `GLOBAL_ANALYSISFORECAST_WAV_001_027`.
+  - `copernicus_bgc_provider.py`: Chlorophyll-a concentration from `GLOBAL_ANALYSISFORECAST_BGC_001_028` with INCOIS ERDDAP IRS OLCI sensor adapter.
+- **INCOIS Marine Fisheries Advisory Services (MFAS)**:
+  - `incois_pfz_provider.py`: All 14 official Indian coastal sectors (Gujarat, Maharashtra, Goa, Karnataka, Kerala, Tamil Nadu, Andhra Pradesh, Odisha, West Bengal, Lakshadweep, Andaman & Nicobar) with base landing centers, bearings, and distances.
+- **Scientific Disk & Memory Cache**:
+  - `scientific_data_cache.py`: Deterministic SHA-256 caching with configurable TTL (default 1 hour) and stale-while-revalidate protection.
+
+---
+
+## 6. Scientific Marine Algorithms
+
+### Geodesic Exceedance Integration (Hazard Assessment)
+Instead of Euclidean approximations, cell area is computed on a WGS84 oblate spheroid:
+$$A = R^2 \cdot \Delta\lambda \cdot \left|\sin\left(\phi + \frac{\Delta\phi}{2}\right) - \sin\left(\phi - \frac{\Delta\phi}{2}\right)\right|$$
+Total hazard exceedance area is the exact sum of areas of all spherical cells exceeding operational limits.
+
+### Multi-Factor Front Detection & PFZ Scoring (Fishery Advisories)
+Computes thermal gradient fronts ($|\nabla \text{SST}|$ scaled to °C/100km), chlorophyll suitability, current shear, and sea state safety penalties to identify productive pelagic aggregation zones, strictly separating `OFFICIAL` INCOIS government records from `DERIVED` algorithmic detections.
+
+---
+
+## 7. Testing
 
 Execute the automated test suite:
 ```bash
 pytest tests/ -v
+pytest tests/test_hazard_fishery.py -v
 ```
 
 The test suite validates:
@@ -101,9 +128,10 @@ The test suite validates:
 - Argo discovery, profiles, and depth queries (`tests/test_api_endpoints.py`)
 - Webpage 2 Observation Profile modal contract (Model vs Glider vs Argo across 10 depth strata)
 - Ocean depth slices and particle velocity vectors
-- Calculated marine hazard exceedances
-- Fishery advisory engine
+- Calculated marine hazard exceedances with spherical geodesic integration (`tests/test_hazard_fishery.py`)
+- Fishery advisory engine & Official vs Derived PFZ separation (`tests/test_hazard_fishery.py`)
 - File upload & background processing job pipeline (`tests/test_upload_integration.py`)
+
 
 ---
 

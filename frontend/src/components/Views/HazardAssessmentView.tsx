@@ -1,231 +1,446 @@
-import React, { useState } from 'react';
-import { Play, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, Component, type ErrorInfo, type ReactNode } from 'react';
+import { Play, AlertTriangle, AlertOctagon, RefreshCw, ShieldAlert, Globe, Compass } from 'lucide-react';
+import type {
+  HazardRegionResult,
+  HazardGridData,
+  HazardLayer,
+  ProvenanceMetadata,
+} from '../../types/hazard';
+import {
+  fetchHazardLayers,
+  fetchHazardGrid,
+  runHazardAnalysis,
+} from '../../services/hazardService';
+import { GeospatialRasterMap } from '../Geospatial/GeospatialRasterMap';
+import { ProvenanceCard } from '../Geospatial/ProvenanceCard';
 
-interface HazardRegion {
-  name: string;
-  area: string;
-  maxValue: string;
-}
-
-const HAZARD_REGIONS: HazardRegion[] = [
-  { name: 'North Arabian Sea', area: '125,000', maxValue: '2.4' },
-  { name: 'Bay of Bengal', area: '98,000', maxValue: '2.1' },
-  { name: 'Lakshadweep', area: '62,000', maxValue: '1.8' },
-  { name: 'Andaman Sea', area: '40,000', maxValue: '1.7' },
-  { name: 'Southern Ocean Polar Front', area: '160,000', maxValue: '2.8' },
+const REGION_OPTIONS = [
+  { value: 'Indian Ocean', label: 'All Project Basins (Indian Ocean)' },
+  { value: 'Arabian Sea', label: 'Arabian Sea (West Coast / Pelagic)' },
+  { value: 'Bay of Bengal', label: 'Bay of Bengal (East Coast / Pelagic)' },
+  { value: 'Southern Ocean', label: 'Southern Ocean (Subantarctic Front)' },
 ];
 
-export const HazardAssessmentView: React.FC = () => {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  errorText: string;
+}
+
+class HazardErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, errorText: '' };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, errorText: error?.message || 'Unexpected UI rendering error' };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Hazard Assessment rendering error caught:', error, errorInfo);
+  }
+
+  handleReload = () => {
+    this.setState({ hasError: false, errorText: '' });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="hazard-view">
+          <div className="ops-alert-banner ops-alert-error" style={{ margin: '30px auto', maxWidth: '600px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <AlertOctagon size={20} />
+              <div>
+                <strong style={{ display: 'block', color: '#fff' }}>Hazard Assessment Display Recovered</strong>
+                <span>{this.state.errorText}</span>
+              </div>
+            </div>
+            <button type="button" className="ops-alert-retry-btn" onClick={this.handleReload}>
+              <RefreshCw size={12} /> Reload View
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const HazardAssessmentInner: React.FC = () => {
+  const [layers, setLayers] = useState<HazardLayer[]>([]);
   const [variable, setVariable] = useState('Current Speed (m/s)');
+  const [region, setRegion] = useState('Indian Ocean');
   const [threshold, setThreshold] = useState('1.5');
   const [analyzing, setAnalyzing] = useState(false);
-  const [hazardRegions, setHazardRegions] = useState<HazardRegion[]>(HAZARD_REGIONS);
+  const [gridLoading, setGridLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRunAnalysis = async () => {
-    setAnalyzing(true);
-    try {
-      const res = await fetch('/api/hazard/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          variable,
-          threshold: parseFloat(threshold) || 1.5,
-          region: 'Indian Ocean',
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.regions)) {
-          setHazardRegions(data.regions);
+  // Analytical results from backend
+  const [hazardRegions, setHazardRegions] = useState<HazardRegionResult[]>([]);
+  const [gridData, setGridData] = useState<HazardGridData | null>(null);
+  const [provenanceMeta, setProvenanceMeta] = useState<ProvenanceMetadata | null>(null);
+  const [totalAreaExceeded, setTotalAreaExceeded] = useState<number>(0);
+  const [peakValue, setPeakValue] = useState<number>(0);
+  const [unit, setUnit] = useState<string>('m/s');
+
+  // Load configured hazard layers on mount
+  useEffect(() => {
+    fetchHazardLayers()
+      .then((fetchedLayers) => {
+        if (fetchedLayers.length > 0) {
+          setLayers(fetchedLayers);
         }
-      }
-    } catch {
-      // Fall back smoothly
-    } finally {
-      setAnalyzing(false);
+      })
+      .catch((err) => {
+        console.warn('Could not load hazard layers configuration:', err);
+      });
+  }, []);
+
+  // Update default threshold when variable changes
+  const handleVariableChange = (newVar: string) => {
+    setVariable(newVar);
+    const matched = layers.find((l) => l.name === newVar);
+    if (matched) {
+      setThreshold(matched.default_threshold.toString());
+      setUnit(matched.unit);
+    } else if (newVar.includes('Wave')) {
+      setThreshold('3.0');
+      setUnit('m');
+    } else if (newVar.includes('Sea Surface Height')) {
+      setThreshold('0.25');
+      setUnit('m');
+    } else if (newVar.includes('Thermal')) {
+      setThreshold('4.0');
+      setUnit('DHW');
+    } else {
+      setThreshold('1.5');
+      setUnit('m/s');
     }
   };
 
-  return (
-    <div className="ariel-view-container hazard-view">
-      {/* Top Controls Bar */}
-      <div className="hazard-top-controls">
-        <div className="control-field-inline">
-          <label className="ctrl-label">Select Variable</label>
-          <select
-            className="ariel-select select-sm"
-            value={variable}
-            onChange={(e) => setVariable(e.target.value)}
-          >
-            <option value="Current Speed (m/s)">Current Speed (m/s)</option>
-            <option value="Significant Wave Height (m)">Significant Wave Height (m)</option>
-            <option value="Sea Surface Height Anomaly (m)">Sea Surface Height Anomaly (m)</option>
-            <option value="Thermal Stress Index">Thermal Stress Index</option>
-          </select>
-        </div>
+  // Run full quantitative geodesic hazard analysis and fetch grid
+  const executeAnalysis = useCallback(async () => {
+    setAnalyzing(true);
+    setGridLoading(true);
+    setError(null);
 
-        <div className="control-field-inline">
-          <label className="ctrl-label">Threshold</label>
-          <input
-            type="number"
-            step="0.1"
-            className="ariel-input input-sm width-20"
-            value={threshold}
-            onChange={(e) => setThreshold(e.target.value)}
-          />
+    const threshVal = parseFloat(threshold) || 1.5;
+
+    try {
+      // 1. Run analysis for analytical table
+      const analysisPromise = runHazardAnalysis({
+        variable,
+        threshold: threshVal,
+        region,
+      });
+
+      // 2. Fetch spatial raster grid for map visualization
+      const gridPromise = fetchHazardGrid(variable, region, threshVal);
+
+      const [analysisResp, gridResp] = await Promise.all([analysisPromise, gridPromise]);
+
+      setHazardRegions(analysisResp.regions || []);
+      const totalExceeded =
+        analysisResp.total_area_exceeded_km2 ??
+        (analysisResp as unknown as { total_exceedance_area_km2?: number }).total_exceedance_area_km2 ??
+        0;
+      setTotalAreaExceeded(totalExceeded);
+
+      const maxVal =
+        analysisResp.max_value ??
+        (analysisResp as unknown as { max_value_raw?: number }).max_value_raw ??
+        0;
+      setPeakValue(maxVal);
+
+      setUnit(analysisResp.unit || 'm/s');
+      setProvenanceMeta(analysisResp.provenance_meta || null);
+      setGridData(gridResp);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Operational data provider unavailable';
+      setError(msg);
+      setHazardRegions([]);
+      setGridData(null);
+    } finally {
+      setAnalyzing(false);
+      setGridLoading(false);
+    }
+  }, [variable, threshold, region]);
+
+  // Initial load
+  useEffect(() => {
+    executeAnalysis();
+  }, [executeAnalysis]);
+
+  // Determine overall risk tier
+  const hasCritical = hazardRegions.some((r) => r.risk_level === 'CRITICAL');
+  const hasElevated = hazardRegions.some((r) => r.risk_level === 'HIGH');
+  const exceedingCount = hazardRegions.filter(
+    (r) => (r.area_exceeded_km2 ?? (r as unknown as { area_km2?: number }).area_km2 ?? 0) > 0
+  ).length;
+
+  return (
+    <div className="hazard-view">
+      {/* Top Operations Command Bar */}
+      <div className="ops-top-controls">
+        <div className="ops-control-group">
+          <div className="ops-control-field">
+            <label className="ops-control-label">Ocean Variable</label>
+            <select
+              className="ops-select"
+              value={variable}
+              onChange={(e) => handleVariableChange(e.target.value)}
+              disabled={analyzing}
+            >
+              <option value="Current Speed (m/s)">Current Speed (m/s)</option>
+              <option value="Significant Wave Height (m)">Significant Wave Height (m)</option>
+              <option value="Sea Surface Height Anomaly (m)">Sea Surface Height Anomaly (m)</option>
+              <option value="Thermal Stress Index">Thermal Stress Index (°C-weeks)</option>
+            </select>
+          </div>
+
+          <div className="ops-control-field">
+            <label className="ops-control-label">Basin Scope</label>
+            <select
+              className="ops-select"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              disabled={analyzing}
+            >
+              {REGION_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ops-control-field">
+            <label className="ops-control-label">Threshold ({unit})</label>
+            <input
+              type="number"
+              step="0.1"
+              className="ops-input"
+              value={threshold}
+              onChange={(e) => setThreshold(e.target.value)}
+              disabled={analyzing}
+            />
+          </div>
         </div>
 
         <button
           type="button"
-          className="ariel-btn-teal btn-sm"
-          onClick={handleRunAnalysis}
+          className="ops-btn-action"
+          onClick={executeAnalysis}
           disabled={analyzing}
         >
-          <Play size={12} /> {analyzing ? 'Analyzing...' : 'Run Analysis'}
+          {analyzing ? (
+            <>
+              <RefreshCw size={13} className="animate-spin" />
+              <span>Analyzing Operational Grids...</span>
+            </>
+          ) : (
+            <>
+              <Play size={13} />
+              <span>Run Marine Hazard Analysis</span>
+            </>
+          )}
         </button>
       </div>
 
-      {/* Main Split Layout */}
-      <div className="hazard-main-grid">
-        {/* Left Geospatial Heatmap */}
-        <div className="hazard-map-panel">
-          <div className="map-wrapper-relative">
-            <svg viewBox="0 0 600 380" className="hazard-geospatial-svg" aria-label="Hazard heat map">
-              {/* Ocean Dark Background */}
-              <rect x="0" y="0" width="600" height="380" fill="#0c0e12" />
-
-              {/* Bathymetry contours */}
-              <path d="M 50,180 Q 150,220 280,260 T 550,300" stroke="#161920" strokeWidth="1.5" fill="none" />
-              <path d="M 20,240 Q 180,270 320,310 T 580,350" stroke="#161920" strokeWidth="1.5" fill="none" />
-
-              {/* Landmass Outlines (Indian Subcontinent & Surroundings) */}
-              {/* India */}
-              <path
-                d="M 240,40 L 290,40 L 320,90 L 300,160 L 285,220 L 280,235 L 275,220 L 245,170 L 210,130 L 190,100 L 210,55 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.5"
-              />
-              {/* Arabian Peninsula */}
-              <path
-                d="M 40,40 L 120,40 L 130,80 L 110,130 L 70,120 L 40,80 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.2"
-              />
-              {/* Sri Lanka */}
-              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#161920" stroke="#20242b" strokeWidth="1" />
-              {/* Southeast Asia / Myanmar */}
-              <path
-                d="M 370,50 L 430,70 L 450,150 L 430,220 L 400,240 L 390,200 L 380,130 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.2"
-              />
-
-              {/* Ocean Current Heatmap Blooms (Arabian Sea & Bay of Bengal) */}
-              <defs>
-                <radialGradient id="heatArabian" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.9" />
-                  <stop offset="40%" stopColor="#f59e0b" stopOpacity="0.8" />
-                  <stop offset="70%" stopColor="#10b981" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-                <radialGradient id="heatBay" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.85" />
-                  <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.75" />
-                  <stop offset="75%" stopColor="#10b981" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-                <radialGradient id="heatEquatorial" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#10b981" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Arabian Sea Current Jets */}
-              <ellipse cx="160" cy="180" rx="75" ry="48" fill="url(#heatArabian)" transform="rotate(-15 160 180)" />
-              <ellipse cx="140" cy="220" rx="55" ry="32" fill="url(#heatArabian)" />
-
-              {/* Bay of Bengal Eddy Bloom */}
-              <ellipse cx="360" cy="175" rx="65" ry="50" fill="url(#heatBay)" transform="rotate(10 360 175)" />
-
-              {/* Equatorial Jet */}
-              <ellipse cx="270" cy="330" rx="140" ry="32" fill="url(#heatEquatorial)" />
-
-              {/* Region Labels */}
-              <text x="140" y="150" fill="#e2e8f0" fontSize="11" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                Arabian Sea
-              </text>
-              <text x="365" y="150" fill="#e2e8f0" fontSize="11" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                Bay of Bengal
-              </text>
-              <text x="270" y="340" fill="#cbd5e1" fontSize="10" textAnchor="middle" opacity="0.75">
-                Equatorial Jet Zone
-              </text>
-
-              {/* Grid Lines */}
-              <line x1="50" y1="100" x2="550" y2="100" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="50" y1="200" x2="550" y2="200" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="50" y1="300" x2="550" y2="300" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="200" y1="30" x2="200" y2="360" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="350" y1="30" x2="350" y2="360" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-            </svg>
-
-            {/* Vertical Colorbar on Right of Map */}
-            <div className="hazard-map-colorbar">
-              <span className="colorbar-unit">Current Speed (m/s)</span>
-              <div className="colorbar-vertical-scale">
-                <div className="scale-labels">
-                  <span>3.0</span>
-                  <span>2.5</span>
-                  <span>2.0</span>
-                  <span>1.5</span>
-                  <span>1.0</span>
-                  <span>0.5</span>
-                </div>
-                <div className="scale-bar-gradient hazard-gradient" />
-              </div>
+      {/* Operational Alert Banner */}
+      {error && (
+        <div className="ops-alert-banner ops-alert-error">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertOctagon size={16} />
+            <div>
+              <strong style={{ color: '#fff', marginRight: '6px' }}>Operational Data Unavailable:</strong>
+              <span>{error}</span>
             </div>
+          </div>
+          <button type="button" className="ops-alert-retry-btn" onClick={executeAnalysis}>
+            <RefreshCw size={12} /> Retry
+          </button>
+        </div>
+      )}
+
+      {/* KPI Analytical Summary Cards */}
+      <div className="ops-kpi-grid">
+        <div className="ops-kpi-card kpi-info">
+          <div className="ops-kpi-title">Total Exceeded Basin Area</div>
+          <div className="ops-kpi-val" style={{ color: '#f59e0b' }}>
+            {(totalAreaExceeded ?? 0) > 0 ? `${(totalAreaExceeded ?? 0).toLocaleString()} km²` : '0 km²'}
+          </div>
+          <div className="ops-kpi-sub">WGS84 spherical cell integration</div>
+        </div>
+
+        <div className="ops-kpi-card kpi-critical">
+          <div className="ops-kpi-title">Peak Field Intensity</div>
+          <div className="ops-kpi-val" style={{ color: '#ff6b7b' }}>
+            {(peakValue ?? 0) > 0 ? `${(peakValue ?? 0).toFixed(2)} ${unit}` : 'N/A'}
+          </div>
+          <div className="ops-kpi-sub">Threshold: {threshold} {unit}</div>
+        </div>
+
+        <div className="ops-kpi-card kpi-normal">
+          <div className="ops-kpi-title">Monitored Basins Exceeding</div>
+          <div className="ops-kpi-val" style={{ color: '#5bb0f5' }}>
+            {exceedingCount} of {hazardRegions.length || 5}
+          </div>
+          <div className="ops-kpi-sub">Sectors exceeding trigger limits</div>
+        </div>
+
+        <div className={`ops-kpi-card ${hasCritical ? 'kpi-critical' : hasElevated ? 'kpi-elevated' : 'kpi-normal'}`}>
+          <div className="ops-kpi-title">Overall Risk Tier</div>
+          <div className="ops-kpi-val" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {hasCritical ? (
+              <span style={{ color: '#ff6b7b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <AlertOctagon size={16} /> CRITICAL
+              </span>
+            ) : hasElevated ? (
+              <span style={{ color: '#d49c57', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <AlertTriangle size={16} /> ELEVATED
+              </span>
+            ) : (
+              <span style={{ color: '#7ec46e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ShieldAlert size={16} /> NORMAL / LOW
+              </span>
+            )}
+          </div>
+          <div className="ops-kpi-sub">Multi-factor threshold evaluation</div>
+        </div>
+      </div>
+
+      {/* Main Split Layout: Map Panel + Analytical Exceedance Table */}
+      <div className="ops-split-layout">
+        {/* Left: Scientific Raster Map */}
+        <div className="ops-panel">
+          <div className="ops-panel-header">
+            <span className="ops-panel-title">
+              <Compass size={14} /> OPERATIONAL GEOSPATIAL RASTER FIELD
+            </span>
+            <span className="ops-panel-meta">Hover or click cell for in-situ parameters</span>
+          </div>
+
+          <div style={{ flex: 1, minHeight: '380px', display: 'flex' }}>
+            {gridData ? (
+              <GeospatialRasterMap
+                latitudes={gridData.latitudes}
+                longitudes={gridData.longitudes}
+                values={gridData.values}
+                mask={gridData.mask}
+                unit={gridData.unit}
+                variableName={gridData.variable}
+                threshold={parseFloat(threshold) || null}
+                colorScheme="turbo"
+                provenanceMeta={gridData.provenance_meta}
+                isLoading={gridLoading}
+              />
+            ) : (
+              <div className="geospatial-empty-state">
+                <Globe size={24} />
+                <span>{analyzing ? 'Streaming spatial raster grid...' : 'No raster data available.'}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right Table Panel: Regions Exceeding Threshold */}
-        <div className="hazard-table-panel">
-          <div className="panel-head-simple">
-            <span className="panel-title">Regions Exceeding Threshold</span>
-            <AlertTriangle size={14} className="text-amber" />
+        {/* Right: Regions Exceeding Threshold Table */}
+        <div className="ops-panel">
+          <div className="ops-panel-header">
+            <div className="ops-panel-title">
+              <AlertTriangle size={14} style={{ color: '#f59e0b' }} />
+              <span>REGIONS EXCEEDING THRESHOLD</span>
+            </div>
+            <span className="ops-panel-meta">&gt; {threshold} {unit}</span>
           </div>
 
-          <table className="ariel-styled-table">
-            <thead>
-              <tr>
-                <th>Region</th>
-                <th>Area (km²)</th>
-                <th className="text-right">Max Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hazardRegions.map((r) => (
-                <tr key={r.name}>
-                  <td className="font-medium text-white">{r.name}</td>
-                  <td className="font-mono text-slate-300">{r.area}</td>
-                  <td className="font-mono text-right text-coral font-bold">{r.maxValue}</td>
+          <div className="ops-table-wrap">
+            <table className="ops-table">
+              <thead>
+                <tr>
+                  <th>Basin Sector</th>
+                  <th>Area (km²)</th>
+                  <th style={{ textAlign: 'right' }}>% Basin</th>
+                  <th style={{ textAlign: 'right' }}>Peak</th>
+                  <th style={{ textAlign: 'center' }}>Risk Tier</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {hazardRegions.length > 0 ? (
+                  hazardRegions.map((r, idx) => {
+                    const areaExceeded = (r.area_exceeded_km2 ?? (r as unknown as { area_km2?: number }).area_km2 ?? 0);
+                    const pctExceeded = (r.exceedance_pct ?? ((r as unknown as { exceedance_fraction?: number }).exceedance_fraction ? (r as unknown as { exceedance_fraction?: number }).exceedance_fraction! * 100 : 0));
+                    const maxVal = (r.max_value ?? (r as unknown as { max_value_raw?: number }).max_value_raw ?? 0);
+                    const riskTier = r.risk_level || 'LOW';
 
-          {/* Table Legend at bottom */}
-          <div className="hazard-legend-note">
-            <span className="legend-checkbox-icon">✔</span>
-            <span className="legend-text">
-              Areas where current speed &gt; {threshold} m/s
-            </span>
+                    return (
+                      <tr key={r.region_id || `${r.name}-${idx}`}>
+                        <td style={{ fontWeight: 500, color: '#ffffff' }}>
+                          {r.name}
+                          <span style={{ display: 'block', fontSize: '9.5px', color: '#505664', marginTop: '1px' }}>
+                            {r.status || 'MONITORED'}
+                          </span>
+                        </td>
+                        <td style={{ fontFamily: 'var(--font-mono)' }}>
+                          {areaExceeded.toLocaleString()}
+                        </td>
+                        <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', color: '#88909e' }}>
+                          {pctExceeded.toFixed(1)}%
+                        </td>
+                        <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#f59e0b' }}>
+                          {maxVal.toFixed(2)}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span
+                            className={`badge-risk ${
+                              riskTier === 'CRITICAL'
+                                ? 'badge-critical'
+                                : riskTier === 'HIGH'
+                                ? 'badge-high'
+                                : riskTier === 'MODERATE'
+                                ? 'badge-moderate'
+                                : 'badge-low'
+                            }`}
+                          >
+                            {riskTier}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', padding: '30px', color: '#505664' }}>
+                      {analyzing ? 'Computing geodesic exceedance areas...' : 'No regions currently exceed threshold.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ borderTop: '1px solid #1c212a', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', fontFamily: 'var(--font-mono)', color: '#505664' }}>
+            <span>Algorithm: WGS84 Geodesic Oblate Spheroid</span>
+            <span style={{ color: '#5bb0f5' }}>CMEMS Grid: 0.083°</span>
           </div>
         </div>
       </div>
+
+      {/* Scientific Provenance Audit Card */}
+      <ProvenanceCard metadata={provenanceMeta} />
     </div>
+  );
+};
+
+export const HazardAssessmentView: React.FC = () => {
+  return (
+    <HazardErrorBoundary>
+      <HazardAssessmentInner />
+    </HazardErrorBoundary>
   );
 };
