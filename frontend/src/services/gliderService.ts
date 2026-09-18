@@ -1,6 +1,6 @@
 import type { GliderTrajectory, GliderWaypoint } from '../types/ocean';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export interface BackendGliderPoint {
   latitude: number;
@@ -84,7 +84,7 @@ export function mapBackendGliderToTrajectory(item: BackendGliderItem): GliderTra
 
 export async function fetchGliders(region?: string): Promise<GliderTrajectory[]> {
   const query = region ? `?region=${encodeURIComponent(region)}` : '';
-  const res = await fetch(`${API_BASE}/api/gliders${query}`);
+  const res = await fetch(`${API_URL}/api/gliders${query}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch gliders: ${res.statusText}`);
   }
@@ -94,7 +94,7 @@ export async function fetchGliders(region?: string): Promise<GliderTrajectory[]>
 
 export async function fetchGliderTrack(id: string, downsample?: number): Promise<GliderWaypoint[]> {
   const query = downsample ? `?downsample=${downsample}` : '';
-  const res = await fetch(`${API_BASE}/api/gliders/${encodeURIComponent(id)}/track${query}`);
+  const res = await fetch(`${API_URL}/api/gliders/${encodeURIComponent(id)}/track${query}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch glider track for ${id}: ${res.statusText}`);
   }
@@ -110,7 +110,7 @@ export async function fetchGliderTrack(id: string, downsample?: number): Promise
 }
 
 export async function fetchGliderProfile(id: string): Promise<GliderProfileSounding[]> {
-  const res = await fetch(`${API_BASE}/api/gliders/${encodeURIComponent(id)}/profile`);
+  const res = await fetch(`${API_URL}/api/gliders/${encodeURIComponent(id)}/profile`);
   if (!res.ok) {
     throw new Error(`Failed to fetch glider profile for ${id}: ${res.statusText}`);
   }

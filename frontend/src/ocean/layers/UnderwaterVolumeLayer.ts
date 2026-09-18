@@ -95,13 +95,11 @@ export class UnderwaterVolumeLayer {
       return;
     }
 
-    const domain =
-      this.activeDomainId ??
-      (this.activeRegionId === 'southern-ocean'
-        ? 'southern-ocean'
-        : 'indian-ocean');
-
-    if (domain === 'southern-ocean') {
+    // CASE 1: Southern Ocean
+    if (
+      this.activeDomainId === 'southern-ocean' ||
+      this.activeRegionId === 'southern-ocean'
+    ) {
       for (const box of this.boxes) {
         const isSO = box.definition.id === 'southern-ocean';
         box.setVisible(isSO);
@@ -110,13 +108,23 @@ export class UnderwaterVolumeLayer {
       return;
     }
 
-    /*
-     * INDIAN OCEAN DOMAIN
-     *
-     * When Indian Ocean is selected, ALL of Indian Ocean basin
-     * and ALL its constituent marginal seas (Arabian Sea, Bay of Bengal,
-     * Andaman Sea, Laccadive Sea, Java Sea) are rendered in 3D grids and meshes.
-     */
+    // CASE 2: Individual marginal sea selected
+    // Show THAT sea's grid and mesh ONLY!
+    const isSpecificSea =
+      Boolean(this.activeRegionId) &&
+      this.activeRegionId !== 'indian-ocean';
+
+    if (isSpecificSea) {
+      for (const box of this.boxes) {
+        const isSelected = box.definition.id === this.activeRegionId;
+        box.setVisible(isSelected);
+        box.setActive(isSelected);
+      }
+      return;
+    }
+
+    // CASE 3: Indian Ocean selected (or activeRegionId === 'indian-ocean' or null)
+    // Show ALL seas at once PLUS the rest of the Indian Ocean's grids and meshes!
     const indianOceanIds = new Set<string>([
       'indian-ocean',
       'arabian-sea',
@@ -128,24 +136,8 @@ export class UnderwaterVolumeLayer {
 
     for (const box of this.boxes) {
       const isIndian = indianOceanIds.has(box.definition.id);
-
-      if (!isIndian) {
-        box.setVisible(false);
-        box.setActive(false);
-        continue;
-      }
-
-      // Render grid and mesh for all Indian Ocean water bodies
-      box.setVisible(true);
-
-      // If a specific sub-sea is selected, focus/activate it;
-      // if 'indian-ocean' or null is selected, all Indian Ocean bodies are active!
-      const isActive =
-        !this.activeRegionId ||
-        this.activeRegionId === 'indian-ocean' ||
-        box.definition.id === this.activeRegionId;
-
-      box.setActive(isActive);
+      box.setVisible(isIndian);
+      box.setActive(isIndian);
     }
   }
 
@@ -352,7 +344,7 @@ export class UnderwaterVolumeLayer {
     const region: UnderwaterRegionId | null =
       domainId === 'southern-ocean'
         ? 'southern-ocean'
-        : (this.activeRegionId && this.activeRegionId !== 'southern-ocean' ? this.activeRegionId : 'indian-ocean');
+        : 'indian-ocean';
 
     this.setDomainAndRegion(domainId, region);
   }
