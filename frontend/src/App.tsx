@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [mode, setMode] = useState<OceanMode>('surface');
   const [activePage, setActivePage] = useState<ArielPage>('3d-ocean');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [engine, setEngine] = useState<OceanEngine | null>(null);
   const engineRef = useRef<OceanEngine | null>(null);
 
   useEffect(() => {
@@ -50,8 +51,9 @@ export const App: React.FC = () => {
         Never unmounted, never reset, never replaced with a mock image.
       */}
       <CesiumViewerContainer
-        onEngineReady={(engine) => {
-          engineRef.current = engine;
+        onEngineReady={(eng) => {
+          engineRef.current = eng;
+          setEngine(eng);
         }}
       />
 
@@ -64,7 +66,13 @@ export const App: React.FC = () => {
         />
 
         {/* View Content Area */}
-        <main className={`ariel-main-content ${activePage === '3d-ocean' && sidebarCollapsed ? 'content-full' : ''}`}>
+        <main
+          className={`ariel-main-content ${
+            activePage === '3d-ocean' && sidebarCollapsed ? 'content-full' : ''
+          } ${activePage === 'hazard' ? 'hazard-mode' : ''} ${
+            activePage === 'fishery' ? 'fishery-mode' : ''
+          }`}
+        >
           {activePage === '3d-ocean' && (
             mode === 'surface' ? (
               <SurfaceWorkspace onResetView={handleResetView} onToggleSidebar={toggleSidebar} />
@@ -77,8 +85,8 @@ export const App: React.FC = () => {
           {activePage === 'data-manager' && <DataManagerView />}
           {activePage === 'settings' && <SettingsView />}
           {activePage === 'search' && <SearchResourcesView />}
-          {activePage === 'hazard' && <HazardAssessmentView />}
-          {activePage === 'fishery' && <FisheryAdvisoriesView />}
+          {activePage === 'hazard' && <HazardAssessmentView engine={engine} />}
+          {activePage === 'fishery' && <FisheryAdvisoriesView engine={engine} />}
         </main>
       </div>
 

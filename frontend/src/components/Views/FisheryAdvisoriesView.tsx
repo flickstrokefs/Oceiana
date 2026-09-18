@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useCallback, Component, type ErrorInfo, type ReactNode } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Component, type ErrorInfo, type ReactNode } from 'react';
 import {
-  Sparkles,
-  RefreshCw,
+  Fish,
   AlertTriangle,
   AlertOctagon,
-  ShieldCheck,
-  Crosshair,
-  Fish,
-  Thermometer,
-  Wind,
-  Waves,
-  Info,
+  RefreshCw,
+  Sparkles,
+  Anchor,
+  Globe,
+  Grid,
   Compass,
+  Crosshair,
+  Award,
 } from 'lucide-react';
 import type {
   FisheryConditions,
@@ -27,6 +26,12 @@ import {
 } from '../../services/fisheryService';
 import { GeospatialRasterMap } from '../Geospatial/GeospatialRasterMap';
 import { ProvenanceCard } from '../Geospatial/ProvenanceCard';
+import type { OceanEngine } from '../../ocean/OceanEngine';
+import { FisheryGlobeLayer } from '../../ocean/layers/FisheryGlobeLayer';
+
+interface FisheryAdvisoriesViewProps {
+  engine?: OceanEngine | null;
+}
 
 const BASIN_OPTIONS = [
   { value: 'Arabian Sea', label: 'Arabian Sea (West Coast / Pelagic)' },
@@ -73,12 +78,12 @@ class FisheryErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state.hasError) {
       return (
-        <div className="fishery-view">
+        <div className="fishery-operational-layout" style={{ pointerEvents: 'auto', padding: '30px' }}>
           <div className="ops-alert-banner ops-alert-error" style={{ margin: '30px auto', maxWidth: '600px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <AlertOctagon size={20} />
               <div>
-                <strong style={{ display: 'block', color: '#fff' }}>Fishery Advisories Display Recovered</strong>
+                <strong style={{ display: 'block', color: '#fff' }}>Fishery Advisories Recovered</strong>
                 <span>{this.state.errorText}</span>
               </div>
             </div>
@@ -93,7 +98,15 @@ class FisheryErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
-const FisheryAdvisoriesInner: React.FC = () => {
+export const FisheryAdvisoriesView: React.FC<FisheryAdvisoriesViewProps> = (props) => {
+  return (
+    <FisheryErrorBoundary>
+      <FisheryAdvisoriesInner {...props} />
+    </FisheryErrorBoundary>
+  );
+};
+
+const FisheryAdvisoriesInner: React.FC<FisheryAdvisoriesViewProps> = ({ engine }) => {
   const [region, setRegion] = useState('Arabian Sea');
   const [variable, setVariable] = useState('Chlorophyll-a (mg/m³)');
   const [timeRange, setTimeRange] = useState('Next 7 days');
@@ -103,15 +116,40 @@ const FisheryAdvisoriesInner: React.FC = () => {
   const [gridLoading, setGridLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Loaded Scientific Data
+  // Scientific Data
   const [conditions, setConditions] = useState<FisheryConditions | null>(null);
-  const [zones, setZones] = useState<RecommendedFishingZone[]>([]);
+  const [_zones, setZones] = useState<RecommendedFishingZone[]>([]);
   const [pfzPoints, setPfzPoints] = useState<PFZCoordinate[]>([]);
   const [selectedPFZ, setSelectedPFZ] = useState<PFZCoordinate | null>(null);
   const [gridData, setGridData] = useState<FisheryGridData | null>(null);
   const [provenanceMeta, setProvenanceMeta] = useState<ProvenanceMetadata | null>(null);
   const [advisoryDate, setAdvisoryDate] = useState<string>('');
   const [validUntil, setValidUntil] = useState<string>('');
+
+  // 3D View Controls
+  const [viewMode, setViewMode] = useState<'3d-globe' | '2d-matrix'>('3d-globe');
+  const fisheryGlobeLayerRef = useRef<FisheryGlobeLayer | null>(null);
+
+  // Initialize and bind FisheryGlobeLayer to Cesium
+  useEffect(() => {
+    if (!engine) return;
+    const viewer = engine.getViewer();
+    if (!viewer || viewer.isDestroyed()) return;
+
+    const layer = new FisheryGlobeLayer(viewer);
+    fisheryGlobeLayerRef.current = layer;
+
+    layer.setOnSelectPFZ((pfz) => {
+      setSelectedPFZ(pfz);
+    });
+
+    layer.flyToBasin(region);
+
+    return () => {
+      layer.destroy();
+      fisheryGlobeLayerRef.current = null;
+    };
+  }, [engine]);
 
   const loadAdvisory = useCallback(async () => {
     setLoading(true);
@@ -122,11 +160,11 @@ const FisheryAdvisoriesInner: React.FC = () => {
       // 1. Fetch comprehensive advisory
       const advisoryPromise = fetchFisheryAdvisory(region, variable, timeRange);
 
-      // 2. Fetch PFZ points with coordinate georeferencing
+      // 2. Fetch PFZ coordinates
       const pfzPromise = fetchPFZCoordinates(region);
 
-      // 3. Fetch spatial raster grid for the selected variable
-      const gridPromise = fetchFisheryGrid(region, variable);
+      // 3. Fetch spatial raster grid for selected variable
+      const gridPromise = fetchFisheryGrid(variable, region, timeRange);
 
       const [advisoryResp, pfzResp, gridResp] = await Promise.all([
         advisoryPromise,
@@ -140,14 +178,20 @@ const FisheryAdvisoriesInner: React.FC = () => {
       setAdvisoryDate(advisoryResp.generated_date || advisoryResp.issued_date || '');
       setValidUntil(advisoryResp.valid_until || '');
 
-      setPfzPoints(pfzResp.points || []);
-      if (pfzResp.points && pfzResp.points.length > 0) {
-        setSelectedPFZ(pfzResp.points[0]);
+      const points = pfzResp.points || [];
+      setPfzPoints(points);
+      if (points.length > 0) {
+        setSelectedPFZ(points[0]);
       } else {
         setSelectedPFZ(null);
       }
 
       setGridData(gridResp);
+
+      // Render onto 3D Cesium Globe
+      if (fisheryGlobeLayerRef.current) {
+        fisheryGlobeLayerRef.current.renderPFZs(points, points[0]?.id);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Operational oceanographic data provider unavailable';
       setError(msg);
@@ -162,98 +206,161 @@ const FisheryAdvisoriesInner: React.FC = () => {
     loadAdvisory();
   }, [loadAdvisory]);
 
-  // Filtered PFZ points and zones
-  const filteredPoints = pfzPoints.filter((p) => {
-    if (filterType === 'OFFICIAL') return p.is_official;
-    if (filterType === 'DERIVED') return !p.is_official;
-    return true;
-  });
+  const handleRegionChange = (newRegion: string) => {
+    setRegion(newRegion);
+    setSelectedPFZ(null);
+    if (fisheryGlobeLayerRef.current) {
+      fisheryGlobeLayerRef.current.flyToBasin(newRegion);
+    }
+  };
 
-  const filteredZones = zones.filter((z) => {
-    if (filterType === 'OFFICIAL') return z.is_official;
-    if (filterType === 'DERIVED') return !z.is_official;
+  const handleSelectPFZ = (pfz: PFZCoordinate) => {
+    setSelectedPFZ(pfz);
+    if (fisheryGlobeLayerRef.current) {
+      fisheryGlobeLayerRef.current.flyToPFZ(pfz.latitude, pfz.longitude);
+      fisheryGlobeLayerRef.current.renderPFZs(filteredPoints, pfz.id);
+    }
+  };
+
+  const handleResetCamera = () => {
+    if (fisheryGlobeLayerRef.current) {
+      fisheryGlobeLayerRef.current.flyToBasin(region);
+    } else if (engine) {
+      engine.resetView();
+    }
+  };
+
+  const filteredPoints = pfzPoints.filter((p) => {
+    if (filterType === 'OFFICIAL') return p.is_official !== false;
+    if (filterType === 'DERIVED') return p.is_official === false;
     return true;
   });
 
   return (
-    <div className="fishery-view">
+    <div className="fishery-operational-layout">
       {/* Top Operations Command Bar */}
-      <div className="ops-top-controls">
-        <div className="ops-control-group">
-          <div className="ops-control-field">
-            <label className="ops-control-label">Ocean Variable</label>
-            <select
-              className="ops-select"
-              value={variable}
-              onChange={(e) => setVariable(e.target.value)}
-              disabled={loading}
-            >
-              {VARIABLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+      <div className="hazard-top-bar">
+        <div className="hazard-top-left">
+          <div className="hazard-brand-badge">
+            <Fish size={16} className="text-emerald-400" />
+            <div className="brand-badge-info">
+              <span className="brand-title">INCOIS // POTENTIAL FISHING ZONE (PFZ) ADVISORY</span>
+              <span className="brand-mode-pill" style={{ color: '#2dd4bf', borderColor: 'rgba(45, 212, 191, 0.4)' }}>
+                MFAS OPERATIONAL
+              </span>
+            </div>
           </div>
 
-          <div className="ops-control-field">
-            <label className="ops-control-label">Ocean Basin</label>
-            <select
-              className="ops-select"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              disabled={loading}
-            >
-              {BASIN_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="hazard-selectors">
+            <div className="hazard-field">
+              <label>Ocean Variable</label>
+              <select
+                className="hazard-select"
+                value={variable}
+                onChange={(e) => setVariable(e.target.value)}
+                disabled={loading}
+              >
+                {VARIABLE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="ops-control-field">
-            <label className="ops-control-label">Forecast Horizon</label>
-            <select
-              className="ops-select"
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              disabled={loading}
-            >
-              <option value="Next 7 days">Next 7 days (Synoptic Outlook)</option>
-              <option value="Next 3 days">Next 3 days (Operational Cycle)</option>
-              <option value="Current 24h">Current 24h (Near-Real-Time)</option>
-            </select>
+            <div className="hazard-field">
+              <label>Ocean Basin</label>
+              <select
+                className="hazard-select"
+                value={region}
+                onChange={(e) => handleRegionChange(e.target.value)}
+                disabled={loading}
+              >
+                {BASIN_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="hazard-field">
+              <label>Forecast Horizon</label>
+              <select
+                className="hazard-select"
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                disabled={loading}
+              >
+                <option value="Next 7 days">Next 7 days (Synoptic Outlook)</option>
+                <option value="Next 3 days">Next 3 days (Operational Cycle)</option>
+                <option value="Current 24h">Current 24h (Near-Real-Time)</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="ops-btn-action"
-          onClick={loadAdvisory}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <RefreshCw size={13} className="animate-spin" />
-              <span>Synthesizing Ocean Advisory...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles size={13} />
-              <span>Generate Operational Advisory</span>
-            </>
-          )}
-        </button>
+        <div className="hazard-top-right">
+          {/* View Mode Switcher */}
+          <div className="hazard-mode-toggle">
+            <button
+              type="button"
+              className={`hazard-toggle-btn ${viewMode === '3d-globe' ? 'active' : ''}`}
+              onClick={() => setViewMode('3d-globe')}
+              title="Interactive 3D Digital Twin Globe"
+            >
+              <Globe size={13} />
+              <span>3D Ocean</span>
+            </button>
+            <button
+              type="button"
+              className={`hazard-toggle-btn ${viewMode === '2d-matrix' ? 'active' : ''}`}
+              onClick={() => setViewMode('2d-matrix')}
+              title="High-Resolution 2D Raster Matrix"
+            >
+              <Grid size={13} />
+              <span>2D Matrix</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="hazard-btn-action"
+            style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0891b2 100%)' }}
+            onClick={loadAdvisory}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <RefreshCw size={13} className="animate-spin" />
+                <span>Synthesizing Advisory...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={13} />
+                <span>Generate Operational Advisory</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            className="hazard-btn-reset-cam"
+            onClick={handleResetCamera}
+            title="Reset 3D Camera View to Basin"
+          >
+            <Compass size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Operational Alert Banner */}
       {error && (
-        <div className="ops-alert-banner ops-alert-error">
+        <div className="hazard-alert-banner ops-alert-error">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertTriangle size={16} />
             <div>
-              <strong style={{ color: '#fff', marginRight: '6px' }}>Fishery Advisory Unavailable:</strong>
+              <strong style={{ color: '#fff', marginRight: '6px' }}>Fishery Advisory Stream:</strong>
               <span>{error}</span>
             </div>
           </div>
@@ -263,323 +370,346 @@ const FisheryAdvisoriesInner: React.FC = () => {
         </div>
       )}
 
-      {/* Dynamic Environmental Conditions KPI Cards */}
-      {conditions && (
-        <div className="fishery-conditions-grid">
-          <div className="fishery-condition-card" style={{ borderTopColor: '#0d9488' }}>
-            <div className="fishery-cond-label">
-              <Fish size={12} style={{ color: '#2dd4bf' }} /> Chlorophyll-a
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#2dd4bf' }}>
-              {conditions.chlorophyll_range || 'N/A'}
-            </div>
-            <div className="fishery-cond-meta">Copernicus / IRS OLCI</div>
-          </div>
-
-          <div className="fishery-condition-card" style={{ borderTopColor: '#f59e0b' }}>
-            <div className="fishery-cond-label">
-              <Thermometer size={12} style={{ color: '#fbbf24' }} /> SST Thermal
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#fbbf24' }}>
-              {conditions.sst_range || 'N/A'}
-            </div>
-            <div className="fishery-cond-meta">Physical In-situ / Model</div>
-          </div>
-
-          <div className="fishery-condition-card" style={{ borderTopColor: '#0284c7' }}>
-            <div className="fishery-cond-label">
-              <Wind size={12} style={{ color: '#38bdf8' }} /> Surface Current
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#38bdf8' }}>
-              {conditions.current_state || 'N/A'}
-            </div>
-            <div className="fishery-cond-meta">GLORYS12V1 Dynamics</div>
-          </div>
-
-          <div className="fishery-condition-card" style={{ borderTopColor: '#06b6d4' }}>
-            <div className="fishery-cond-label">
-              <Waves size={12} style={{ color: '#22d3ee' }} /> Significant Wave
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#22d3ee' }}>
-              {conditions.wave_state || 'N/A'}
-            </div>
-            <div className="fishery-cond-meta">Maritime Safety Check</div>
-          </div>
-
-          <div className="fishery-condition-card" style={{ borderTopColor: '#16a34a' }}>
-            <div className="fishery-cond-label">
-              <ShieldCheck size={12} style={{ color: '#4ade80' }} /> Active PFZs
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#4ade80' }}>
-              {pfzPoints.length} Zones
-            </div>
-            <div className="fishery-cond-meta">
-              {pfzPoints.filter((p) => p.is_official).length} Off. &bull; {pfzPoints.filter((p) => !p.is_official).length} Deriv.
-            </div>
-          </div>
-
-          <div className="fishery-condition-card" style={{ borderTopColor: '#9333ea' }}>
-            <div className="fishery-cond-label">
-              <Sparkles size={12} style={{ color: '#c084fc' }} /> Productivity
-            </div>
-            <div className="fishery-cond-val" style={{ color: '#c084fc' }}>
-              {conditions.mean_productivity_score ?? 'N/A'} / 100
-            </div>
-            <div className="fishery-cond-meta">Multi-factor front index</div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Split Layout: Map Panel + Recommended PFZ List & Detail Drawer */}
-      <div className="ops-split-layout">
-        {/* Left: Scientific Raster Map + PFZ Radar Beacons */}
-        <div className="ops-panel">
-          <div className="ops-panel-header">
-            <div className="ops-panel-title">
-              <Compass size={14} />
-              <span>OCEANOGRAPHIC FRONT & PFZ CENTROIDS</span>
-              <span style={{ color: '#505664' }}>|</span>
-              <span style={{ color: '#2dd4bf' }}>{region}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4ade80' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4ade80' }} /> Official INCOIS
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#38bdf8', marginLeft: '6px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8' }} /> Ocean-X Derived
+      {/* 
+        MAIN CONTENT BODY:
+        - In '3d-globe' mode: Floating glassmorphism panels overlaid on 3D Cesium Globe
+        - In '2d-matrix' mode: High-resolution GIS 2D matrix inspection view
+      */}
+      {viewMode === '3d-globe' ? (
+        <div className="hazard-workspace-panels">
+          {/* Left Floating Panel: Environmental Conditions & PFZ Filters */}
+          <aside className="ariel-panel hazard-panel-left" aria-label="Fishery Habitat Conditions">
+            <div className="panel-title-bar">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Fish size={13} style={{ color: '#2dd4bf' }} />
+                <h2 className="panel-heading">Habitat Parameters</h2>
+              </div>
+              <span className="hazard-chip-indicator" style={{ color: '#2dd4bf', borderColor: 'rgba(45, 212, 191, 0.3)' }}>
+                INCOIS MFAS
               </span>
             </div>
-          </div>
 
-          <div style={{ flex: 1, minHeight: '380px', display: 'flex' }}>
-            {gridData ? (
-              <GeospatialRasterMap
-                latitudes={gridData.latitudes}
-                longitudes={gridData.longitudes}
-                values={gridData.values}
-                unit={gridData.unit}
-                variableName={gridData.variable}
-                colorScheme={variable.includes('Chlorophyll') ? 'ocean' : 'turbo'}
-                pfzPoints={filteredPoints}
-                selectedPFZId={selectedPFZ?.id}
-                onSelectPFZ={(pfz) => setSelectedPFZ(pfz)}
-                provenanceMeta={gridData.provenance_meta}
-                isLoading={gridLoading}
-              />
-            ) : (
-              <div className="geospatial-empty-state">
-                <Compass size={24} />
-                <span>{loading ? 'Synthesizing operational oceanographic grids...' : 'No grid data loaded.'}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: PFZ Advisory List and Deep Inspection Drawer */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Header & Filter Tabs */}
-          <div className="ops-panel" style={{ minHeight: 'auto' }}>
-            <div className="ops-panel-header">
-              <div>
-                <h3 className="ops-panel-title">
-                  RECOMMENDED FISHING ZONES ({filteredZones.length})
-                </h3>
-                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#88909e', display: 'block', marginTop: '2px' }}>
-                  Issued: {advisoryDate || 'NRT'} &bull; Valid: {validUntil || '3 Days'}
-                </span>
-              </div>
-              <div className="pfz-filter-tabs">
-                <button
-                  type="button"
-                  className={`pfz-filter-btn ${filterType === 'ALL' ? 'active' : ''}`}
-                  onClick={() => setFilterType('ALL')}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  className={`pfz-filter-btn ${filterType === 'OFFICIAL' ? 'active' : ''}`}
-                  onClick={() => setFilterType('OFFICIAL')}
-                >
-                  Official
-                </button>
-                <button
-                  type="button"
-                  className={`pfz-filter-btn ${filterType === 'DERIVED' ? 'active' : ''}`}
-                  onClick={() => setFilterType('DERIVED')}
-                >
-                  Derived
-                </button>
-              </div>
-            </div>
-
-            {/* Scrollable Zones List */}
-            <div className="pfz-list-scroll" style={{ maxHeight: '180px' }}>
-              {filteredZones.length > 0 ? (
-                filteredZones.map((z) => {
-                  const isSelected = selectedPFZ?.id === z.id;
-                  return (
-                    <div
-                      key={z.id}
-                      className={`pfz-zone-card ${isSelected ? 'selected' : ''}`}
-                      onClick={() => {
-                        const matchedPoint = pfzPoints.find((p) => p.id === z.id);
-                        if (matchedPoint) setSelectedPFZ(matchedPoint);
-                      }}
-                    >
-                      <div className="pfz-card-header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span
-                            style={{
-                              width: '7px',
-                              height: '7px',
-                              borderRadius: '50%',
-                              background: z.is_official ? '#4ade80' : '#38bdf8',
-                              boxShadow: z.is_official ? '0 0 6px rgba(74, 222, 128, 0.8)' : 'none',
-                            }}
-                          />
-                          <span className="pfz-card-title">{z.name}</span>
-                          <span className={`pfz-card-badge ${z.is_official ? 'badge-incois' : 'badge-derived'}`}>
-                            {z.is_official ? 'INCOIS' : 'DERIVED'}
-                          </span>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: '#2dd4bf', fontFamily: 'var(--font-mono)' }}>
-                            {z.score} pts
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="pfz-card-meta-row">
-                        <span>{z.sector || z.region} {z.landing_center ? `• Base: ${z.landing_center}` : ''}</span>
-                        <span>Conf: {Math.round(z.confidence * 100)}%</span>
-                      </div>
+            <div className="panel-content-scroll">
+              {/* Environmental KPI Badges */}
+              {conditions && (
+                <div className="fishery-conditions-grid" style={{ gridTemplateColumns: '1fr', gap: '8px' }}>
+                  <div className="fishery-condition-card" style={{ borderTopColor: '#0d9488' }}>
+                    <div className="fishery-cond-label">
+                      <Fish size={12} style={{ color: '#2dd4bf' }} /> Chlorophyll-a
                     </div>
-                  );
-                })
-              ) : (
-                <div style={{ textAlign: 'center', padding: '24px', color: '#505664', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-                  {loading ? 'Synthesizing PFZ advisories...' : 'No potential fishing zones match filter.'}
+                    <div className="fishery-cond-val" style={{ color: '#2dd4bf' }}>
+                      {conditions.chlorophyll_range || 'N/A'}
+                    </div>
+                    <div className="fishery-cond-meta">Copernicus / IRS-P4 Ocean Color</div>
+                  </div>
+
+                  <div className="fishery-condition-card" style={{ borderTopColor: '#f59e0b' }}>
+                    <div className="fishery-cond-label">
+                      <Sparkles size={12} style={{ color: '#fbbf24' }} /> Sea Surface Temp
+                    </div>
+                    <div className="fishery-cond-val" style={{ color: '#fbbf24' }}>
+                      {conditions.sst_range || 'N/A'}
+                    </div>
+                    <div className="fishery-cond-meta">Copernicus Marine Physics Model</div>
+                  </div>
+
+                  <div className="fishery-condition-card" style={{ borderTopColor: '#0284c7' }}>
+                    <div className="fishery-cond-label">
+                      <Anchor size={12} style={{ color: '#38bdf8' }} /> Sea State & Current
+                    </div>
+                    <div className="fishery-cond-val" style={{ color: '#38bdf8' }}>
+                      {conditions.current_state || 'Moderate'}
+                    </div>
+                    <div className="fishery-cond-meta">{conditions.wave_state || 'Moderate Swell'}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* PFZ Type Filter */}
+              <div className="hazard-ctrl-section" style={{ marginTop: '12px' }}>
+                <div className="ctrl-section-label">
+                  <span>Advisory Filter</span>
+                </div>
+                <div className="filter-btn-group" style={{ width: '100%', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    className={`filter-tag-btn ${filterType === 'ALL' ? 'active' : ''}`}
+                    onClick={() => setFilterType('ALL')}
+                    style={{ flex: 1 }}
+                  >
+                    ALL ({pfzPoints.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`filter-tag-btn ${filterType === 'OFFICIAL' ? 'active' : ''}`}
+                    onClick={() => setFilterType('OFFICIAL')}
+                    style={{ flex: 1 }}
+                  >
+                    OFFICIAL
+                  </button>
+                  <button
+                    type="button"
+                    className={`filter-tag-btn ${filterType === 'DERIVED' ? 'active' : ''}`}
+                    onClick={() => setFilterType('DERIVED')}
+                    style={{ flex: 1 }}
+                  >
+                    DERIVED
+                  </button>
+                </div>
+              </div>
+
+              {/* Advisory Validity Card */}
+              <div className="hazard-ctrl-section">
+                <div className="ctrl-section-label">
+                  <span>Operational Horizon</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.5 }}>
+                  <div>Issued: <strong style={{ color: '#fff' }}>{advisoryDate || 'Current Cycle'}</strong></div>
+                  <div>Valid until: <strong style={{ color: '#2dd4bf' }}>{validUntil || '72 hours'}</strong></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Center Floating Callout: Selected PFZ Zone Info */}
+          {selectedPFZ && (
+            <div className="hazard-center-inspector" style={{ borderColor: 'rgba(45, 212, 191, 0.4)' }}>
+              <div className="inspector-head">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Anchor size={14} style={{ color: '#2dd4bf' }} />
+                  <span className="inspector-title">{selectedPFZ.zone_name || selectedPFZ.sector || 'PFZ Beacon'}</span>
+                </div>
+                <button
+                  type="button"
+                  className="inspector-close-btn"
+                  onClick={() => setSelectedPFZ(null)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="inspector-grid">
+                <div className="inspector-stat">
+                  <span className="stat-label">Position</span>
+                  <span className="stat-val" style={{ color: '#fff' }}>
+                    {selectedPFZ.latitude.toFixed(2)}°N, {selectedPFZ.longitude.toFixed(2)}°E
+                  </span>
+                </div>
+                <div className="inspector-stat">
+                  <span className="stat-label">Chlorophyll</span>
+                  <span className="stat-val" style={{ color: '#2dd4bf' }}>
+                    {selectedPFZ.chlorophyll ?? '--'} mg/m³
+                  </span>
+                </div>
+                <div className="inspector-stat">
+                  <span className="stat-label">SST</span>
+                  <span className="stat-val" style={{ color: '#fbbf24' }}>
+                    {selectedPFZ.sst ?? '--'} °C
+                  </span>
+                </div>
+                <div className="inspector-stat">
+                  <span className="stat-label">Suitability Score</span>
+                  <span className="stat-val" style={{ color: '#10b981', fontWeight: 'bold' }}>
+                    {selectedPFZ.score ?? '85'}/100
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Right Floating Panel: Potential Fishing Zones List & Details */}
+          <aside className="ariel-panel hazard-panel-right" aria-label="Recommended Potential Fishing Zones">
+            <div className="panel-title-bar">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Award size={13} style={{ color: '#10b981' }} />
+                <h2 className="panel-heading">Recommended Fishing Zones ({filteredPoints.length})</h2>
+              </div>
+              <span className="hazard-chip-indicator" style={{ color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                HIGH YIELD
+              </span>
+            </div>
+
+            <div className="panel-content-scroll">
+              <div className="hazard-sectors-list">
+                {filteredPoints.length > 0 ? (
+                  filteredPoints.map((p) => {
+                    const isSelected = selectedPFZ?.id === p.id;
+                    const isOfficial = p.is_official !== false;
+
+                    return (
+                      <div
+                        key={p.id}
+                        className={`sector-card ${isSelected ? 'sector-selected' : ''}`}
+                        onClick={() => handleSelectPFZ(p)}
+                        style={{ borderLeftColor: isOfficial ? '#10b981' : '#06b6d4' }}
+                      >
+                        <div className="sector-card-top">
+                          <span className="sector-name">{p.zone_name || p.sector || p.id}</span>
+                          <span className={`status-badge ${isOfficial ? 'badge-low' : 'badge-moderate'}`}>
+                            {isOfficial ? 'OFFICIAL INCOIS' : 'OCEAN-X DERIVED'}
+                          </span>
+                        </div>
+
+                        <div className="sector-card-stats">
+                          <div>
+                            <span className="stat-label">Harbour: </span>
+                            <strong style={{ color: '#fff' }}>{p.landing_center || 'Coastal Hub'}</strong>
+                          </div>
+                          <div>
+                            <span className="stat-label">Score: </span>
+                            <strong style={{ color: '#10b981' }}>{p.score ?? 85}/100</strong>
+                          </div>
+                        </div>
+
+                        <div className="sector-card-action">
+                          <button
+                            type="button"
+                            className="btn-locate-sector"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectPFZ(p);
+                            }}
+                            title="Fly 3D Camera to PFZ Beacon"
+                          >
+                            <Crosshair size={11} />
+                            <span>Locate on 3D Globe</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="hazard-empty-box">
+                    <Fish size={16} />
+                    <span>No active PFZ coordinates in current sector.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Provenance Card */}
+              {provenanceMeta && (
+                <div style={{ marginTop: '12px' }}>
+                  <ProvenanceCard metadata={provenanceMeta} />
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+      ) : (
+        /* 2D Matrix Inspection Mode */
+        <div className="hazard-2d-matrix-layout">
+          <div className="ops-split-layout">
+            <div className="ops-panel">
+              <div className="ops-panel-header">
+                <span className="ops-panel-title">
+                  <Compass size={14} /> 2D OCEANOGRAPHIC FRONT &amp; PFZ MATRIX // {region.toUpperCase()}
+                </span>
+                <span className="ops-panel-meta">Official INCOIS &amp; Derived PFZ Centroids</span>
+              </div>
+
+              <div style={{ flex: 1, minHeight: '440px', display: 'flex' }}>
+                {gridData ? (
+                  <GeospatialRasterMap
+                    latitudes={gridData.latitudes}
+                    longitudes={gridData.longitudes}
+                    values={gridData.values}
+                    unit={gridData.unit}
+                    variableName={gridData.variable}
+                    colorScheme="turbo"
+                    pfzPoints={filteredPoints}
+                    selectedPFZId={selectedPFZ?.id}
+                    onSelectPFZ={handleSelectPFZ}
+                    provenanceMeta={gridData.provenance_meta}
+                    isLoading={gridLoading}
+                  />
+                ) : (
+                  <div className="geospatial-empty-state">
+                    <Globe size={24} />
+                    <span>{loading ? 'Synthesizing fishery raster...' : 'No grid data loaded.'}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: PFZ list */}
+            <div className="ops-panel" style={{ maxWidth: '420px' }}>
+              <div className="ops-panel-header">
+                <div className="ops-panel-title">
+                  <Fish size={14} style={{ color: '#2dd4bf' }} />
+                  <span>RECOMMENDED FISHING GROUNDS</span>
+                </div>
+                <span className="ops-panel-meta">Valid 72h</span>
+              </div>
+
+              <div className="ops-table-wrap">
+                <table className="ops-table">
+                  <thead>
+                    <tr>
+                      <th>Sector / Zone</th>
+                      <th>Harbour</th>
+                      <th style={{ textAlign: 'right' }}>Chl (mg/m³)</th>
+                      <th style={{ textAlign: 'right' }}>SST (°C)</th>
+                      <th style={{ textAlign: 'center' }}>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPoints.length > 0 ? (
+                      filteredPoints.map((p) => (
+                        <tr
+                          key={p.id}
+                          className={selectedPFZ?.id === p.id ? 'ops-row-active' : ''}
+                          onClick={() => handleSelectPFZ(p)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <td style={{ fontWeight: 600, color: '#fff' }}>{p.zone_name || p.sector || p.id}</td>
+                          <td style={{ color: '#94a3b8' }}>{p.landing_center || 'Port'}</td>
+                          <td style={{ textAlign: 'right', color: '#2dd4bf', fontFamily: 'var(--font-mono)' }}>
+                            {p.chlorophyll ?? '--'}
+                          </td>
+                          <td style={{ textAlign: 'right', color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                            {p.sst ?? '--'}
+                          </td>
+                          <td style={{ textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>
+                            {p.score ?? 85}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} style={{ textAlign: 'center', color: '#88909e', padding: '24px 0' }}>
+                          No fishing zones available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {provenanceMeta && (
+                <div style={{ padding: '12px' }}>
+                  <ProvenanceCard metadata={provenanceMeta} />
                 </div>
               )}
             </div>
           </div>
-
-          {/* Selected PFZ Detail Inspection Drawer */}
-          {selectedPFZ ? (
-            <div className="ops-panel" style={{ minHeight: 'auto', borderColor: '#0d9488' }}>
-              <div className="ops-panel-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                  {selectedPFZ.is_official ? (
-                    <ShieldCheck size={16} style={{ color: '#4ade80' }} />
-                  ) : (
-                    <Crosshair size={16} style={{ color: '#38bdf8' }} />
-                  )}
-                  <span style={{ fontWeight: 600, color: '#ffffff', fontSize: '12px' }}>
-                    {selectedPFZ.zone_name}
-                  </span>
-                </div>
-                <span className="pfz-card-badge badge-incois" style={{ background: 'rgba(13, 148, 136, 0.2)', color: '#2dd4bf', borderColor: '#0d9488' }}>
-                  {selectedPFZ.score ? `${selectedPFZ.score} / 100 PTS` : 'ACTIVE'}
-                </span>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#c5c9d2' }}>
-                <div>
-                  <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>COORDINATES</span>
-                  <span style={{ color: '#ffffff', fontWeight: 600 }}>
-                    {selectedPFZ.latitude.toFixed(2)}°N, {selectedPFZ.longitude.toFixed(2)}°E
-                  </span>
-                </div>
-
-                <div>
-                  <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>COASTAL SECTOR</span>
-                  <span style={{ color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-                    {selectedPFZ.sector || 'Offshore Pelagic Zone'}
-                  </span>
-                </div>
-
-                {selectedPFZ.landing_center && (
-                  <div>
-                    <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>PRIMARY LANDING CENTER</span>
-                    <span style={{ color: '#2dd4bf' }}>{selectedPFZ.landing_center}</span>
-                  </div>
-                )}
-
-                <div>
-                  <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>THERMAL FRONT STRENGTH</span>
-                  <span style={{ color: '#fbbf24' }}>
-                    {selectedPFZ.front_strength ? selectedPFZ.front_strength.toFixed(2) : '0.45'} °C/100km
-                  </span>
-                </div>
-
-                <div>
-                  <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>SEA SURFACE TEMPERATURE</span>
-                  <span style={{ color: '#ffffff' }}>{selectedPFZ.sst ? selectedPFZ.sst.toFixed(1) : '27.5'} °C</span>
-                </div>
-
-                <div>
-                  <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>CHLOROPHYLL-A DENSITY</span>
-                  <span style={{ color: '#2dd4bf' }}>{selectedPFZ.chlorophyll ? selectedPFZ.chlorophyll.toFixed(2) : '1.85'} mg/m³</span>
-                </div>
-
-                {selectedPFZ.current_speed !== undefined && selectedPFZ.current_speed !== null && (
-                  <div>
-                    <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>SURFACE CURRENT SPEED</span>
-                    <span style={{ color: '#ffffff' }}>{selectedPFZ.current_speed.toFixed(2)} m/s</span>
-                  </div>
-                )}
-
-                {selectedPFZ.wave_height !== undefined && selectedPFZ.wave_height !== null && (
-                  <div>
-                    <span style={{ color: '#505664', fontSize: '9.5px', textTransform: 'uppercase', display: 'block' }}>SIGNIFICANT WAVE HEIGHT</span>
-                    <span style={{ color: '#38bdf8' }}>{selectedPFZ.wave_height.toFixed(1)} m</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Confidence Meter */}
-              <div style={{ borderTop: '1px solid #1c212a', paddingTop: '8px', marginTop: '4px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#88909e', marginBottom: '3px' }}>
-                  <span>Advisory Oceanographic Confidence</span>
-                  <span style={{ color: '#ffffff', fontWeight: 700 }}>
-                    {Math.round((selectedPFZ.confidence || 0.8) * 100)}%
-                  </span>
-                </div>
-                <div className="pfz-confidence-bar-wrap">
-                  <div
-                    className="pfz-confidence-bar"
-                    style={{ width: `${Math.round((selectedPFZ.confidence || 0.8) * 100)}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Legal Maritime Safety Notice */}
-              <div style={{ background: '#090b0e', border: '1px solid #20242b', borderRadius: '3px', padding: '8px 10px', fontSize: '10px', color: '#88909e', lineHeight: '1.45', marginTop: '6px' }}>
-                <span style={{ fontWeight: 700, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-                  <Info size={11} /> Maritime Operations & Safety Advisory
-                </span>
-                PFZ advisories indicate zones of probable pelagic fish aggregation identified via thermal/chlorophyll fronts. Advisories are strictly advisory. Always confirm local Coast Guard weather alerts and ocean state warnings before navigation.
-              </div>
-            </div>
-          ) : (
-            <div className="ops-panel" style={{ minHeight: 'auto', textAlign: 'center', padding: '30px', color: '#505664', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-              Select a PFZ beacon on the map or from the list above to inspect in-situ parameters.
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
-      {/* Scientific Provenance Audit Card */}
-      <ProvenanceCard metadata={provenanceMeta} />
+      {/* Bottom Operational Status Bar */}
+      <footer className="hazard-bottom-bar">
+        <div className="hazard-bottom-left">
+          <span className="bottom-indicator-dot" style={{ background: '#2dd4bf', boxShadow: '0 0 8px #2dd4bf' }} />
+          <span className="bottom-status-text">
+            OPERATIONAL // INCOIS MARINE FISHERIES ADVISORY SERVICE (MFAS) // HIGH-CONFIDENCE PFZ DETECTOR
+          </span>
+        </div>
+        <div className="hazard-bottom-right">
+          <span>TARGET BASIN: <strong>{region}</strong></span>
+          <span className="bottom-sep">|</span>
+          <span>PFZ BEACONS ACTIVE: <strong>{filteredPoints.length}</strong></span>
+          <span className="bottom-sep">|</span>
+          <span>VALIDITY: <strong>{validUntil || '72 HOURS'}</strong></span>
+        </div>
+      </footer>
     </div>
-  );
-};
-
-export const FisheryAdvisoriesView: React.FC = () => {
-  return (
-    <FisheryErrorBoundary>
-      <FisheryAdvisoriesInner />
-    </FisheryErrorBoundary>
   );
 };

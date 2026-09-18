@@ -189,38 +189,63 @@ export const GeospatialRasterMap: React.FC<GeospatialRasterMapProps> = ({
 
     const range = maxVal - minVal > 0.0001 ? maxVal - minVal : 1;
 
-    // 1. Draw raster cells
-    for (let r = 0; r < nRows; r++) {
-      for (let c = 0; c < nCols; c++) {
-        const val = values[r][c];
-        const isExceeded = mask ? mask[r][c] : (threshold !== undefined && threshold !== null && val !== null && val > threshold);
+    // 1. Draw smooth interpolated raster field via offscreen buffer
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = nCols;
+    offCanvas.height = nRows;
+    const offCtx = offCanvas.getContext('2d');
 
-        // Note: latitude 0 is bottom or top depending on orientation
-        // If latitudes are descending (north to south), row 0 is top.
-        // If ascending, row 0 is bottom.
-        const y = latitudes[0] > latitudes[nRows - 1] ? r * cellH : (nRows - 1 - r) * cellH;
-        const x = c * cellW;
+    if (offCtx) {
+      const imgData = offCtx.createImageData(nCols, nRows);
+      const isLatDesc = latitudes[0] > latitudes[nRows - 1];
 
-        if (val === null || isNaN(val)) {
-          ctx.fillStyle = 'rgba(12, 18, 28, 0.6)';
-          ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
-          continue;
+      for (let r = 0; r < nRows; r++) {
+        const dataR = isLatDesc ? r : nRows - 1 - r;
+        for (let c = 0; c < nCols; c++) {
+          const val = values[dataR]?.[c];
+          const pxIdx = (r * nCols + c) * 4;
+
+          if (val === null || val === undefined || isNaN(val)) {
+            imgData.data[pxIdx + 3] = 0; // Transparent
+            continue;
+          }
+
+          const norm = (val - minVal) / range;
+          const [red, grn, blu, alpha] = getColormapRgba(norm, colorScheme);
+
+          imgData.data[pxIdx] = red;
+          imgData.data[pxIdx + 1] = grn;
+          imgData.data[pxIdx + 2] = blu;
+          imgData.data[pxIdx + 3] = alpha;
         }
+      }
 
-        const norm = (val - minVal) / range;
-        const [red, grn, blu, alpha] = getColormapRgba(norm, colorScheme);
+      offCtx.putImageData(imgData, 0, 0);
 
-        ctx.fillStyle = `rgba(${red}, ${grn}, ${blu}, ${alpha / 255})`;
-        ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
+      // Smooth bicubic upscale onto main canvas
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(offCanvas, 0, 0, width, height);
+    }
 
-        // Threshold exceedance visual highlight (striated warning overlay & glow outline)
-        if (isExceeded) {
-          ctx.fillStyle = 'rgba(255, 60, 60, 0.28)';
-          ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
+    // 1b. Exceedance hotspot highlight overlay
+    if (threshold !== undefined && threshold !== null) {
+      const isLatDesc = latitudes[0] > latitudes[nRows - 1];
+      for (let r = 0; r < nRows; r++) {
+        const dataR = isLatDesc ? r : nRows - 1 - r;
+        for (let c = 0; c < nCols; c++) {
+          const val = values[dataR]?.[c];
+          const isExceeded = mask ? mask[dataR]?.[c] : (val !== null && val !== undefined && val >= threshold);
 
-          ctx.strokeStyle = 'rgba(255, 100, 100, 0.75)';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x + 0.5, y + 0.5, cellW - 1, cellH - 1);
+          if (isExceeded) {
+            const y = r * cellH;
+            const x = c * cellW;
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+            ctx.fillRect(x, y, cellW, cellH);
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x + 0.5, y + 0.5, cellW - 1, cellH - 1);
+          }
         }
       }
     }

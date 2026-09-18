@@ -14,7 +14,7 @@ export async function fetchHazardLayers(): Promise<HazardLayer[]> {
     throw new Error(err.detail || `Error ${resp.status}`);
   }
   const data = await resp.json();
-  return data.layers || [];
+  return data.variables || data.layers || [];
 }
 
 export async function runHazardAnalysis(
