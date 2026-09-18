@@ -228,7 +228,7 @@ return {
   this.selectedOceanDomain = domain;
 
   if (domain === 'indian-ocean') {
-    this.underwaterRegion = null;
+    this.underwaterRegion = 'indian-ocean';
   }
 
   if (domain === 'southern-ocean') {

@@ -61,6 +61,26 @@ export class OceanDomainLayer {
       border.show = true;
 
       this.entities.push(border);
+
+      // Clickable domain surface for easy picking across the entire ocean basin
+      const surface =
+        this.viewer.entities.add({
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(positions),
+            material: new Cesium.ColorMaterialProperty(
+              domain.id === 'indian-ocean'
+                ? new Cesium.Color(0.0, 0.8, 1.0, 0.03)
+                : new Cesium.Color(0.0, 0.5, 1.0, 0.03),
+            ),
+            perPositionHeight: true,
+          },
+          properties: {
+            oceanDomain: domain.id,
+          },
+        });
+
+      surface.show = true;
+      this.entities.push(surface);
     }
   }
 

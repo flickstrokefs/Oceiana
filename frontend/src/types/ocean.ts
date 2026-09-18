@@ -85,11 +85,11 @@ export interface GliderTrajectory {
 export type UnderwaterRegionId =
   | 'bay-of-bengal'
   | 'arabian-sea'
-  | 'bay-of-bengal'
   | 'andaman-sea'
   | 'laccadive-sea'
   | 'java-sea'
-  | 'southern-ocean';
+  | 'southern-ocean'
+  | 'indian-ocean';
 
 export type OceanDomainId =
   | 'indian-ocean'
@@ -16584,6 +16584,23 @@ export const OCEAN_DOMAINS: OceanDomainDefinition[] = [
     children: ['southern-ocean'],
   },
 ];
+
+export const INDIAN_OCEAN_REGION: UnderwaterRegionDefinition = {
+  id: 'indian-ocean',
+  name: 'Indian Ocean',
+  label: 'Indian Ocean Basin',
+  description: 'Indian Ocean analytical domain from IHO Sea Areas v3.',
+  boundsLabel: '20.00°–146.90°E · 60.00°S–10.44°N',
+  west: 20.002616,
+  east: 146.898219,
+  south: -60.0,
+  north: 10.444999,
+  depthMin: 0,
+  depthMax: 2000,
+  footprint: OCEAN_DOMAINS[0].footprint,
+};
+
+UNDERWATER_REGIONS.push(INDIAN_OCEAN_REGION);
 
 export type SelectedObservation = {
   type: 'argo' | 'glider';

@@ -1533,6 +1533,10 @@ export class UnderwaterRegionPolygon {
     );
   }
 
+  public getIsVisible(): boolean {
+    return this.isVisible;
+  }
+
   // ============================================================
   // OBSERVATION POINT STYLING
   // ============================================================

@@ -42,7 +42,8 @@ export const UnderwaterRegionOverview: React.FC = () => {
   const regions =
     UNDERWATER_REGIONS.filter(
       (region) =>
-        region.id !== 'southern-ocean',
+        region.id !== 'southern-ocean' &&
+        region.id !== 'indian-ocean',
     );
 
   const handleSelect = (

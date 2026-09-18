@@ -37,6 +37,8 @@ export class OceanEngine {
   private lastDepth = 0;
   private lastFlyToken = 0;
   private lastColorRanges: unknown = null;
+  private lastDomain: string | null = null;
+  private lastRegion: string | null = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -138,15 +140,31 @@ export class OceanEngine {
         }
 
         // ------------------------------------------------------
-        // UNDERWATER REGION
+        // UNDERWATER REGION & DOMAIN
         // ------------------------------------------------------
 
-        if (
-          snapshot.mode === 'underwater'
-        ) {
-          this.underwaterVolumeLayer.setRegion(
-            snapshot.underwaterRegion,
-          );
+        if (snapshot.mode === 'underwater') {
+          const domainChanged =
+            snapshot.selectedOceanDomain !== this.lastDomain;
+          const regionChanged =
+            snapshot.underwaterRegion !== this.lastRegion;
+
+          if (domainChanged || regionChanged) {
+            this.lastDomain = snapshot.selectedOceanDomain;
+            this.lastRegion = snapshot.underwaterRegion;
+
+            this.underwaterVolumeLayer.setDomainAndRegion(
+              snapshot.selectedOceanDomain,
+              snapshot.underwaterRegion,
+            );
+
+            const target =
+              snapshot.underwaterRegion ?? snapshot.selectedOceanDomain;
+
+            if (target) {
+              this.cameraController.flyToRegion(target);
+            }
+          }
 
           this.underwaterVolumeLayer.setDepth(
             snapshot.parameters.depth,

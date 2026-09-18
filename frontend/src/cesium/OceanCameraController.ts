@@ -846,13 +846,14 @@ const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
       const centerLon = (reg.west + reg.east) * 0.5;
       const centerLat = (reg.south + reg.north) * 0.5;
       const isSO = reg.id === 'southern-ocean';
+      const isIO = reg.id === 'indian-ocean';
 
       this.flyTo({
-        latitude: centerLat,
-        longitude: centerLon,
-        altitude: isSO ? 3200000 : 1850000,
+        latitude: isIO ? -12.0 : (isSO ? -70.0 : centerLat),
+        longitude: isIO ? 80.0 : (isSO ? 65.0 : centerLon),
+        altitude: isIO ? 7800000 : (isSO ? 4500000 : 1850000),
         heading: 0,
-        pitch: isSO ? -70 : -58,
+        pitch: isIO ? -65 : (isSO ? -70 : -58),
         duration: 2.2,
       });
     }
