@@ -22,7 +22,7 @@ import type {
   SelectedObservation,
 } from '../types/ocean';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const STANDARD_DEPTHS = [0, 50, 100, 200, 250, 500, 750, 1000, 1500, 2000];
 
