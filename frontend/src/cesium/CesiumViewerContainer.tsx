@@ -20,6 +20,10 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<OceanEngine | null>(null);
+  const onEngineReadyRef = useRef(onEngineReady);
+  useEffect(() => {
+    onEngineReadyRef.current = onEngineReady;
+  }, [onEngineReady]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -134,8 +138,8 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
     const engine = new OceanEngine(viewer);
     engineRef.current = engine;
 
-    if (onEngineReady) {
-      onEngineReady(engine);
+    if (onEngineReadyRef.current) {
+      onEngineReadyRef.current(engine);
     }
 
     return () => {
@@ -144,7 +148,7 @@ export const CesiumViewerContainer: React.FC<CesiumViewerContainerProps> = ({
         viewer.destroy();
       }
     };
-  }, [onEngineReady]);
+  }, []);
 
   return (
     // INTEGRATION — Underwater 3D structure / ocean volume mesh:

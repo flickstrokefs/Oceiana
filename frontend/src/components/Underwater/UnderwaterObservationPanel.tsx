@@ -21,10 +21,18 @@ import {
 export const UnderwaterObservationPanel: React.FC =
   () => {
     const [argoList, setArgoList] =
-      useState<ArgoProfile[]>([]);
+      useState<ArgoProfile[]>(() => {
+        const state = OceanState.getInstance();
+        const initial = state.getArgoProfiles();
+        return initial.length > 0 ? initial : state.getProvider().getArgoProfiles();
+      });
 
     const [gliderList, setGliderList] =
-      useState<GliderTrajectory[]>([]);
+      useState<GliderTrajectory[]>(() => {
+        const state = OceanState.getInstance();
+        const initial = state.getGliders();
+        return initial.length > 0 ? initial : state.getProvider().getGliderTrajectories();
+      });
 
     const [currentDepth, setCurrentDepth] =
       useState<number>(0);
@@ -35,23 +43,6 @@ export const UnderwaterObservationPanel: React.FC =
     useEffect(() => {
       const oceanState =
         OceanState.getInstance();
-
-      const provider =
-        oceanState.getProvider();
-
-      const initialArgo = oceanState.getArgoProfiles();
-      if (initialArgo.length > 0) {
-        setArgoList(initialArgo);
-      } else {
-        setArgoList(provider.getArgoProfiles());
-      }
-
-      const initialGliders = oceanState.getGliders();
-      if (initialGliders.length > 0) {
-        setGliderList(initialGliders);
-      } else {
-        setGliderList(provider.getGliderTrajectories());
-      }
 
       const unsub = oceanState.subscribe((snapshot) => {
         setCurrentDepth(snapshot.parameters.depth);

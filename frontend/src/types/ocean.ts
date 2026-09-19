@@ -85,11 +85,15 @@ export interface GliderTrajectory {
 export type UnderwaterRegionId =
   | 'bay-of-bengal'
   | 'arabian-sea'
-  | 'andaman-sea'
-  | 'laccadive-sea'
-  | 'java-sea'
   | 'southern-ocean'
-  | 'indian-ocean';
+  | 'indian-ocean'
+  | 'gulf-of-oman'
+  | 'northwestern-arabian-basin'
+  | 'central-arabian-basin'
+  | 'southwestern-arabian-sea'
+  | 'southeastern-arabian-sea'
+  | 'western-indian-margin'
+  | 'gulf-of-kutch-sector';
 
 export type OceanDomainId =
   | 'indian-ocean'
@@ -235,79 +239,167 @@ export const UNDERWATER_REGIONS: UnderwaterRegionDefinition[] = [
     ],
   },
   {
-    id: 'andaman-sea',
-    name: 'Andaman Sea',
-    label: 'Andaman Sea',
-    description: 'Eastern Indian Ocean marginal sea enclosed by the Andaman-Nicobar ridge and Malay Peninsula.',
-    boundsLabel: '92.50°–98.50°E · 5.73°–16.03°N',
-    west: 92.50,
-    east: 98.50,
-    south: 5.73,
-    north: 16.03,
+    id: 'gulf-of-oman',
+    name: 'Gulf of Oman',
+    label: 'Gulf of Oman',
+    description: 'Northern Arabian Sea sector around the Gulf of Oman.',
+    boundsLabel: '56.10°–61.75°E · 22.15°–25.70°N',
+    west: 56.10,
+    east: 61.75,
+    south: 22.15,
+    north: 25.70,
     depthMin: 0,
-    depthMax: 3000,
+    depthMax: 3500,
     footprint: [
-      [94.20, 16.03], // Cape Negrais
-      [93.00, 13.60], // North Andaman
-      [92.70, 11.70], // South Andaman
-      [92.55, 10.65], // Little Andaman
-      [92.80, 9.20],  // Car Nicobar
-      [93.85, 6.90],  // Great Nicobar
-      [95.05, 5.73],  // Banda Aceh, Sumatra
-      [97.50, 5.50],  // Northern Sumatra coast
-      [98.30, 7.90],  // Phuket, Thailand
-      [98.20, 10.00], // Mergui Archipelago
-      [97.50, 13.50], // Gulf of Martaban
-      [96.00, 15.50], // Irrawaddy Delta
-      [94.20, 16.03], // Cape Negrais
+      [56.1, 22.45],
+      [58.2, 22.15],
+      [61.75, 22.5],
+      [61.45, 25.45],
+      [59.0, 25.7],
+      [57.0, 24.8],
+      [56.1, 22.45],
     ],
   },
   {
-    id: 'laccadive-sea',
-    name: 'Laccadive Sea',
-    label: 'Laccadive Sea',
-    description: 'Marginal sea between southern India, the Maldives and Sri Lanka.',
-    boundsLabel: '71.50°–80.59°E · -0.70°–13.00°N',
-    west: 71.50,
-    east: 80.59,
-    south: -0.70,
-    north: 13.00,
+    id: 'northwestern-arabian-basin',
+    name: 'Northwestern Arabian Basin',
+    label: 'NW Arabian Basin',
+    description: 'Open-water sector between the Gulf of Oman, Pakistan coast and central Arabian Basin.',
+    boundsLabel: '56.10°–68.00°E · 21.00°–25.70°N',
+    west: 56.10,
+    east: 68.00,
+    south: 21.00,
+    north: 25.70,
     depthMin: 0,
-    depthMax: 3000,
+    depthMax: 4000,
     footprint: [
-      [77.55, 8.08],  // Cape Comorin
-      [80.59, 5.92],  // Dondra Head, Sri Lanka
-      [73.15, -0.70], // Addu Atoll, Maldives
-      [71.80, 4.00],  // Central Maldives
-      [71.50, 8.50],  // Minicoy Island
-      [71.50, 12.00], // Lakshadweep
-      [74.50, 12.50], // Off Mangalore
-      [77.55, 8.08],  // Cape Comorin
+      [56.1, 22.45],
+      [58.2, 22.15],
+      [61.75, 22.5],
+      [65.2, 21.0],
+      [68.0, 23.0],
+      [65.2, 25.0],
+      [61.45, 25.45],
+      [59.0, 25.7],
+      [57.0, 24.8],
+      [56.1, 22.45],
     ],
   },
   {
-    id: 'java-sea',
-    name: 'Java Sea',
-    label: 'Java Sea',
-    description: 'Shallow tropical sea of the Indonesian archipelago.',
-    boundsLabel: '105.50°–116.50°E · -7.00°– -3.00°S',
-    west: 105.50,
-    east: 116.50,
-    south: -7.00,
-    north: -3.00,
+    id: 'central-arabian-basin',
+    name: 'Central Arabian Basin',
+    label: 'Central Arabian Basin',
+    description: 'Central open-ocean sector of the Arabian Sea for regional observations.',
+    boundsLabel: '56.10°–68.00°E · 14.00°–23.00°N',
+    west: 56.10,
+    east: 68.00,
+    south: 14.00,
+    north: 23.00,
     depthMin: 0,
-    depthMax: 1000,
+    depthMax: 4500,
     footprint: [
-      [105.80, -5.90], // Sunda Strait
-      [107.00, -3.20], // Bangka Island
-      [110.00, -3.00], // South Borneo
-      [114.50, -3.50], // Banjarmasin
-      [116.50, -5.00], // Makassar Strait entrance
-      [115.50, -7.00], // Madura Strait
-      [112.50, -6.80], // North Java coast
-      [108.50, -6.30], // Cirebon
-      [106.00, -6.00], // Jakarta Bay
-      [105.80, -5.90], // Sunda Strait
+      [58.0, 16.0],
+      [61.5, 14.0],
+      [64.8, 15.0],
+      [68.0, 18.0],
+      [68.0, 23.0],
+      [65.2, 21.0],
+      [61.75, 22.5],
+      [58.2, 22.15],
+      [56.1, 19.0],
+      [58.0, 16.0],
+    ],
+  },
+  {
+    id: 'southwestern-arabian-sea',
+    name: 'Southwestern Arabian Sea',
+    label: 'SW Arabian Sea',
+    description: 'Southern and southwestern open-water sector within the Arabian Sea envelope.',
+    boundsLabel: '51.20°–63.00°E · 1.00°–16.00°N',
+    west: 51.20,
+    east: 63.00,
+    south: 1.00,
+    north: 16.00,
+    depthMin: 0,
+    depthMax: 4500,
+    footprint: [
+      [51.2, 1.0],
+      [55.5, 3.0],
+      [60.0, 6.0],
+      [63.0, 10.0],
+      [61.5, 14.0],
+      [58.0, 16.0],
+      [54.5, 13.0],
+      [52.0, 8.0],
+      [51.2, 1.0],
+    ],
+  },
+  {
+    id: 'southeastern-arabian-sea',
+    name: 'Southeastern Arabian Sea',
+    label: 'SE Arabian Sea',
+    description: 'Southern/eastern Arabian Sea sector adjacent to the western Indian margin.',
+    boundsLabel: '61.50°–74.00°E · 9.00°–18.00°N',
+    west: 61.50,
+    east: 74.00,
+    south: 9.00,
+    north: 18.00,
+    depthMin: 0,
+    depthMax: 4400,
+    footprint: [
+      [63.0, 10.0],
+      [67.0, 9.0],
+      [71.0, 10.5],
+      [74.0, 14.5],
+      [72.5, 18.0],
+      [68.0, 18.0],
+      [64.8, 15.0],
+      [61.5, 14.0],
+      [63.0, 10.0],
+    ],
+  },
+  {
+    id: 'western-indian-margin',
+    name: 'Western Indian Margin',
+    label: 'Western Indian Margin',
+    description: 'Eastern Arabian Sea sector along the western Indian margin.',
+    boundsLabel: '68.00°–74.20°E · 18.00°–24.50°N',
+    west: 68.00,
+    east: 74.20,
+    south: 18.00,
+    north: 24.50,
+    depthMin: 0,
+    depthMax: 4000,
+    footprint: [
+      [68.0, 18.0],
+      [72.5, 18.0],
+      [74.2, 20.5],
+      [74.0, 24.0],
+      [71.0, 24.5],
+      [68.0, 23.0],
+      [68.0, 18.0],
+    ],
+  },
+  {
+    id: 'gulf-of-kutch-sector',
+    name: 'Gulf of Kutch Sector',
+    label: 'Gulf of Kutch',
+    description: 'ARIEL coastal sector around the Gulf of Kutch area.',
+    boundsLabel: '68.20°–71.40°E · 21.00°–24.00°N',
+    west: 68.20,
+    east: 71.40,
+    south: 21.00,
+    north: 24.00,
+    depthMin: 0,
+    depthMax: 2800,
+    footprint: [
+      [68.2, 21.2],
+      [69.3, 21.0],
+      [70.8, 22.0],
+      [71.4, 23.0],
+      [70.2, 24.0],
+      [68.5, 23.5],
+      [68.2, 21.2],
     ],
   },
   {
@@ -386,9 +478,6 @@ export const OCEAN_DOMAINS: OceanDomainDefinition[] = [
     children: [
       'arabian-sea',
       'bay-of-bengal',
-      'andaman-sea',
-      'laccadive-sea',
-      'java-sea',
     ],
   },
   {
@@ -434,10 +523,15 @@ export const INDIAN_OCEAN_REGION: UnderwaterRegionDefinition = {
 
 UNDERWATER_REGIONS.push(INDIAN_OCEAN_REGION);
 
-export type SelectedObservation = {
-  type: 'argo' | 'glider';
-  data: ArgoProfile | GliderTrajectory;
-};
+export type SelectedObservation =
+  | {
+      type: 'argo';
+      data: ArgoProfile;
+    }
+  | {
+      type: 'glider';
+      data: GliderTrajectory;
+    };
 
 export type ProfileVariable =
   | 'temperature'

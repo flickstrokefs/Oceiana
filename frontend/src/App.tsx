@@ -42,6 +42,10 @@ export const App: React.FC = () => {
     setSidebarCollapsed((prev) => !prev);
   };
 
+  const handleEngineReady = React.useCallback((engine: OceanEngine) => {
+    engineRef.current = engine;
+  }, []);
+
   return (
     <div className="ariel-app-shell">
       {/* 
@@ -50,9 +54,7 @@ export const App: React.FC = () => {
         Never unmounted, never reset, never replaced with a mock image.
       */}
       <CesiumViewerContainer
-        onEngineReady={(engine) => {
-          engineRef.current = engine;
-        }}
+        onEngineReady={handleEngineReady}
       />
 
       {/* Main UI Overlay Layer */}

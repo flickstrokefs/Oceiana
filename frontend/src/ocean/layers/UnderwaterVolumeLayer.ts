@@ -1,16 +1,15 @@
 import * as Cesium from 'cesium';
 
 import { OceanState } from '../OceanState';
-
 import {
   UNDERWATER_REGIONS,
   type UnderwaterRegionId,
   type OceanDomainId,
   type OceanVariable,
+  type UnderwaterRegionData,
 } from '../../types/ocean';
-
 import { UnderwaterRegionPolygon } from './UnderwaterRegionPolygon';
-
+import { UnderwaterFieldMesh } from './UnderwaterFieldMesh';
 import {
   fetchUnderwaterRegionData,
 } from '../provider/UnderwaterRegionDataProvider';
@@ -24,61 +23,50 @@ export class UnderwaterVolumeLayer {
 
   private currentDepth = 0;
 
-  private currentVariable: OceanVariable =
-    'temperature';
+  private currentVariable: OceanVariable = 'temperature';
 
-  private activeDomainId:
-    OceanDomainId | null = 'indian-ocean';
+  private activeDomainId: OceanDomainId | null = 'indian-ocean';
 
-  private activeRegionId:
-    UnderwaterRegionId | null = null;
+  private activeRegionId: UnderwaterRegionId | null = null;
 
-  private hoveredRegionId:
-    UnderwaterRegionId | null = null;
+  private hoveredRegionId: UnderwaterRegionId | null = null;
 
-  private handler:
-    Cesium.ScreenSpaceEventHandler | null = null;
+  private handler: Cesium.ScreenSpaceEventHandler | null = null;
 
   private isDestroyed = false;
 
-  private querySequence = 0;
+  // Single scientific 3D mesh architecture
+  private activeMesh: UnderwaterFieldMesh | null = null;
+  private activeSectorId: UnderwaterRegionId | null = null;
+  private activeSectorData: UnderwaterRegionData | null = null;
+  private abortController: AbortController | null = null;
+  private depthDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
 
-    const snapshot =
-      OceanState.getInstance().getSnapshot();
+    const snapshot = OceanState.getInstance().getSnapshot();
 
-    this.currentDepth =
-      snapshot.parameters.depth;
-
-    this.currentVariable =
-      snapshot.activeVariable;
-
+    this.currentDepth = snapshot.parameters.depth;
+    this.currentVariable = snapshot.activeVariable;
     this.activeDomainId =
-      snapshot.selectedOceanDomain ?? (snapshot.underwaterRegion === 'southern-ocean' ? 'southern-ocean' : 'indian-ocean');
-
-    this.activeRegionId =
-      snapshot.underwaterRegion;
+      snapshot.selectedOceanDomain ??
+      (snapshot.underwaterRegion === 'southern-ocean' ? 'southern-ocean' : 'indian-ocean');
+    this.activeRegionId = snapshot.underwaterRegion;
 
     this.createRegionBoxes();
-
     this.initInteraction();
   }
 
-  private createRegionBoxes(): void {
-    for (
-      const definition of UNDERWATER_REGIONS
-    ) {
-      const box =
-        new UnderwaterRegionPolygon(
-          this.viewer,
-          definition,
-        );
+  public getActiveMeshCount(): number {
+    return this.activeMesh ? 1 : 0;
+  }
 
+  private createRegionBoxes(): void {
+    for (const definition of UNDERWATER_REGIONS) {
+      const box = new UnderwaterRegionPolygon(this.viewer, definition);
       box.setVisible(false);
       box.setActive(false);
-
       this.boxes.push(box);
     }
 
@@ -91,11 +79,9 @@ export class UnderwaterVolumeLayer {
         box.setVisible(false);
         box.setActive(false);
       }
-
       return;
     }
 
-    // CASE 1: Southern Ocean
     if (
       this.activeDomainId === 'southern-ocean' ||
       this.activeRegionId === 'southern-ocean'
@@ -103,207 +89,109 @@ export class UnderwaterVolumeLayer {
       for (const box of this.boxes) {
         const isSO = box.definition.id === 'southern-ocean';
         box.setVisible(isSO);
-        box.setActive(isSO);
+        box.setActive(isSO && box.definition.id === this.activeRegionId);
       }
       return;
     }
 
-    // CASE 2: Individual marginal sea selected
-    // Show THAT sea's grid and mesh ONLY!
-    const isSpecificSea =
-      Boolean(this.activeRegionId) &&
-      this.activeRegionId !== 'indian-ocean';
-
-    if (isSpecificSea) {
-      for (const box of this.boxes) {
-        const isSelected = box.definition.id === this.activeRegionId;
-        box.setVisible(isSelected);
-        box.setActive(isSelected);
-      }
-      return;
-    }
-
-    // CASE 3: Indian Ocean selected (or activeRegionId === 'indian-ocean' or null)
-    // Show ALL seas at once PLUS the rest of the Indian Ocean's grids and meshes!
-    const indianOceanIds = new Set<string>([
-      'indian-ocean',
-      'arabian-sea',
-      'bay-of-bengal',
-      'andaman-sea',
-      'laccadive-sea',
-      'java-sea',
-    ]);
-
+    // In Indian Ocean / Arabian Sea mode:
+    // Show lightweight boundaries for marginal seas and sectors (no Southern Ocean)
     for (const box of this.boxes) {
-      const isIndian = indianOceanIds.has(box.definition.id);
-      box.setVisible(isIndian);
-      box.setActive(isIndian);
+      if (box.definition.id === 'southern-ocean') {
+        box.setVisible(false);
+        box.setActive(false);
+        continue;
+      }
+      box.setVisible(true);
+      box.setActive(box.definition.id === this.activeRegionId);
     }
   }
 
-  public async fetchActiveRegionData(): Promise<void> {
-    if (
-      this.isDestroyed ||
-      this.viewer.isDestroyed() ||
-      !this.visible
-    ) {
-      return;
+  private destroyActiveMesh(): void {
+    if (this.activeMesh) {
+      this.activeMesh.destroy();
+      this.activeMesh = null;
     }
-
-    const currentSequence =
-      ++this.querySequence;
-
-    const visibleBoxes = this.boxes.filter(
-      (box) => box.getIsVisible(),
-    );
-
-    if (visibleBoxes.length === 0) {
-      return;
+    this.activeSectorId = null;
+    this.activeSectorData = null;
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
     }
-
-    await Promise.all(
-      visibleBoxes.map(async (box) => {
-        try {
-          const data =
-            await fetchUnderwaterRegionData({
-              regionId:
-                box.definition.id,
-
-              depth:
-                this.currentDepth,
-
-              variable:
-                this.currentVariable,
-            });
-
-          if (
-            this.isDestroyed ||
-            currentSequence !==
-              this.querySequence
-          ) {
-            return;
-          }
-
-          box.setData(data);
-        } catch (error) {
-          console.error(
-            `Failed to load underwater region data for ${box.definition.id}:`,
-            error,
-          );
-        }
-      }),
-    );
   }
 
-  private initInteraction(): void {
-    this.handler =
-      new Cesium.ScreenSpaceEventHandler(
-        this.viewer.scene.canvas,
+  public async loadSectorMesh(regionId: UnderwaterRegionId | null): Promise<void> {
+    if (this.isDestroyed || this.viewer.isDestroyed() || !this.visible) {
+      this.destroyActiveMesh();
+      return;
+    }
+
+    if (!regionId) {
+      this.destroyActiveMesh();
+      return;
+    }
+
+    // If same sector and mesh is already populated, update depth / colors locally
+    if (this.activeSectorId === regionId && this.activeMesh && this.activeSectorData) {
+      this.activeMesh.setDepth(this.currentDepth);
+      return;
+    }
+
+    // Destroy previous mesh immediately before creating/requesting new one
+    this.destroyActiveMesh();
+
+    const definition = UNDERWATER_REGIONS.find((r) => r.id === regionId);
+    if (!definition) {
+      return;
+    }
+
+    const controller = new AbortController();
+    this.abortController = controller;
+    this.activeSectorId = regionId;
+
+    try {
+      const data = await fetchUnderwaterRegionData(
+        {
+          regionId,
+          depth: this.currentDepth,
+          variable: this.currentVariable,
+        },
+        controller.signal
       );
 
-    this.handler.setInputAction(
-      (movement: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-        if (
-          this.isDestroyed ||
-          !this.visible
-        ) {
-          return;
-        }
+      if (
+        this.isDestroyed ||
+        this.viewer.isDestroyed() ||
+        !this.visible ||
+        controller.signal.aborted ||
+        this.activeSectorId !== regionId
+      ) {
+        return;
+      }
 
-        const picked =
-          this.viewer.scene.pick(
-            movement.position,
-          );
+      this.activeSectorData = data;
 
-        if (
-          !Cesium.defined(picked) ||
-          !picked.id
-        ) {
-          return;
-        }
+      // Ensure any previous mesh is removed
+      if (this.activeMesh) {
+        this.activeMesh.destroy();
+      }
 
-        const entity =
-          picked.id as Cesium.Entity;
+      // Create exactly ONE scientific 3D mesh
+      const mesh = new UnderwaterFieldMesh(this.viewer, definition);
+      mesh.setVisible(this.visible);
+      mesh.setActive(true);
+      const exaggeration = OceanState.getInstance().getSnapshot().visualization.verticalExaggeration;
+      mesh.setVerticalExaggeration(exaggeration);
+      mesh.setData(data);
+      mesh.setDepth(this.currentDepth);
 
-        const regionId =
-          entity.properties
-            ?.regionId
-            ?.getValue(
-              Cesium.JulianDate.now(),
-            ) as
-            | UnderwaterRegionId
-            | undefined;
-
-        if (!regionId) {
-          return;
-        }
-
-        OceanState
-          .getInstance()
-          .setUnderwaterRegion(
-            regionId,
-          );
-      },
-      Cesium.ScreenSpaceEventType.LEFT_CLICK,
-    );
-
-    this.handler.setInputAction(
-      (
-        movement: Cesium.ScreenSpaceEventHandler.MotionEvent,
-      ) => {
-        if (
-          this.isDestroyed ||
-          !this.visible
-        ) {
-          return;
-        }
-
-        const picked =
-          this.viewer.scene.pick(
-            movement.endPosition,
-          );
-
-        let hovered:
-          UnderwaterRegionId | null =
-            null;
-
-        if (
-          Cesium.defined(picked) &&
-          picked.id
-        ) {
-          const entity =
-            picked.id as Cesium.Entity;
-
-          hovered =
-            entity.properties
-              ?.regionId
-              ?.getValue(
-                Cesium.JulianDate.now(),
-              ) as
-              | UnderwaterRegionId
-              | undefined
-              ?? null;
-        }
-
-        if (
-          hovered !==
-          this.hoveredRegionId
-        ) {
-          this.hoveredRegionId =
-            hovered;
-
-          for (
-            const box of this.boxes
-          ) {
-            box.setHovered(
-              box.definition.id ===
-                hovered,
-            );
-          }
-        }
-      },
-      Cesium.ScreenSpaceEventType.MOUSE_MOVE,
-    );
+      this.activeMesh = mesh;
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
+      console.error(`Failed to load scientific mesh for sector ${regionId}:`, err);
+    }
   }
 
   public setDomainAndRegion(
@@ -322,8 +210,10 @@ export class UnderwaterVolumeLayer {
 
     this.applyRegionVisibility();
 
-    if (this.visible) {
-      void this.fetchActiveRegionData();
+    if (this.visible && regionId) {
+      void this.loadSectorMesh(regionId);
+    } else if (!regionId) {
+      this.destroyActiveMesh();
     }
   }
 
@@ -344,37 +234,67 @@ export class UnderwaterVolumeLayer {
     const region: UnderwaterRegionId | null =
       domainId === 'southern-ocean'
         ? 'southern-ocean'
-        : 'indian-ocean';
+        : null;
 
     this.setDomainAndRegion(domainId, region);
   }
 
   public setDepth(
     depth: number,
-    variable: OceanVariable =
-      this.currentVariable,
+    variable: OceanVariable = this.currentVariable,
   ): void {
     this.currentDepth = depth;
+    const varChanged = this.currentVariable !== variable;
     this.currentVariable = variable;
 
     for (const box of this.boxes) {
       box.setDepth(depth);
     }
 
-    if (this.visible) {
-      void this.fetchActiveRegionData();
+    if (!this.visible || !this.activeRegionId) {
+      return;
     }
+
+    // If activeMesh and activeSectorData already exist for this sector:
+    // Update locally without network requests!
+    if (this.activeMesh && this.activeSectorData && this.activeSectorId === this.activeRegionId) {
+      this.activeMesh.setDepth(depth);
+      if (varChanged) {
+        this.activeMesh.reapplyColors();
+      }
+      return;
+    }
+
+    // If data is genuinely not available locally, debounce network request
+    if (this.depthDebounceTimer) {
+      clearTimeout(this.depthDebounceTimer);
+    }
+    this.depthDebounceTimer = setTimeout(() => {
+      if (this.visible && this.activeRegionId && !this.isDestroyed) {
+        void this.loadSectorMesh(this.activeRegionId);
+      }
+    }, 200);
   }
 
   public setVisible(
     visible: boolean,
   ): void {
     this.visible = visible;
-
     this.applyRegionVisibility();
 
     if (visible) {
-      void this.fetchActiveRegionData();
+      if (this.activeRegionId) {
+        void this.loadSectorMesh(this.activeRegionId);
+      }
+    } else {
+      // Exiting underwater mode: destroy scientific mesh completely
+      this.destroyActiveMesh();
+    }
+  }
+
+  public setVerticalExaggeration(scale: number): void {
+    if (this.activeMesh) {
+      this.activeMesh.setVerticalExaggeration(scale);
     }
   }
 
@@ -386,6 +306,67 @@ export class UnderwaterVolumeLayer {
     for (const box of this.boxes) {
       box.reapplyColors();
     }
+
+    if (this.activeMesh) {
+      this.activeMesh.reapplyColors();
+    }
+  }
+
+  private initInteraction(): void {
+    this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+
+    this.handler.setInputAction(
+      (movement: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+        if (this.isDestroyed || !this.visible) {
+          return;
+        }
+
+        const picked = this.viewer.scene.pick(movement.position);
+
+        if (!Cesium.defined(picked) || !picked.id) {
+          return;
+        }
+
+        const entity = picked.id as Cesium.Entity;
+        const regionId = entity.properties?.regionId?.getValue(
+          Cesium.JulianDate.now(),
+        ) as UnderwaterRegionId | undefined;
+
+        if (!regionId) {
+          return;
+        }
+
+        OceanState.getInstance().setUnderwaterRegion(regionId);
+      },
+      Cesium.ScreenSpaceEventType.LEFT_CLICK,
+    );
+
+    this.handler.setInputAction(
+      (movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
+        if (this.isDestroyed || !this.visible) {
+          return;
+        }
+
+        const picked = this.viewer.scene.pick(movement.endPosition);
+        let hovered: UnderwaterRegionId | null = null;
+
+        if (Cesium.defined(picked) && picked.id) {
+          const entity = picked.id as Cesium.Entity;
+          hovered =
+            (entity.properties?.regionId?.getValue(
+              Cesium.JulianDate.now(),
+            ) as UnderwaterRegionId | undefined) ?? null;
+        }
+
+        if (hovered !== this.hoveredRegionId) {
+          this.hoveredRegionId = hovered;
+          for (const box of this.boxes) {
+            box.setHovered(box.definition.id === hovered);
+          }
+        }
+      },
+      Cesium.ScreenSpaceEventType.MOUSE_MOVE,
+    );
   }
 
   public destroy(): void {
@@ -395,7 +376,12 @@ export class UnderwaterVolumeLayer {
 
     this.isDestroyed = true;
 
-    this.querySequence++;
+    if (this.depthDebounceTimer) {
+      clearTimeout(this.depthDebounceTimer);
+      this.depthDebounceTimer = null;
+    }
+
+    this.destroyActiveMesh();
 
     if (this.handler) {
       this.handler.destroy();

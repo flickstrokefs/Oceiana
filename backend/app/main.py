@@ -15,6 +15,7 @@ from app.api.datasets import router as datasets_router
 from app.api.hazard import router as hazard_router
 from app.api.fishery import router as fishery_router
 from app.api.search import router as search_router
+from app.api.arabian_sea import router as arabian_sea_router
 
 # Initialize structured logging
 setup_logging()
@@ -86,6 +87,9 @@ def root():
             "/api/fishery/advisory",
             "/api/fishery/pfz",
             "/api/search",
+            "/api/arabian-sea/regions",
+            "/api/arabian-sea/regions/{sector_id}",
+            "/api/arabian-sea/resolve",
         ],
     }
 
@@ -100,5 +104,6 @@ app.include_router(datasets_router, prefix=settings.API_BASE_PATH)
 app.include_router(hazard_router, prefix=settings.API_BASE_PATH)
 app.include_router(fishery_router, prefix=settings.API_BASE_PATH)
 app.include_router(search_router, prefix=settings.API_BASE_PATH)
+app.include_router(arabian_sea_router, prefix=settings.API_BASE_PATH)
 
 logger.info(f"OCEAN-X {settings.APP_NAME} initialized successfully.")

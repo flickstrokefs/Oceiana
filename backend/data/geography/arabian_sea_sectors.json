@@ -1,0 +1,241 @@
+{
+  "dataset": "ARIEL Arabian Sea Internal Sector Registry",
+  "version": "0.1.0",
+  "geometry_type": "GeoJSON Polygon",
+  "classification": "ARIEL_DEFINED",
+  "crs": "EPSG:4326",
+  "notes": "Lightweight topology-preserving observation-sector geometry in WGS84 (EPSG:4326). All sectors contain <= 10 vertices for optimal GPU performance.",
+  "source_context": [
+    "Marine Regions / IHO Sea Areas",
+    "ARIEL observation-sector design"
+  ],
+  "sectors": [
+    {
+      "id": "gulf-of-oman",
+      "name": "Gulf of Oman",
+      "type": "named_marine_feature",
+      "description": "Northern Arabian Sea sector around the Gulf of Oman.",
+      "source": "Marine Regions / IHO Sea Area reference",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 7,
+      "centroid": [58.75, 23.9],
+      "bbox": {
+        "min_lon": 56.1,
+        "max_lon": 61.75,
+        "min_lat": 22.15,
+        "max_lat": 25.7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [56.1, 22.45],
+            [58.2, 22.15],
+            [61.75, 22.5],
+            [61.45, 25.45],
+            [59.0, 25.7],
+            [57.0, 24.8],
+            [56.1, 22.45]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "northwestern-arabian-basin",
+      "name": "Northwestern Arabian Basin",
+      "type": "oceanographic_sector",
+      "description": "Open-water sector between the Gulf of Oman, Pakistan coast and central Arabian Basin.",
+      "source": "ARIEL-defined observation sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 10,
+      "centroid": [61.2, 23.4],
+      "bbox": {
+        "min_lon": 56.1,
+        "max_lon": 68.0,
+        "min_lat": 21.0,
+        "max_lat": 25.7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [56.1, 22.45],
+            [58.2, 22.15],
+            [61.75, 22.5],
+            [65.2, 21.0],
+            [68.0, 23.0],
+            [65.2, 25.0],
+            [61.45, 25.45],
+            [59.0, 25.7],
+            [57.0, 24.8],
+            [56.1, 22.45]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "central-arabian-basin",
+      "name": "Central Arabian Basin",
+      "type": "oceanographic_sector",
+      "description": "Central open-ocean sector of the Arabian Sea for regional observations.",
+      "source": "ARIEL-defined observation sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 10,
+      "centroid": [62.0, 18.5],
+      "bbox": {
+        "min_lon": 56.1,
+        "max_lon": 68.0,
+        "min_lat": 14.0,
+        "max_lat": 23.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [58.0, 16.0],
+            [61.5, 14.0],
+            [64.8, 15.0],
+            [68.0, 18.0],
+            [68.0, 23.0],
+            [65.2, 21.0],
+            [61.75, 22.5],
+            [58.2, 22.15],
+            [56.1, 19.0],
+            [58.0, 16.0]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "southwestern-arabian-sea",
+      "name": "Southwestern Arabian Sea",
+      "type": "oceanographic_sector",
+      "description": "Southern and southwestern open-water sector within the Arabian Sea envelope.",
+      "source": "ARIEL-defined observation sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 9,
+      "centroid": [56.5, 9.0],
+      "bbox": {
+        "min_lon": 51.2,
+        "max_lon": 63.0,
+        "min_lat": 1.0,
+        "max_lat": 16.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [51.2, 1.0],
+            [55.5, 3.0],
+            [60.0, 6.0],
+            [63.0, 10.0],
+            [61.5, 14.0],
+            [58.0, 16.0],
+            [54.5, 13.0],
+            [52.0, 8.0],
+            [51.2, 1.0]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "southeastern-arabian-sea",
+      "name": "Southeastern Arabian Sea",
+      "type": "oceanographic_sector",
+      "description": "Southern/eastern Arabian Sea sector adjacent to the western Indian margin.",
+      "source": "ARIEL-defined observation sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 9,
+      "centroid": [67.5, 14.0],
+      "bbox": {
+        "min_lon": 61.5,
+        "max_lon": 74.0,
+        "min_lat": 9.0,
+        "max_lat": 18.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [63.0, 10.0],
+            [67.0, 9.0],
+            [71.0, 10.5],
+            [74.0, 14.5],
+            [72.5, 18.0],
+            [68.0, 18.0],
+            [64.8, 15.0],
+            [61.5, 14.0],
+            [63.0, 10.0]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "western-indian-margin",
+      "name": "Western Indian Margin",
+      "type": "coastal_sector",
+      "description": "Eastern Arabian Sea sector along the western Indian margin.",
+      "source": "ARIEL-defined observation sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 7,
+      "centroid": [71.0, 21.2],
+      "bbox": {
+        "min_lon": 68.0,
+        "max_lon": 74.2,
+        "min_lat": 18.0,
+        "max_lat": 24.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [68.0, 18.0],
+            [72.5, 18.0],
+            [74.2, 20.5],
+            [74.0, 24.0],
+            [71.0, 24.5],
+            [68.0, 23.0],
+            [68.0, 18.0]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "gulf-of-kutch-sector",
+      "name": "Gulf of Kutch Sector",
+      "type": "named_marine_feature",
+      "description": "ARIEL coastal sector around the Gulf of Kutch area.",
+      "source": "Marine geographic feature reference / ARIEL sector",
+      "provenance": "ARIEL_DEFINED",
+      "crs": "EPSG:4326",
+      "vertex_count": 7,
+      "centroid": [69.8, 22.4],
+      "bbox": {
+        "min_lon": 68.2,
+        "max_lon": 71.4,
+        "min_lat": 21.0,
+        "max_lat": 24.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [68.2, 21.2],
+            [69.3, 21.0],
+            [70.8, 22.0],
+            [71.4, 23.0],
+            [70.2, 24.0],
+            [68.5, 23.5],
+            [68.2, 21.2]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -26,6 +26,19 @@ interface CheckpointData {
   unit: string;
 }
 
+const DEPTH_LEVELS = [
+  { depth: 0, label: '0m Surface' },
+  { depth: 100, label: '100m Mixed Layer' },
+  { depth: 200, label: '200m Thermocline' },
+  { depth: 300, label: '300m Upper Pycnocline' },
+  { depth: 400, label: '400m Mid Pycnocline' },
+  { depth: 500, label: '500m Mesopelagic' },
+  { depth: 750, label: '750m Intermediate' },
+  { depth: 1000, label: '1000m Bathypelagic' },
+  { depth: 1500, label: '1500m Deep Ocean' },
+  { depth: 2000, label: '2000m Abyssal Plain' },
+];
+
 export const WaterColumn: React.FC = () => {
   const [selectedDepth, setSelectedDepth] =
     useState(0);
@@ -40,19 +53,6 @@ export const WaterColumn: React.FC = () => {
 
   const [collapsed, setCollapsed] =
     useState(false);
-
-  const depthLevels = [
-    { depth: 0, label: '0m Surface' },
-    { depth: 100, label: '100m Mixed Layer' },
-    { depth: 200, label: '200m Thermocline' },
-    { depth: 300, label: '300m Upper Pycnocline' },
-    { depth: 400, label: '400m Mid Pycnocline' },
-    { depth: 500, label: '500m Mesopelagic' },
-    { depth: 750, label: '750m Intermediate' },
-    { depth: 1000, label: '1000m Bathypelagic' },
-    { depth: 1500, label: '1500m Deep Ocean' },
-    { depth: 2000, label: '2000m Abyssal Plain' },
-  ];
 
   useEffect(() => {
     const state =
@@ -70,7 +70,7 @@ export const WaterColumn: React.FC = () => {
           );
 
           const sampled =
-            depthLevels.map(
+            DEPTH_LEVELS.map(
               (level) => {
                 const field =
                   state.sampleSpatialField(

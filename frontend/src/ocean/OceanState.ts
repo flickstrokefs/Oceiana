@@ -566,16 +566,20 @@ public getSelectedOceanDomain():
     );
   }
 
-  public getNextRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion {
-    const targetId = currentId ?? this.underwaterRegion ?? UNDERWATER_REGIONS[0].id;
+  public getNextRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion | null {
+    const targetId = currentId ?? this.underwaterRegion;
+    if (!targetId) return null;
     const currentIndex = UNDERWATER_REGIONS.findIndex((r) => r.id === targetId);
+    if (currentIndex === -1) return null;
     const nextIndex = (currentIndex + 1) % UNDERWATER_REGIONS.length;
     return UNDERWATER_REGIONS[nextIndex];
   }
 
-  public getPrevRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion {
-    const targetId = currentId ?? this.underwaterRegion ?? UNDERWATER_REGIONS[0].id;
+  public getPrevRegion(currentId?: UnderwaterRegionId | null): UnderwaterRegion | null {
+    const targetId = currentId ?? this.underwaterRegion;
+    if (!targetId) return null;
     const currentIndex = UNDERWATER_REGIONS.findIndex((r) => r.id === targetId);
+    if (currentIndex === -1) return null;
     const prevIndex = (currentIndex - 1 + UNDERWATER_REGIONS.length) % UNDERWATER_REGIONS.length;
     return UNDERWATER_REGIONS[prevIndex];
   }

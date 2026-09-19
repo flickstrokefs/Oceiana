@@ -96,14 +96,16 @@ export class UnderwaterRegionPolygon {
         return Cesium.Color.fromCssColorString('#00f0ff');
       case 'bay-of-bengal':
         return Cesium.Color.fromCssColorString('#3b82f6');
-      case 'andaman-sea':
-        return Cesium.Color.fromCssColorString('#a855f7');
-      case 'laccadive-sea':
-        return Cesium.Color.fromCssColorString('#10b981');
-      case 'java-sea':
-        return Cesium.Color.fromCssColorString('#f59e0b');
       case 'southern-ocean':
         return Cesium.Color.fromCssColorString('#38bdf8');
+      case 'gulf-of-oman':
+      case 'northwestern-arabian-basin':
+      case 'central-arabian-basin':
+      case 'southwestern-arabian-sea':
+      case 'southeastern-arabian-sea':
+      case 'western-indian-margin':
+      case 'gulf-of-kutch-sector':
+        return Cesium.Color.fromCssColorString('#10b981');
       case 'indian-ocean':
       default:
         return Cesium.Color.fromCssColorString('#00e5ff');

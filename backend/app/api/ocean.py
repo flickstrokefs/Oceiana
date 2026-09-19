@@ -1,6 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from app.core.regions import resolve_region, validate_region
+from app.core.arabian_sea import get_sector
 from app.schemas.ocean import (
     OceanSliceResponse,
     CurrentsSliceResponse,
@@ -116,10 +117,11 @@ def get_region_slice(
 ):
     """Endpoint specifically matching frontend UnderwaterRegionDataProvider.ts."""
     canon = resolve_region(region_id)
-    if not canon:
+    sector = get_sector(region_id)
+    if not canon and not sector:
         raise HTTPException(
             status_code=400,
-            detail=f"Region '{region_id}' is outside authorized scope. Permitted: bay-of-bengal, arabian-sea, southern-ocean."
+            detail=f"Region '{region_id}' is outside authorized scope. Permitted: bay-of-bengal, arabian-sea, southern-ocean, or authorized Arabian Sea sectors."
         )
     return ocean_field_service.get_regional_slice(region_id=region_id, depth=depth, variable=var)
 

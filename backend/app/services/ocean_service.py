@@ -15,12 +15,14 @@ from app.core.regions import (
     enforce_region_coordinate,
     normalize_longitude,
 )
+from app.core.arabian_sea import get_sector, point_in_sector
 from app.schemas.ocean import (
     OceanSliceResponse,
     CurrentsSliceResponse,
     CurrentVector,
     OceanDataPoint,
     UnderwaterRegionDataResponse,
+    UnderwaterGridMetadata,
     OceanPointSample,
     OceanTimeSeriesResponse,
     OceanTimeSeriesPoint,
@@ -263,14 +265,27 @@ class OceanFieldService:
         variable: str = "temperature",
     ) -> UnderwaterRegionDataResponse:
         """Compute regional volumetric soundings matching UnderwaterRegionDataProvider.ts."""
-        canon = resolve_region(region_id)
-        if not canon or canon not in OCEAN_REGIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Region '{region_id}' is outside authorized scope. Valid regions: bay-of-bengal, arabian-sea, southern-ocean."
-            )
-
-        r = UNDERWATER_REGIONS_DEF.get(region_id, UNDERWATER_REGIONS_DEF[canon])
+        sector = get_sector(region_id)
+        if sector:
+            bbox = sector.get("bbox", {})
+            r = {
+                "id": sector["id"],
+                "name": sector["name"],
+                "west": bbox.get("min_lon", 55.0),
+                "east": bbox.get("max_lon", 75.0),
+                "south": bbox.get("min_lat", 5.0),
+                "north": bbox.get("max_lat", 26.0),
+                "depthMin": 0.0,
+                "depthMax": 4500.0,
+            }
+        else:
+            canon = resolve_region(region_id)
+            if not canon or canon not in OCEAN_REGIONS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Region '{region_id}' is outside authorized scope. Valid regions: bay-of-bengal, arabian-sea, southern-ocean, or authorized Arabian Sea sectors."
+                )
+            r = UNDERWATER_REGIONS_DEF.get(region_id, UNDERWATER_REGIONS_DEF[canon])
 
         lon_steps = 6
         lat_steps = 5
@@ -281,16 +296,26 @@ class OceanFieldService:
         points: List[OceanDataPoint] = []
         currents: List[CurrentVector] = []
         pt_id = 1
+        x_coords_set = set()
+        y_coords_set = set()
+        z_coords_set = set()
 
         for i in range(lat_steps + 1):
-            lat = r["south"] + i * lat_delta
+            lat = round(r["south"] + i * lat_delta, 4)
             for j in range(lon_steps + 1):
-                lon = r["west"] + j * lon_delta
-                if not validate_region(lat, lon):
+                lon = round(r["west"] + j * lon_delta, 4)
+                if sector:
+                    if not point_in_sector(lon, lat, sector):
+                        continue
+                elif not validate_region(lat, lon):
                     continue
+
+                x_coords_set.add(lon)
+                y_coords_set.add(lat)
 
                 for d_off in depth_offsets:
                     sample_depth = max(r["depthMin"], min(r["depthMax"], depth + d_off))
+                    z_coords_set.add(sample_depth)
                     try:
                         sample = model_service.sample_model_field(lat, lon, sample_depth)
                     except Exception:
@@ -336,6 +361,16 @@ class OceanFieldService:
                 except Exception:
                     pass
 
+        x_coords = sorted(list(x_coords_set))
+        y_coords = sorted(list(y_coords_set))
+        z_coords = sorted(list(z_coords_set))
+        grid = UnderwaterGridMetadata(
+            dimensions={"x": len(x_coords), "y": len(y_coords), "z": len(z_coords)},
+            x_coords=x_coords,
+            y_coords=y_coords,
+            z_coords=z_coords,
+        )
+
         return UnderwaterRegionDataResponse(
             regionId=region_id,
             depth=depth,
@@ -344,6 +379,7 @@ class OceanFieldService:
             points=points,
             currents=currents,
             provenance="DERIVED",
+            grid=grid,
         )
 
     def get_point_sample(self, lat: float, lon: float, depth: float) -> OceanPointSample:

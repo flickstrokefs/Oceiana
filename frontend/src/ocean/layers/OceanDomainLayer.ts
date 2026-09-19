@@ -622,6 +622,22 @@ export class OceanDomainLayer {
         }
 
 
+        const sectorProperty =
+          picked.id.properties
+            .arabianSeaSector;
+
+        if (sectorProperty) {
+          const sectorId = sectorProperty.getValue();
+          if (sectorId) {
+            OceanState
+              .getInstance()
+              .setUnderwaterRegion(
+                sectorId as any,
+              );
+            return;
+          }
+        }
+
         const property =
           picked.id.properties
             .oceanDomain;

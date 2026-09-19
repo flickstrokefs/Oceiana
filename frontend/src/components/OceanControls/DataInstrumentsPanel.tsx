@@ -41,9 +41,10 @@ export const DataInstrumentsPanel: React.FC = () => {
     <div className="panel-title-bar"><h2 className="panel-heading">Data & Instruments</h2><Database size={13} className="panel-head-icon" /></div>
     <div className="panel-content-scroll">
       <div className="data-accordion-item"><div className="accordion-header" onClick={() => setModelOpen(!modelOpen)} role="button" tabIndex={0}>
-        <span className="accordion-title"><ChevronDown size={13} className={`accordion-chevron ${modelOpen ? 'expanded' : ''}`} />Model data — INCOIS-IOCM</span></div>
+        <span className="accordion-title"><ChevronDown size={13} className={`accordion-chevron ${modelOpen ? 'expanded' : ''}`} />Model data — INCOIS-IOCM <span className="text-cyan text-xs" style={{ marginLeft: 6, opacity: 0.8 }}>[SIMULATED]</span></span></div>
         {modelOpen && <div className="accordion-body"><div className="checklist-group">
           {profileMessage && <div className="data-metric-val">{profileMessage}</div>}
+          {snapshot.queryPoint && <div className="data-metric-row" style={{ fontSize: '11px', color: '#94a3b8' }}><span>Coords: {snapshot.queryPoint.latitude.toFixed(2)}°N, {snapshot.queryPoint.longitude.toFixed(2)}°E | Depth: {snapshot.parameters.depth}m</span></div>}
           {values.map(([label, key, value, unit, setting]) => <label className="data-metric-row" key={key}><div className="data-metric-label">
             <input type="checkbox" checked={snapshot.visualization[setting]} onChange={() => state.updateVisualization({ [setting]: !snapshot.visualization[setting] })} /><span>{label}</span>
           </div><span className="data-metric-val">{modelCell(value, unit)}</span></label>)}
@@ -51,7 +52,7 @@ export const DataInstrumentsPanel: React.FC = () => {
         </div></div>}
       </div>
       <div className="data-accordion-item"><div className="accordion-header" onClick={() => setInstrumentOpen(!instrumentOpen)} role="button" tabIndex={0}>
-        <span className="accordion-title"><ChevronDown size={13} className={`accordion-chevron ${instrumentOpen ? 'expanded' : ''}`} />Instrument data</span></div>
+        <span className="accordion-title"><ChevronDown size={13} className={`accordion-chevron ${instrumentOpen ? 'expanded' : ''}`} />Instrument data <span className="text-amber text-xs" style={{ marginLeft: 6, opacity: 0.8 }}>[REAL]</span></span></div>
         {instrumentOpen && <div className="accordion-body"><div className="checklist-group">
           <label className="checkbox-row"><input type="checkbox" checked={snapshot.visualization.showArgo} onChange={() => state.updateVisualization({ showArgo: !snapshot.visualization.showArgo })} /><span className="check-label">Argo floats</span><span className="data-metric-val">{snapshot.argoProfiles?.length ?? 0} ACTIVE</span></label>
           {snapshot.visualization.showArgo && snapshot.argoProfiles?.map((argo) => <button type="button" className="checkbox-row" key={argo.id} onClick={() => flyToArgo(argo)}><span className="check-label">● {argo.stationCode}</span><span className="data-metric-val"><Navigation size={9} /> VIEW</span></button>)}
@@ -64,7 +65,7 @@ export const DataInstrumentsPanel: React.FC = () => {
         <span className="accordion-title"><ChevronDown size={13} className={`accordion-chevron ${comparisonOpen ? 'expanded' : ''}`} />Data comparison</span><Table2 size={12} className="panel-head-icon" /></div>
         {comparisonOpen && <div className="accordion-body"><div className="comparison-tabs-row" role="tablist">
           {(['glider', 'argo', 'all'] as const).map(tab => <button type="button" role="tab" aria-selected={comparisonTab === tab} className={`comp-tab-btn ${comparisonTab === tab ? 'comp-tab-active' : ''}`} onClick={() => setComparisonTab(tab)} key={tab}>{tab === 'all' ? 'All' : `Model vs ${tab === 'argo' ? 'Argo' : 'Glider'}`}</button>)}</div>
-          <table className="ariel-compact-table"><thead><tr><th>Variable</th><th>Model</th>{comparisonTab !== 'argo' && <th>Glider</th>}{comparisonTab !== 'glider' && <th>Argo</th>}</tr></thead><tbody>
+          <table className="ariel-compact-table"><thead><tr><th>Variable</th><th>Model (SIM)</th>{comparisonTab !== 'argo' && <th>Glider (REAL)</th>}{comparisonTab !== 'glider' && <th>Argo (REAL)</th>}</tr></thead><tbody>
             {values.map(([label, key, value, unit]) => <tr key={key}><td>{label}</td><td>{modelCell(value, unit)}</td>{comparisonTab !== 'argo' && <td>N/A</td>}{comparisonTab !== 'glider' && <td>N/A</td>}</tr>)}
           </tbody></table></div>}
       </div>

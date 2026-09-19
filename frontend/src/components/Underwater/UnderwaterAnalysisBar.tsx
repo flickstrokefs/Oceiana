@@ -60,28 +60,29 @@ export const UnderwaterAnalysisBar: React.FC = () => {
         const regConfig = reg
           ? UNDERWATER_REGIONS.find(
               (r) => r.id === reg,
-            ) ||
-            UNDERWATER_REGIONS[0]
-          : UNDERWATER_REGIONS[0];
+            ) || null
+          : null;
 
-        const centerLat =
-          (regConfig.south +
-            regConfig.north) /
-          2;
+        if (regConfig) {
+          const centerLat =
+            (regConfig.south +
+              regConfig.north) /
+            2;
 
-        const centerLon =
-          (regConfig.west +
-            regConfig.east) /
-          2;
+          const centerLon =
+            (regConfig.west +
+              regConfig.east) /
+            2;
 
-        const field =
-          oceanState.sampleSpatialField(
-            centerLat,
-            centerLon,
-            snapshot.parameters.depth,
-          );
+          const field =
+            oceanState.sampleSpatialField(
+              centerLat,
+              centerLon,
+              snapshot.parameters.depth,
+            );
 
-        setSample(field);
+          setSample(field);
+        }
       });
 
     return unsub;

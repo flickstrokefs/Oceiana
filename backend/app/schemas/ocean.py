@@ -46,6 +46,13 @@ class CurrentsSliceResponse(BaseModel):
     provenance: ProvenanceType = "REAL"
 
 
+class UnderwaterGridMetadata(BaseModel):
+    dimensions: Dict[str, int]
+    x_coords: List[float]
+    y_coords: List[float]
+    z_coords: List[float]
+
+
 class UnderwaterRegionDataResponse(BaseModel):
     regionId: str
     depth: float
@@ -54,6 +61,7 @@ class UnderwaterRegionDataResponse(BaseModel):
     points: List[OceanDataPoint]
     currents: List[CurrentVector]
     provenance: ProvenanceType = "REAL"
+    grid: Optional[UnderwaterGridMetadata] = None
 
 
 class OceanPointSample(BaseModel):

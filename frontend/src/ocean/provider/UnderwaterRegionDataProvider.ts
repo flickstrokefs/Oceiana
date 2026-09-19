@@ -16,30 +16,79 @@ import {
  * this function can be pointed to a REST/WebSocket API endpoint:
  * e.g., return await fetch(`/api/regions/${query.regionId}/slice?depth=${query.depth}&var=${query.variable}`).then(r => r.json());
  */
+// Request deduplication cache
+const inFlightRequests = new Map<string, Promise<UnderwaterRegionData>>();
+let currentActiveController: AbortController | null = null;
+
+/**
+ * Service to fetch region-specific ocean analysis data.
+ * Architecture:
+ * REGION DEFINITION -> DATA QUERY -> DATASET -> VISUALIZATION
+ *
+ * Strict lazy loading:
+ * - Validates authorized region IDs
+ * - Rejects unauthorized regions (andaman-sea, laccadive-sea, java-sea)
+ * - Request deduplication
+ * - AbortController cancellation for stale requests
+ */
 export async function fetchUnderwaterRegionData(
-  query: UnderwaterRegionQuery
+  query: UnderwaterRegionQuery,
+  externalSignal?: AbortSignal
 ): Promise<UnderwaterRegionData> {
-  try {
-    const res = await fetch(`/api/regions/${encodeURIComponent(query.regionId)}/slice?depth=${query.depth}&var=${encodeURIComponent(query.variable)}`, {
-      signal: AbortSignal.timeout(3000),
-    });
-    if (res.ok) {
-      const liveData = await res.json();
-      if (liveData && Array.isArray(liveData.points) && liveData.points.length > 0) {
-        return liveData;
-      }
-    }
-  } catch {
-    // Fall back to local calculation if offline
+  // 1. Strict validation: check authorized scope
+  const region = UNDERWATER_REGIONS.find((r) => r.id === query.regionId);
+  if (!region) {
+    throw new Error(`Unauthorized or invalid underwater region ID: ${query.regionId}`);
   }
 
-  const region =
-    UNDERWATER_REGIONS.find((r) => r.id === query.regionId) ||
-    UNDERWATER_REGIONS[0];
+  // 2. Cancel previous in-flight request if switching regions
+  if (currentActiveController) {
+    currentActiveController.abort();
+  }
+  const controller = new AbortController();
+  currentActiveController = controller;
 
-  const oceanState = OceanState.getInstance();
-  const points: UnderwaterDataPoint[] = [];
-  const currents: UnderwaterCurrentVector[] = [];
+  // Deduplication key
+  const cacheKey = `${query.regionId}:${query.depth}:${query.variable}`;
+  const existingRequest = inFlightRequests.get(cacheKey);
+  if (existingRequest) {
+    return existingRequest;
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      // Abort if external signal triggers or internal controller triggers
+      const combinedSignal = externalSignal
+        ? AbortSignal.any([externalSignal, controller.signal, AbortSignal.timeout(5000)])
+        : AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]);
+
+      const res = await fetch(
+        `/api/regions/${encodeURIComponent(query.regionId)}/slice?depth=${query.depth}&var=${encodeURIComponent(query.variable)}`,
+        { signal: combinedSignal }
+      );
+
+      if (res.ok) {
+        const liveData = await res.json();
+        if (liveData && Array.isArray(liveData.points) && liveData.points.length > 0) {
+          return liveData;
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw err;
+      }
+      // Fall back to local calculation if offline or backend unavailable
+    } finally {
+      inFlightRequests.delete(cacheKey);
+    }
+
+    if (controller.signal.aborted || externalSignal?.aborted) {
+      throw new DOMException('Request aborted', 'AbortError');
+    }
+
+    const oceanState = OceanState.getInstance();
+    const points: UnderwaterDataPoint[] = [];
+    const currents: UnderwaterCurrentVector[] = [];
 
   // Generate structured spatial sampling within the region's geographic boundaries
   const lonSteps = 6;
@@ -108,14 +157,18 @@ export async function fetchUnderwaterRegionData(
     }
   }
 
-  return {
-    regionId: query.regionId,
-    depth: query.depth,
-    variable: query.variable,
-    timestamp: new Date().toISOString(),
-    points,
-    currents,
-  };
+    return {
+      regionId: query.regionId,
+      depth: query.depth,
+      variable: query.variable,
+      timestamp: new Date().toISOString(),
+      points,
+      currents,
+    };
+  })();
+
+  inFlightRequests.set(cacheKey, fetchPromise);
+  return fetchPromise;
 }
 
 /**

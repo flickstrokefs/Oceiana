@@ -43,6 +43,7 @@ export class OceanEngine {
   private lastCurrentRequest = '';
   private lastProfileRequest = '';
   private lastCurrentVectors: unknown = null;
+  private lastVerticalExaggeration = 5;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -228,6 +229,21 @@ export class OceanEngine {
               snapshot.activeVariable,
             );
           }
+        }
+
+        // ------------------------------------------------------
+        // VERTICAL EXAGGERATION
+        // ------------------------------------------------------
+        const exagChanged =
+          snapshot.visualization.verticalExaggeration !==
+          this.lastVerticalExaggeration;
+
+        if (exagChanged) {
+          this.lastVerticalExaggeration =
+            snapshot.visualization.verticalExaggeration;
+          this.underwaterVolumeLayer.setVerticalExaggeration(
+            snapshot.visualization.verticalExaggeration
+          );
         }
 
         // ------------------------------------------------------

@@ -62,6 +62,7 @@ export class UnderwaterFieldMesh {
   private destroyed = false;
 
   private resolution: 7 | 9 | 12 = 9;
+  private verticalExaggeration = 5;
   private colorTransitionCleanup: (() => void) | null = null;
 
   /*
@@ -642,7 +643,7 @@ export class UnderwaterFieldMesh {
       n;
 
     const cellZ =
-      UW_DIMENSIONS.totalDepthZ /
+      (UW_DIMENSIONS.totalDepthZ * (this.verticalExaggeration / 5)) /
       n;
 
     const instances:
@@ -1971,6 +1972,18 @@ export class UnderwaterFieldMesh {
   public getCellCount():
     number {
     return this.cells.length;
+  }
+
+  public getVertexCount(): number {
+    return this.cells.length * 8;
+  }
+
+  public setVerticalExaggeration(scale: number): void {
+    if (this.destroyed || this.verticalExaggeration === scale) return;
+    this.verticalExaggeration = scale;
+    if (this.dataPoints.length > 0) {
+      this.rebuild();
+    }
   }
 
   // ============================================================

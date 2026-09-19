@@ -3,6 +3,7 @@ import { OceanState } from '../OceanState';
 import type { ArgoProfile, GliderTrajectory, SelectedObservation } from '../../types/ocean';
 import { fetchGliders } from '../../services/gliderService';
 import { fetchArgoProfiles } from '../../services/argoService';
+import { resolveArabianSeaSubregion } from '../ArabianSeaSubregions';
 
 type ObsEntityMeta = {
   obsId: string;
@@ -393,11 +394,17 @@ export class ObservationLayer {
         const data = props.data ? props.data.getValue() : null;
 
         if (obsType && data) {
-          OceanState.getInstance().setQueryPoint(data.latitude, data.longitude);
+          const lat = data.latitude;
+          const lon = data.longitude;
+          OceanState.getInstance().setQueryPoint(lat, lon);
           const selection: SelectedObservation = {
             type: obsType,
             data,
           };
+          const sector = resolveArabianSeaSubregion(lat, lon);
+          if (sector) {
+            OceanState.getInstance().setUnderwaterRegion(sector.id as any);
+          }
           // Opens Observation Profile modal via OceanState (globe stays mounted)
           OceanState.getInstance().selectObservation(selection);
           return;

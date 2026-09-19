@@ -15,6 +15,7 @@ import type {
   ProfileVariable,
   SelectedObservation,
 } from '../../types/ocean';
+import { resolveArabianSeaSubregion } from '../../ocean/ArabianSeaSubregions';
 
 interface ObservationProfileModalProps {
   observation?: SelectedObservation | null;
@@ -173,6 +174,30 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
 
   const activeObs = propObs !== undefined ? propObs : internalObs;
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+
+  const obsSector = useMemo(() => {
+    if (!activeObs) return null;
+    if (activeObs.type === 'argo') {
+      const argo = activeObs.data;
+      if (argo && typeof argo.latitude === 'number' && typeof argo.longitude === 'number') {
+        const sub = resolveArabianSeaSubregion(argo.latitude, argo.longitude);
+        return sub?.name ?? null;
+      }
+      return null;
+    }
+    if (activeObs.type === 'glider') {
+      const glider = activeObs.data;
+      const waypoints = glider?.waypoints;
+      if (Array.isArray(waypoints) && waypoints.length > 0) {
+        const latest = waypoints[waypoints.length - 1];
+        if (latest && typeof latest.latitude === 'number' && typeof latest.longitude === 'number') {
+          const sub = resolveArabianSeaSubregion(latest.latitude, latest.longitude);
+          return sub?.name ?? null;
+        }
+      }
+    }
+    return null;
+  }, [activeObs]);
 
   const handleClose = useCallback(() => {
     if (propOnClose) {
@@ -419,6 +444,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <Activity size={14} className="card-head-icon-cyan" /> Model Data
                     </span>
                     <span className="badge-source-model">INCOIS-HCOM</span>
+                    <span className="badge-source-model" style={{ marginLeft: 6, background: 'rgba(6, 182, 212, 0.2)', color: '#22d3ee', borderColor: '#06b6d4' }}>SIMULATED</span>
                   </div>
 
                   <div className="card-visual-row">
@@ -427,6 +453,10 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <div className="telemetry-item">
                         <span className="t-label">Model:</span>
                         <span className="t-val">INCOIS-IOCM</span>
+                      </div>
+                      <div className="telemetry-item">
+                        <span className="t-label">Provenance:</span>
+                        <span className="t-val text-cyan">SIMULATED</span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Time:</span>
@@ -474,6 +504,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <span className="instrument-dot dot-yellow" /> Glider Data
                     </span>
                     <span className="badge-source-glider">Active Glider</span>
+                    <span className="badge-source-glider" style={{ marginLeft: 6, background: 'rgba(234, 179, 8, 0.2)', color: '#facc15', borderColor: '#eab308' }}>REAL</span>
                   </div>
 
                   <div className="card-visual-row">
@@ -485,6 +516,16 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                           {activeObs?.type === 'glider' ? activeObs.data.name || activeObs.data.id : 'G102'}
                         </span>
                       </div>
+                      <div className="telemetry-item">
+                        <span className="t-label">Provenance:</span>
+                        <span className="t-val text-amber">REAL (In-Situ)</span>
+                      </div>
+                      {obsSector && activeObs?.type === 'glider' && (
+                        <div className="telemetry-item">
+                          <span className="t-label">Sector:</span>
+                          <span className="t-val text-amber">{obsSector}</span>
+                        </div>
+                      )}
                       <div className="telemetry-item">
                         <span className="t-label">Time:</span>
                         <span className="t-val">12 Sep 2024 14:12 UTC</span>
@@ -531,6 +572,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <span className="instrument-dot dot-orange" /> Argo Data
                     </span>
                     <span className="badge-source-argo">Argo Float</span>
+                    <span className="badge-source-argo" style={{ marginLeft: 6, background: 'rgba(249, 115, 22, 0.2)', color: '#fb923c', borderColor: '#f97316' }}>REAL</span>
                   </div>
 
                   <div className="card-visual-row">
@@ -542,6 +584,16 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                           {activeObs?.type === 'argo' ? activeObs.data.name || `#${activeObs.data.id}` : '#4587'}
                         </span>
                       </div>
+                      <div className="telemetry-item">
+                        <span className="t-label">Provenance:</span>
+                        <span className="t-val text-coral">REAL (In-Situ)</span>
+                      </div>
+                      {obsSector && activeObs?.type === 'argo' && (
+                        <div className="telemetry-item">
+                          <span className="t-label">Sector:</span>
+                          <span className="t-val text-coral">{obsSector}</span>
+                        </div>
+                      )}
                       <div className="telemetry-item">
                         <span className="t-label">Time:</span>
                         <span className="t-val">12 Sep 2024 14:20 UTC</span>
@@ -588,9 +640,9 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                   <thead>
                     <tr>
                       <th>VARIABLE</th>
-                      <th>MODEL DATA</th>
-                      <th>GLIDER DATA</th>
-                      <th>ARGO DATA</th>
+                      <th>MODEL DATA (SIMULATED)</th>
+                      <th>GLIDER DATA (REAL)</th>
+                      <th>ARGO DATA (REAL)</th>
                     </tr>
                   </thead>
                   <tbody>
