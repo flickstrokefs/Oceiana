@@ -234,38 +234,9 @@ export const UnderwaterHeader: React.FC<
     // SOUTHERN OCEAN
     // ========================================================
 
-    if (
-      domainId ===
-      'southern-ocean'
-    ) {
-      /*
-       * Southern Ocean is a valid underwater
-       * geometry target in the existing data.
-       *
-       * Activating it here makes the existing
-       * footprint / grid / mesh system respond
-       * immediately.
-       */
-
-      const southernRegion =
-        UNDERWATER_REGIONS.find(
-          (region) =>
-            region.id ===
-            'southern-ocean',
-        );
-
-      if (
-        southernRegion
-      ) {
-        oceanState.setUnderwaterRegion(
-          southernRegion.id,
-        );
-
-        setActiveRegionId(
-          southernRegion.id,
-        );
-      }
-
+    if (domainId === 'southern-ocean') {
+      oceanState.setOceanDomain('southern-ocean');
+      setActiveRegionId('southern-ocean');
       return;
     }
 
@@ -273,60 +244,10 @@ export const UnderwaterHeader: React.FC<
     // INDIAN OCEAN
     // ========================================================
 
-    if (
-      domainId ===
-      'indian-ocean'
-    ) {
-      /*
-       * If the currently selected sea belongs
-       * to Indian Ocean, KEEP it.
-       *
-       * Otherwise activate the first Indian
-       * Ocean sea.
-       */
-
-      const currentIsIndianSea =
-        activeRegionId !== null &&
-        domain.children.includes(
-          activeRegionId,
-        );
-
-      if (
-        currentIsIndianSea
-      ) {
-        /*
-         * Re-apply the selected region so the
-         * underwater renderer receives the
-         * selection immediately.
-         */
-
-        oceanState.setUnderwaterRegion(
-          activeRegionId,
-        );
-
-        return;
-      }
-
-      /*
-       * No Indian Ocean sea selected:
-       * activate the first child.
-       */
-
-      if (
-        domain.children.length >
-        0
-      ) {
-        const firstRegionId =
-          domain.children[0];
-
-        oceanState.setUnderwaterRegion(
-          firstRegionId,
-        );
-
-        setActiveRegionId(
-          firstRegionId,
-        );
-      }
+    if (domainId === 'indian-ocean') {
+      oceanState.setOceanDomain('indian-ocean');
+      setActiveRegionId('indian-ocean');
+      return;
     }
   };
 
@@ -570,7 +491,9 @@ export const UnderwaterHeader: React.FC<
               >
                 <MapPin size={10} className="dropdown-trigger-icon" />
                 <span className="dropdown-trigger-label">
-                  {activeRegionConfig ? activeRegionConfig.label.toUpperCase() : 'SELECT SEA'}
+                  {activeRegionConfig && activeRegionConfig.id !== 'indian-ocean'
+                    ? activeRegionConfig.label.toUpperCase()
+                    : 'ALL INDIAN OCEAN SEAS'}
                 </span>
                 <ChevronDown size={10} className="dropdown-caret" />
               </button>
@@ -579,6 +502,15 @@ export const UnderwaterHeader: React.FC<
               {isRegionOpen && (
                 <div className="underwater-dropdown-menu sea-dropdown-menu">
                   <div className="underwater-dropdown-header">// INDIAN_OCEAN_SEAS</div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRegionSelect('indian-ocean')}
+                    className={`underwater-dropdown-item ${activeRegionId === 'indian-ocean' || !activeRegionId ? 'item-selected' : ''}`}
+                  >
+                    <span className={`item-dot ${activeRegionId === 'indian-ocean' || !activeRegionId ? 'dot-active' : ''}`} />
+                    <span>ALL INDIAN OCEAN (ALL SEAS & BASIN)</span>
+                  </button>
 
                   {indianOceanRegions.map((region) => {
                     const selected = region.id === activeRegionId;

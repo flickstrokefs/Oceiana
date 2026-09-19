@@ -152,3 +152,50 @@ export const loadStoredRanges = (): Record<OceanVariable, ColorRange[]> => {
 export const saveStoredRanges = (ranges: Record<OceanVariable, ColorRange[]>): void => {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ranges)); } catch { /* storage is optional */ }
 };
+
+export const PALETTE_STOPS: Record<string, string[]> = {
+  Turbo: ['#30123b', '#4675ed', '#1bcfd4', '#61f468', '#f3c63a', '#d93806', '#7a0403'],
+  Viridis: ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725'],
+  Plasma: ['#0d0887', '#7e03a8', '#cc4778', '#f89540', '#f0f921'],
+  Coolwarm: ['#3b4cc0', '#bdd9ea', '#f7f7f7', '#f4a582', '#b40426'],
+  Jet: ['#00007f', '#0000ff', '#00ffff', '#ffff00', '#ff0000', '#7f0000'],
+};
+
+export function buildPaletteRanges(
+  variable: OceanVariable,
+  palette: string,
+  minVal: number,
+  maxVal: number,
+): ColorRange[] {
+  const stops = PALETTE_STOPS[palette] || PALETTE_STOPS.Turbo;
+  const lo = Number.isFinite(minVal) ? minVal : 0;
+  const hi = Number.isFinite(maxVal) && maxVal > lo ? maxVal : lo + 1;
+  const span = hi - lo;
+  const ranges: ColorRange[] = [];
+  for (let i = 0; i < stops.length - 1; i++) {
+    ranges.push(
+      make(
+        `${variable}-pal-${i}`,
+        lo + (span * i) / (stops.length - 1),
+        lo + (span * (i + 1)) / (stops.length - 1),
+        stops[i],
+      ),
+    );
+  }
+  return ranges;
+}
+
+export function mapValueForScale(
+  value: number,
+  minVal: number,
+  maxVal: number,
+  scaleType: 'linear' | 'log',
+): number {
+  if (!Number.isFinite(value)) return value;
+  if (scaleType !== 'log') return value;
+  const lo = Math.max(minVal, 1e-6);
+  const hi = Math.max(maxVal, lo * 1.0001);
+  const clamped = Math.min(Math.max(value, lo), hi);
+  const t = (Math.log(clamped) - Math.log(lo)) / (Math.log(hi) - Math.log(lo));
+  return minVal + t * (hi - minVal);
+}

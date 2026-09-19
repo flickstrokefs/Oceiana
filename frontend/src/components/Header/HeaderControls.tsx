@@ -46,6 +46,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
         const lat = parseFloat(match[1]);
         const lon = parseFloat(match[2]);
         if (!isNaN(lat) && !isNaN(lon)) {
+          OceanState.getInstance().setQueryPoint(lat, lon);
           OceanState.getInstance().requestFlyToLocation(lat, lon, 850000);
           return;
         }

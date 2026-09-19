@@ -84,57 +84,34 @@ export class DepthSliceRenderer {
     });
   }
 
-  /**
-   * Scientific Colormapping & Spatial Field Generation evaluated at depth
-   */
-  private renderFieldToCanvas(variable: OceanVariable, depth: number): void {
+  /** Render the API depth-slice grid; no client-side ocean field is generated. */
+  private renderFieldToCanvas(variable: OceanVariable): boolean {
     const oceanState = OceanState.getInstance();
+    const slice = oceanState.getDepthSlice();
+    if (!slice || !slice.latitudes.length || !slice.longitudes.length || !slice.values.length) {
+      this.ctx.clearRect(0, 0, this.resolution, this.resolution);
+      return false;
+    }
     const imgData = this.ctx.createImageData(this.resolution, this.resolution);
     const data = imgData.data;
 
     for (let y = 0; y < this.resolution; y++) {
-      const lat = this.maxLat - (y / this.resolution) * (this.maxLat - this.minLat);
-
       for (let x = 0; x < this.resolution; x++) {
-        const lon = this.minLon + (x / this.resolution) * (this.maxLon - this.minLon);
         const idx = (y * this.resolution + x) * 4;
-
-        // Sample exact scientific field at (lat, lon, depth)
-        const sample = oceanState.sampleSpatialField(lat, lon, depth);
-
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let a = 185;
-
-        let scalar = sample.temperature;
-        if (variable === 'salinity') {
-          scalar = sample.salinity;
-        } else if (variable === 'chlorophyll') {
-          scalar = sample.chlorophyll;
-        } else if (variable === 'current') {
-          scalar = Math.sqrt(
-            sample.velocity.u * sample.velocity.u + sample.velocity.v * sample.velocity.v
-          );
-        }
-
-        const cesiumColor = oceanState.getCesiumColorForActiveVariable(scalar);
-        r = Math.round(cesiumColor.red * 255);
-        g = Math.round(cesiumColor.green * 255);
-        b = Math.round(cesiumColor.blue * 255);
-
-        if (variable === 'chlorophyll' && depth > 200) {
-          a = Math.max(25, Math.round(185 * Math.exp(-(depth - 200) / 250)));
-        }
-
-        data[idx] = r;
-        data[idx + 1] = g;
-        data[idx + 2] = b;
-        data[idx + 3] = a;
+        const row = Math.min(slice.values.length - 1, Math.floor((1 - y / (this.resolution - 1)) * slice.values.length));
+        const col = Math.min(slice.longitudes.length - 1, Math.floor((x / (this.resolution - 1)) * slice.longitudes.length));
+        const scalar = slice.values[row]?.[col];
+        if (scalar == null || !Number.isFinite(scalar)) continue;
+        const color = oceanState.getCesiumColorForVariable(variable, scalar, oceanState.getVisualization().modelOpacity / 100);
+        data[idx] = Math.round(color.red * 255);
+        data[idx + 1] = Math.round(color.green * 255);
+        data[idx + 2] = Math.round(color.blue * 255);
+        data[idx + 3] = Math.round(color.alpha * 255);
       }
     }
 
     this.ctx.putImageData(imgData, 0, 0);
+    return true;
   }
 
   /**
@@ -145,23 +122,31 @@ export class DepthSliceRenderer {
     this.isUpdating = true;
 
     const snapshot = OceanState.getInstance().getSnapshot();
+    const oceanState = OceanState.getInstance();
     this.activeVariable = snapshot.activeVariable;
     this.currentMode = snapshot.mode;
     this.currentDepth = snapshot.parameters.depth;
 
     try {
-      // 1. Render scalar field evaluated at exact depth
-      this.renderFieldToCanvas(this.activeVariable, this.currentDepth);
-
-// 2. Hide the generated depth-slice imagery.
-// The globe remains visible without the large colored analysis rectangle.
+      const hasData = this.renderFieldToCanvas(this.activeVariable);
       const oldLayer = this.activeImageryLayer;
 
       if (oldLayer && !this.viewer.isDestroyed()) {
         this.viewer.imageryLayers.remove(oldLayer);
       }
 
-      this.activeImageryLayer = null;
+      if (hasData && oceanState.modelLayerVisibleFor(this.activeVariable)) {
+        const slice = oceanState.getDepthSlice()!;
+        const rectangle = Cesium.Rectangle.fromDegrees(
+          Math.min(...slice.longitudes), Math.min(...slice.latitudes),
+          Math.max(...slice.longitudes), Math.max(...slice.latitudes),
+        );
+        this.activeImageryLayer = this.viewer.imageryLayers.addImageryProvider(
+          new Cesium.SingleTileImageryProvider({ url: this.canvas.toDataURL(), rectangle }),
+        );
+      } else {
+        this.activeImageryLayer = null;
+      }
 
       // 3. Underwater Mode: Show Glowing Stratum Boundary & HUD Badge
       const isUnderwaterAnalysis = this.currentMode === 'underwater';

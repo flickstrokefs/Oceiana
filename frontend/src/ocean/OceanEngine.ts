@@ -37,6 +37,12 @@ export class OceanEngine {
   private lastDepth = 0;
   private lastFlyToken = 0;
   private lastColorRanges: unknown = null;
+  private lastDomain: string | null = null;
+  private lastRegion: string | null = null;
+  private lastFieldRequest = '';
+  private lastCurrentRequest = '';
+  private lastProfileRequest = '';
+  private lastCurrentVectors: unknown = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -75,6 +81,24 @@ export class OceanEngine {
 
     this.unsubscribeState =
       oceanState.subscribe((snapshot) => {
+        const timeKey = Number.isNaN(snapshot.time.getTime()) ? '' : snapshot.time.toISOString();
+        const fieldKey = `${snapshot.activeVariable}:${snapshot.parameters.depth}:${timeKey}`;
+        const currentKey = `${snapshot.parameters.depth}:${timeKey}`;
+        if (fieldKey !== this.lastFieldRequest) {
+          this.lastFieldRequest = fieldKey;
+          void oceanState.refreshDepthSlice();
+        }
+        if (currentKey !== this.lastCurrentRequest) {
+          this.lastCurrentRequest = currentKey;
+          void oceanState.refreshCurrents();
+        }
+        const point = snapshot.queryPoint;
+        const profileKey = point ? `${point.latitude}:${point.longitude}:${snapshot.parameters.depth}:${snapshot.activeVariable}` : '';
+        if (profileKey && profileKey !== this.lastProfileRequest) {
+          this.lastProfileRequest = profileKey;
+          void oceanState.refreshPointSample();
+          void oceanState.refreshTimeseries();
+        }
         const modeChanged =
           snapshot.mode !== this.lastMode;
 
@@ -92,11 +116,21 @@ export class OceanEngine {
         if (rangesChanged) {
           this.lastColorRanges = snapshot.colorRanges;
           void this.depthSliceRenderer.update();
-          this.currentLayer.setVisible(snapshot.activeVariable === 'current');
+          this.currentLayer.setVisible(snapshot.activeVariable === 'current' && snapshot.visualization.showModelCurrents);
           if (snapshot.mode === 'underwater') {
             this.underwaterVolumeLayer.reapplyColors();
           }
         }
+        if (snapshot.currentsStatus === 'ready') {
+          const vectors = oceanState.getCurrentVectors();
+          if (vectors !== this.lastCurrentVectors) {
+            this.lastCurrentVectors = vectors;
+            this.currentLayer.setVectors(vectors);
+          }
+        }
+        this.currentLayer.setVisible(
+          snapshot.activeVariable === 'current' && snapshot.visualization.showModelCurrents,
+        );
         // ------------------------------------------------------
         // MODE / DEPTH
         // ------------------------------------------------------
@@ -138,15 +172,31 @@ export class OceanEngine {
         }
 
         // ------------------------------------------------------
-        // UNDERWATER REGION
+        // UNDERWATER REGION & DOMAIN
         // ------------------------------------------------------
 
-        if (
-          snapshot.mode === 'underwater'
-        ) {
-          this.underwaterVolumeLayer.setRegion(
-            snapshot.underwaterRegion,
-          );
+        if (snapshot.mode === 'underwater') {
+          const domainChanged =
+            snapshot.selectedOceanDomain !== this.lastDomain;
+          const regionChanged =
+            snapshot.underwaterRegion !== this.lastRegion;
+
+          if (domainChanged || regionChanged) {
+            this.lastDomain = snapshot.selectedOceanDomain;
+            this.lastRegion = snapshot.underwaterRegion;
+
+            this.underwaterVolumeLayer.setDomainAndRegion(
+              snapshot.selectedOceanDomain,
+              snapshot.underwaterRegion,
+            );
+
+            const target =
+              snapshot.underwaterRegion ?? snapshot.selectedOceanDomain;
+
+            if (target) {
+              this.cameraController.flyToRegion(target);
+            }
+          }
 
           this.underwaterVolumeLayer.setDepth(
             snapshot.parameters.depth,

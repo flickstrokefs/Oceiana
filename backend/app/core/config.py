@@ -1,7 +1,19 @@
+import os
 from pathlib import Path
 from typing import List, Optional
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+except ImportError:
+    from pydantic import BaseModel
+    try:
+        from pydantic import BaseSettings
+    except ImportError:
+        BaseSettings = BaseModel
+
+    def SettingsConfigDict(**kwargs):
+        return kwargs
 
 
 class Settings(BaseSettings):
@@ -14,15 +26,18 @@ class Settings(BaseSettings):
 
     # Network / Server
     API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8000
+    API_PORT: int = int(os.environ.get("PORT", 8000))
     API_BASE_PATH: str = "/api"
     CORS_ORIGINS: List[str] = [
+        "https://oceianaxoxo.vercel.app",
+        "http://oceianaxoxo.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",
+        "oceianaxoxo-rgaj5pv9t-sudhanshuvermafs-7215s-projects.vercel.app",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
-        "http://oceianaxoxo.vercel.app",
+        "https://oceianaxoxo.vercel.app/",
         "*",
     ]
 

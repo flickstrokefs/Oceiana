@@ -2,7 +2,7 @@
  * Observation Profile service layer.
  *
  * Tries the Ariel backend (`/api/observations/...`) first.
- * Falls back to composing profiles from OceanState / MockOceanProvider
+ * Can compose an observation profile from the currently configured state provider
  * so the UI works without a running API.
  *
  * INTEGRATION NOTE — replace mock composition with real pipelines later:
@@ -12,6 +12,7 @@
  */
 
 import { OceanState } from '../ocean/OceanState';
+import { getApiBaseUrl } from '../config/api';
 import type {
   ArgoProfile,
   GliderTrajectory,
@@ -22,7 +23,7 @@ import type {
   SelectedObservation,
 } from '../types/ocean';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_URL = getApiBaseUrl();
 
 const STANDARD_DEPTHS = [0, 50, 100, 200, 250, 500, 750, 1000, 1500, 2000];
 
@@ -44,7 +45,7 @@ function nearestSample<T extends { depth: number }>(
 }
 
 function interpolateSeries(
-  nodes: { depth: number; temperature: number; salinity: number }[],
+  nodes: { depth: number; temperature: number | null; salinity: number | null }[],
   depths: number[]
 ): ProfileDepthSample[] {
   return depths.map((depth) => {
@@ -275,7 +276,7 @@ async function fetchRemoteProfile(
   selected: SelectedObservation
 ): Promise<ObservationProfilePayload | null> {
   const id = selected.data.id;
-  const url = `${API_BASE}/api/observations/${encodeURIComponent(id)}/profile?type=${selected.type}`;
+  const url = `${API_URL}/api/observations/${encodeURIComponent(id)}/profile?type=${selected.type}`;
 
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
