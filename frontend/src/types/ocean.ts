@@ -44,8 +44,8 @@ export interface SpatialFieldValue {
 
 export interface ArgoNode {
   depth: number;
-  temperature: number;
-  salinity: number;
+  temperature: number | null;
+  salinity: number | null;
   pressure?: number;
 }
 
@@ -64,8 +64,8 @@ export interface GliderWaypoint {
   longitude: number;
   depth: number;
   timestamp: string;
-  temperature: number;
-  salinity: number;
+  temperature: number | null;
+  salinity: number | null;
 }
 
 export interface GliderTrajectory {
@@ -78,7 +78,7 @@ export interface GliderTrajectory {
   platform?: string;
   operator?: string;
   status?: string;
-  battery?: number;
+  battery?: number | null;
   provenance?: 'REAL' | 'ESTIMATED' | 'SYNTHETIC';
 }
 
@@ -505,6 +505,36 @@ export type {
   ColorRangeValidationResult,
 } from '../ocean/color/colorTypes';
 
+export type DataLoadStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
+
+export interface QueryPoint {
+  latitude: number;
+  longitude: number;
+}
+
+export type ColorPaletteName = 'Turbo' | 'Viridis' | 'Plasma' | 'Coolwarm' | 'Jet';
+
+export interface VisualizationSettings {
+  palette: ColorPaletteName;
+  minVal: number;
+  maxVal: number;
+  autoRange: boolean;
+  scaleType: 'linear' | 'log';
+  modelOpacity: number;
+  gliderOpacity: number;
+  argoOpacity: number;
+  verticalExaggeration: number;
+  isosurfaceEnabled: boolean;
+  isosurfaceVariable: string;
+  isosurfaceValue: number;
+  showArgo: boolean;
+  showGliders: boolean;
+  showModelTemperature: boolean;
+  showModelSalinity: boolean;
+  showModelCurrents: boolean;
+  showModelChlorophyll: boolean;
+}
+
 export interface OceanStateSnapshot {
   parameters: OceanParameters;
   mode: OceanMode;
@@ -522,4 +552,14 @@ export interface OceanStateSnapshot {
   gliders?: GliderTrajectory[];
   argoProfiles?: ArgoProfile[];
   colorRanges: Record<OceanVariable, import('../ocean/color/colorTypes').ColorRange[]>;
+  queryPoint: QueryPoint | null;
+  visualization: VisualizationSettings;
+  fieldStatus: DataLoadStatus;
+  fieldError: string | null;
+  currentsStatus: DataLoadStatus;
+  currentsError: string | null;
+  profileStatus: DataLoadStatus;
+  profileError: string | null;
+  timeseriesStatus: DataLoadStatus;
+  timeseriesError: string | null;
 }

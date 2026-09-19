@@ -11,6 +11,7 @@ type ObsEntityMeta = {
 };
 
 export class ObservationLayer {
+  private static readonly LABEL_DISTANCE_METERS = 1_200_000;
   private viewer: Cesium.Viewer;
   private entities: Cesium.Entity[] = [];
   private gliderEntities: Cesium.Entity[] = [];
@@ -19,10 +20,12 @@ export class ObservationLayer {
   private handler: Cesium.ScreenSpaceEventHandler | null = null;
   private unsubscribeState: (() => void) | null = null;
   private highlightedId: string | null = null;
+  private hoverCard: HTMLDivElement | null = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
     this.renderObservations();
+    this.createHoverCard();
     this.initClickHandler();
     this.bindDepthObservationState();
   }
@@ -134,7 +137,7 @@ export class ObservationLayer {
           }
 
           if (isUnderwater) {
-            return `● ${argo.stationCode} [-${closest.depth}m: ${closest.temperature.toFixed(1)}°C]`;
+            return `● ${argo.stationCode} [-${closest.depth}m: ${closest.temperature?.toFixed(1) ?? 'N/A'}°C]`;
           }
           return `● ${argo.stationCode}`;
         }, false),
@@ -145,6 +148,7 @@ export class ObservationLayer {
         outlineWidth: 2,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -10),
+        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, ObservationLayer.LABEL_DISTANCE_METERS),
       },
       properties: {
         obsType: 'argo',
@@ -241,6 +245,7 @@ export class ObservationLayer {
           outlineWidth: 2.5,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -12),
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, ObservationLayer.LABEL_DISTANCE_METERS),
         },
         properties: {
           obsType: 'glider',
@@ -294,7 +299,53 @@ export class ObservationLayer {
       if (selectedId !== this.highlightedId) {
         this.applyHighlight(selectedId);
       }
+      this.setOpacity('glider', snapshot.visualization.gliderOpacity / 100, snapshot.visualization.showGliders);
+      this.setOpacity('argo', snapshot.visualization.argoOpacity / 100, snapshot.visualization.showArgo);
     });
+  }
+
+  private createHoverCard(): void {
+    const card = document.createElement('div');
+    card.className = 'instrument-hover-card';
+    card.style.display = 'none';
+    this.viewer.container.appendChild(card);
+    this.hoverCard = card;
+  }
+
+  private static value(value: number | null | undefined, unit: string): string {
+    return value == null || !Number.isFinite(value) ? 'N/A' : `${value.toFixed(2)} ${unit}`;
+  }
+
+  private showHoverCard(type: 'argo' | 'glider', data: ArgoProfile | GliderTrajectory, position: Cesium.Cartesian2): void {
+    if (!this.hoverCard) return;
+    const glider = type === 'glider' ? data as GliderTrajectory : null;
+    const argo = type === 'argo' ? data as ArgoProfile : null;
+    const latest = glider?.waypoints[glider.waypoints.length - 1];
+    const latitude = argo?.latitude ?? latest?.latitude;
+    const longitude = argo?.longitude ?? latest?.longitude;
+    const coordinate = (value: number | undefined, positive: string, negative: string) => value == null || !Number.isFinite(value) ? 'N/A' : `${Math.abs(value).toFixed(3)}°${value >= 0 ? positive : negative}`;
+    const row = (label: string, value: string) => `<div class="instrument-hover-row"><span>${label}</span><strong>${value}</strong></div>`;
+    const name = argo?.stationCode ?? glider?.name ?? 'Unknown instrument';
+    this.hoverCard.innerHTML = `<div class="instrument-hover-kind ${type}">${type === 'argo' ? 'ARGO FLOAT' : 'GLIDER'}</div><div class="instrument-hover-name"></div>${row('Lat', coordinate(latitude, 'N', 'S'))}${row('Lon', coordinate(longitude, 'E', 'W'))}${row('Depth', latest ? `${latest.depth.toFixed(0)} m` : 'N/A')}${row('Temperature', ObservationLayer.value(latest?.temperature, '°C'))}${row('Salinity', ObservationLayer.value(latest?.salinity, 'PSU'))}`;
+    const nameElement = this.hoverCard.querySelector('.instrument-hover-name');
+    if (nameElement) nameElement.textContent = name;
+    this.hoverCard.style.left = `${position.x + 16}px`;
+    this.hoverCard.style.top = `${position.y + 16}px`;
+    this.hoverCard.style.display = 'block';
+  }
+
+  private hideHoverCard(): void { if (this.hoverCard) this.hoverCard.style.display = 'none'; }
+
+  private setOpacity(type: 'glider' | 'argo', opacity: number, visible: boolean): void {
+    const entities = type === 'glider' ? this.gliderEntities : this.argoEntities;
+    const color = Cesium.Color.fromCssColorString(type === 'glider' ? '#00f0ff' : '#c79a5b').withAlpha(opacity);
+    for (const entity of entities) {
+      entity.show = visible;
+      if (entity.point?.color) entity.point.color = new Cesium.ConstantProperty(color);
+      if (entity.label?.fillColor) entity.label.fillColor = new Cesium.ConstantProperty(Cesium.Color.WHITE.withAlpha(opacity));
+      if (entity.polyline?.material) entity.polyline.material = new Cesium.ColorMaterialProperty(color);
+      if (entity.ellipse?.material) entity.ellipse.material = new Cesium.ColorMaterialProperty(color.withAlpha(opacity * 0.15));
+    }
   }
 
   /**
@@ -342,6 +393,7 @@ export class ObservationLayer {
         const data = props.data ? props.data.getValue() : null;
 
         if (obsType && data) {
+          OceanState.getInstance().setQueryPoint(data.latitude, data.longitude);
           const selection: SelectedObservation = {
             type: obsType,
             data,
@@ -352,9 +404,27 @@ export class ObservationLayer {
         }
       }
 
-      // Empty-globe click: clear selection + close modal
+      const ray = this.viewer.camera.getPickRay(click.position);
+      const cartesian = ray && (this.viewer.scene.globe.pick(ray, this.viewer.scene) || this.viewer.camera.pickEllipsoid(click.position));
+      if (cartesian) {
+        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        OceanState.getInstance().setQueryPoint(Cesium.Math.toDegrees(cartographic.latitude), Cesium.Math.toDegrees(cartographic.longitude));
+      }
+      // Empty-globe click: clear observation selection, retaining the new query point.
       OceanState.getInstance().selectObservation(null);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    this.handler.setInputAction((movement: { endPosition: Cesium.Cartesian2 }) => {
+      const picked = this.viewer.scene.pick(movement.endPosition);
+      const props = Cesium.defined(picked) && picked.id?.properties ? picked.id.properties : null;
+      const type = props?.obsType?.getValue();
+      const data = props?.data?.getValue();
+      if ((type === 'argo' || type === 'glider') && data) {
+        this.showHoverCard(type, data, movement.endPosition);
+      } else {
+        this.hideHoverCard();
+      }
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   }
 
   public destroy(): void {
@@ -364,6 +434,8 @@ export class ObservationLayer {
     if (this.handler) {
       this.handler.destroy();
     }
+    this.hoverCard?.remove();
+    this.hoverCard = null;
     this.clearGliderEntities();
     this.clearArgoEntities();
     for (const e of this.entities) {

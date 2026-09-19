@@ -1,6 +1,7 @@
 import type { GliderTrajectory, GliderWaypoint } from '../types/ocean';
+import { getApiBaseUrl } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_URL = getApiBaseUrl();
 
 export interface BackendGliderPoint {
   latitude: number;
@@ -53,8 +54,8 @@ export function mapBackendGliderToTrajectory(item: BackendGliderItem): GliderTra
           longitude: wp.longitude,
           depth: wp.depth ?? 0,
           timestamp: wp.timestamp,
-          temperature: wp.temperature ?? item.measurements?.temperature ?? 20.0,
-          salinity: wp.salinity ?? item.measurements?.salinity ?? 35.0,
+          temperature: wp.temperature ?? item.measurements?.temperature ?? null,
+          salinity: wp.salinity ?? item.measurements?.salinity ?? null,
         }))
       : [
           {
@@ -62,8 +63,8 @@ export function mapBackendGliderToTrajectory(item: BackendGliderItem): GliderTra
             longitude: item.longitude,
             depth: item.depth ?? 0,
             timestamp: item.timestamp,
-            temperature: item.measurements?.temperature ?? 20.0,
-            salinity: item.measurements?.salinity ?? 35.0,
+            temperature: item.measurements?.temperature ?? null,
+            salinity: item.measurements?.salinity ?? null,
           },
         ];
 
@@ -104,8 +105,8 @@ export async function fetchGliderTrack(id: string, downsample?: number): Promise
     longitude: p.longitude,
     depth: p.depth ?? 0,
     timestamp: p.timestamp,
-    temperature: p.temperature ?? 20.0,
-    salinity: p.salinity ?? 35.0,
+    temperature: p.temperature ?? null,
+    salinity: p.salinity ?? null,
   }));
 }
 

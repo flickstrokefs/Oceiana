@@ -3319,6 +3319,27 @@ body, html, #root {
   background: linear-gradient(to right, #30123b, #4145ab, #4675ed, #39a2fc, #1bcfd4, #24eca6, #61f468, #a4fc3c, #d1e834, #f3c63a, #fe9b2d, #f36315, #d93806, #b11902, #7a0403);
 }
 
+.instrument-hover-card {
+  position: absolute;
+  z-index: 30;
+  min-width: 190px;
+  max-width: 240px;
+  padding: 9px 10px;
+  color: #dce6f2;
+  background: rgba(3, 13, 29, 0.96);
+  border: 1px solid rgba(91, 143, 199, 0.55);
+  border-radius: 4px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.42);
+  font: 10px/1.35 var(--font-mono);
+  pointer-events: none;
+}
+
+.instrument-hover-kind { font-size: 9px; font-weight: 700; letter-spacing: .09em; color: #c79a5b; }
+.instrument-hover-kind.glider { color: #00d9e8; }
+.instrument-hover-name { margin: 2px 0 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #f1f5f9; font: 600 11px var(--font-sans); }
+.instrument-hover-row { display: flex; justify-content: space-between; gap: 18px; padding-top: 2px; color: #8fa3ba; }
+.instrument-hover-row strong { color: #dce6f2; font-weight: 500; text-align: right; }
+
 .colorbar-limits-row {
   display: flex;
   gap: 6px;
@@ -3674,7 +3695,7 @@ body, html, #root {
   text-align: right;
 }
 
-.colorbar-bar.turbo-vertical {
+.colorbar-bar {
   width: 8px;
   height: 100px;
   border-radius: 0;

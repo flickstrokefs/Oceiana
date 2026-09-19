@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { OceanState } from '../../ocean/OceanState';
 import type { OceanVariable } from '../../types/ocean';
-import { Plus, Sliders, ChevronDown } from 'lucide-react';
+import { PALETTE_STOPS } from '../../ocean/color/colorRangeUtils';
+import { Sliders, ChevronDown } from 'lucide-react';
 
 export const VisualizationControlsPanel: React.FC = () => {
   const [variable, setVariable] = useState<OceanVariable>('temperature');
-  const [isosurfaceEnabled, setIsosurfaceEnabled] = useState(true);
+  const [isosurfaceEnabled, setIsosurfaceEnabled] = useState(false);
   const [isosurfaceVar, setIsosurfaceVar] = useState('temperature');
   const [isosurfaceVal, setIsosurfaceVal] = useState(20);
   const [palette, setPalette] = useState('Turbo');
@@ -27,6 +28,15 @@ export const VisualizationControlsPanel: React.FC = () => {
   useEffect(() => {
     const unsub = OceanState.getInstance().subscribe((snapshot) => {
       setVariable(snapshot.activeVariable);
+      setIsosurfaceEnabled(false);
+      setPalette(snapshot.visualization.palette);
+      setMinVal(snapshot.visualization.minVal);
+      setMaxVal(snapshot.visualization.maxVal);
+      setScaleType(snapshot.visualization.scaleType);
+      setModelOpacity(snapshot.visualization.modelOpacity);
+      setGliderOpacity(snapshot.visualization.gliderOpacity);
+      setArgoOpacity(snapshot.visualization.argoOpacity);
+      setVertExaggeration(snapshot.visualization.verticalExaggeration);
     });
     return unsub;
   }, []);
@@ -35,6 +45,7 @@ export const VisualizationControlsPanel: React.FC = () => {
     setVariable(v);
     OceanState.getInstance().setActiveVariable(v);
   };
+  const update = (partial: Parameters<OceanState['updateVisualization']>[0]) => OceanState.getInstance().updateVisualization(partial);
 
   return (
     <aside className="ariel-panel panel-left-viz" aria-label="Visualization Controls">
@@ -74,13 +85,6 @@ export const VisualizationControlsPanel: React.FC = () => {
                   <option value="current">Current Speed (m/s)</option>
                   <option value="chlorophyll">Chlorophyll (mg/m³)</option>
                 </select>
-                <button
-                  type="button"
-                  className="ariel-btn-outline btn-compact"
-                  onClick={() => alert('Variable added to visualization stack.')}
-                >
-                  <Plus size={11} /> Add variable
-                </button>
               </div>
             </div>
           )}
@@ -107,9 +111,10 @@ export const VisualizationControlsPanel: React.FC = () => {
                 <input
                   type="checkbox"
                   checked={isosurfaceEnabled}
-                  onChange={(e) => setIsosurfaceEnabled(e.target.checked)}
+                  disabled
+                  onChange={(e) => { setIsosurfaceEnabled(e.target.checked); update({ isosurfaceEnabled: e.target.checked }); }}
                 />
-                <span className="check-label">Enabled</span>
+                <span className="check-label">Unavailable — no 3D isosurface data</span>
               </label>
 
               {isosurfaceEnabled && (
@@ -119,7 +124,8 @@ export const VisualizationControlsPanel: React.FC = () => {
                     <select
                       className="ariel-select select-sm"
                       value={isosurfaceVar}
-                      onChange={(e) => setIsosurfaceVar(e.target.value)}
+                      disabled
+                      onChange={(e) => { setIsosurfaceVar(e.target.value); update({ isosurfaceVariable: e.target.value }); }}
                     >
                       <option value="temperature">Temperature</option>
                       <option value="salinity">Salinity</option>
@@ -133,7 +139,8 @@ export const VisualizationControlsPanel: React.FC = () => {
                         type="number"
                         className="ariel-input input-sm mono-input"
                         value={isosurfaceVal}
-                        onChange={(e) => setIsosurfaceVal(parseFloat(e.target.value) || 0)}
+                        disabled
+                        onChange={(e) => { const value = parseFloat(e.target.value) || 0; setIsosurfaceVal(value); update({ isosurfaceValue: value }); }}
                       />
                       <span className="input-unit">°C</span>
                     </div>
@@ -166,7 +173,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                 <select
                   className="ariel-select select-sm"
                   value={palette}
-                  onChange={(e) => setPalette(e.target.value)}
+                  onChange={(e) => { setPalette(e.target.value); update({ palette: e.target.value as 'Turbo' | 'Viridis' | 'Plasma' | 'Coolwarm' | 'Jet' }); }}
                 >
                   <option value="Turbo">Turbo</option>
                   <option value="Viridis">Viridis</option>
@@ -177,7 +184,7 @@ export const VisualizationControlsPanel: React.FC = () => {
               </div>
 
               {/* Scientific palette bar */}
-              <div className="colorbar-preview turbo-gradient" />
+              <div className="colorbar-preview" style={{ background: `linear-gradient(to right, ${PALETTE_STOPS[palette].join(', ')})` }} />
 
               <div className="colorbar-limits-row">
                 <div className="limit-col">
@@ -186,7 +193,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                     type="number"
                     className="ariel-input input-sm mono-input"
                     value={minVal}
-                    onChange={(e) => setMinVal(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => { const value = parseFloat(e.target.value) || 0; setMinVal(value); update({ minVal: value, autoRange: false }); }}
                   />
                 </div>
                 <div className="limit-col">
@@ -195,7 +202,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                     type="number"
                     className="ariel-input input-sm mono-input"
                     value={maxVal}
-                    onChange={(e) => setMaxVal(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => { const value = parseFloat(e.target.value) || 0; setMaxVal(value); update({ maxVal: value, autoRange: false }); }}
                   />
                 </div>
               </div>
@@ -207,7 +214,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                     type="radio"
                     name="scaleType"
                     checked={scaleType === 'linear'}
-                    onChange={() => setScaleType('linear')}
+                    onChange={() => { setScaleType('linear'); update({ scaleType: 'linear' }); }}
                   />
                   <span>Linear</span>
                 </label>
@@ -216,7 +223,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                     type="radio"
                     name="scaleType"
                     checked={scaleType === 'log'}
-                    onChange={() => setScaleType('log')}
+                    onChange={() => { setScaleType('log'); update({ scaleType: 'log' }); }}
                   />
                   <span>Logarithmic</span>
                 </label>
@@ -249,7 +256,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                   min="0"
                   max="100"
                   value={modelOpacity}
-                  onChange={(e) => setModelOpacity(parseInt(e.target.value, 10))}
+                  onChange={(e) => { const value = parseInt(e.target.value, 10); setModelOpacity(value); update({ modelOpacity: value }); }}
                   className="ariel-slider"
                 />
                 <span className="slider-pct">{modelOpacity}%</span>
@@ -262,7 +269,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                   min="0"
                   max="100"
                   value={gliderOpacity}
-                  onChange={(e) => setGliderOpacity(parseInt(e.target.value, 10))}
+                  onChange={(e) => { const value = parseInt(e.target.value, 10); setGliderOpacity(value); update({ gliderOpacity: value }); }}
                   className="ariel-slider"
                 />
                 <span className="slider-pct">{gliderOpacity}%</span>
@@ -275,7 +282,7 @@ export const VisualizationControlsPanel: React.FC = () => {
                   min="0"
                   max="100"
                   value={argoOpacity}
-                  onChange={(e) => setArgoOpacity(parseInt(e.target.value, 10))}
+                  onChange={(e) => { const value = parseInt(e.target.value, 10); setArgoOpacity(value); update({ argoOpacity: value }); }}
                   className="ariel-slider"
                 />
                 <span className="slider-pct">{argoOpacity}%</span>
@@ -311,9 +318,11 @@ export const VisualizationControlsPanel: React.FC = () => {
                 max="10"
                 step="1"
                 value={vertExaggeration}
-                onChange={(e) => setVertExaggeration(parseInt(e.target.value, 10))}
+                disabled
+                onChange={(e) => { const value = parseInt(e.target.value, 10); setVertExaggeration(value); update({ verticalExaggeration: value }); }}
                 className="ariel-slider"
               />
+              <span className="sub-label">Unavailable in current renderer</span>
               <div className="slider-ticks-row">
                 <span>1x</span>
                 <span>5x</span>

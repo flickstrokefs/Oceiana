@@ -39,6 +39,10 @@ export class OceanEngine {
   private lastColorRanges: unknown = null;
   private lastDomain: string | null = null;
   private lastRegion: string | null = null;
+  private lastFieldRequest = '';
+  private lastCurrentRequest = '';
+  private lastProfileRequest = '';
+  private lastCurrentVectors: unknown = null;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -77,6 +81,24 @@ export class OceanEngine {
 
     this.unsubscribeState =
       oceanState.subscribe((snapshot) => {
+        const timeKey = Number.isNaN(snapshot.time.getTime()) ? '' : snapshot.time.toISOString();
+        const fieldKey = `${snapshot.activeVariable}:${snapshot.parameters.depth}:${timeKey}`;
+        const currentKey = `${snapshot.parameters.depth}:${timeKey}`;
+        if (fieldKey !== this.lastFieldRequest) {
+          this.lastFieldRequest = fieldKey;
+          void oceanState.refreshDepthSlice();
+        }
+        if (currentKey !== this.lastCurrentRequest) {
+          this.lastCurrentRequest = currentKey;
+          void oceanState.refreshCurrents();
+        }
+        const point = snapshot.queryPoint;
+        const profileKey = point ? `${point.latitude}:${point.longitude}:${snapshot.parameters.depth}:${snapshot.activeVariable}` : '';
+        if (profileKey && profileKey !== this.lastProfileRequest) {
+          this.lastProfileRequest = profileKey;
+          void oceanState.refreshPointSample();
+          void oceanState.refreshTimeseries();
+        }
         const modeChanged =
           snapshot.mode !== this.lastMode;
 
@@ -94,11 +116,21 @@ export class OceanEngine {
         if (rangesChanged) {
           this.lastColorRanges = snapshot.colorRanges;
           void this.depthSliceRenderer.update();
-          this.currentLayer.setVisible(snapshot.activeVariable === 'current');
+          this.currentLayer.setVisible(snapshot.activeVariable === 'current' && snapshot.visualization.showModelCurrents);
           if (snapshot.mode === 'underwater') {
             this.underwaterVolumeLayer.reapplyColors();
           }
         }
+        if (snapshot.currentsStatus === 'ready') {
+          const vectors = oceanState.getCurrentVectors();
+          if (vectors !== this.lastCurrentVectors) {
+            this.lastCurrentVectors = vectors;
+            this.currentLayer.setVectors(vectors);
+          }
+        }
+        this.currentLayer.setVisible(
+          snapshot.activeVariable === 'current' && snapshot.visualization.showModelCurrents,
+        );
         // ------------------------------------------------------
         // MODE / DEPTH
         // ------------------------------------------------------

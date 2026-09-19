@@ -10,13 +10,35 @@ import type {
   UnderwaterRegion,
   GliderTrajectory,
   ArgoProfile,
+  QueryPoint,
+  VisualizationSettings,
+  DataLoadStatus,
 } from '../types/ocean';
 import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
-import { MockOceanProvider } from './provider/MockOceanProvider';
+import { EmptyOceanProvider } from './provider/EmptyOceanProvider';
 import * as Cesium from 'cesium';
 import type { ColorRange } from './color/colorTypes';
-import { DEFAULT_COLOR_RANGES, loadStoredRanges, saveStoredRanges, getColorForValue, cesiumColorFromHex } from './color/colorRangeUtils';
+import {
+  DEFAULT_COLOR_RANGES,
+  loadStoredRanges,
+  saveStoredRanges,
+  getColorForValue,
+  cesiumColorFromHex,
+  buildPaletteRanges,
+  mapValueForScale,
+} from './color/colorRangeUtils';
+import {
+  fetchDepthSlice,
+  fetchOceanCurrents,
+  fetchOceanProfile,
+  fetchOceanTimeseries,
+  sliceHasValues,
+  type OceanSliceResponse,
+  type OceanCurrentVector,
+  type OceanPointSample,
+  type OceanTimeSeriesPoint,
+} from '../services/oceanService';
 
 export type OceanStateListener = (snapshot: OceanStateSnapshot) => void;
 
@@ -54,12 +76,56 @@ export class OceanState {
   private gliders: GliderTrajectory[] = [];
   private argoProfiles: ArgoProfile[] = [];
 
+  // A profile is meaningful only after the user selects a location on the globe.
+  // Do not seed this with a demo coordinate.
+  private queryPoint: QueryPoint | null = null;
+  private visualization: VisualizationSettings = {
+    palette: 'Turbo',
+    minVal: 0,
+    maxVal: 30,
+    autoRange: true,
+    scaleType: 'linear',
+    modelOpacity: 70,
+    gliderOpacity: 100,
+    argoOpacity: 80,
+    verticalExaggeration: 5,
+    isosurfaceEnabled: true,
+    isosurfaceVariable: 'temperature',
+    isosurfaceValue: 20,
+    showArgo: true,
+    showGliders: true,
+    showModelTemperature: true,
+    showModelSalinity: false,
+    showModelCurrents: true,
+    showModelChlorophyll: false,
+  };
+
+  private depthSlice: OceanSliceResponse | null = null;
+  private currentVectors: OceanCurrentVector[] = [];
+  private pointSample: OceanPointSample | null = null;
+  private timeseriesPoints: OceanTimeSeriesPoint[] = [];
+  private timeseriesIndex = 0;
+
+  private fieldStatus: DataLoadStatus = 'idle';
+  private fieldError: string | null = null;
+  private currentsStatus: DataLoadStatus = 'idle';
+  private currentsError: string | null = null;
+  private profileStatus: DataLoadStatus = 'idle';
+  private profileError: string | null = null;
+  private timeseriesStatus: DataLoadStatus = 'idle';
+  private timeseriesError: string | null = null;
+
+  private fieldRequestId = 0;
+  private currentsRequestId = 0;
+  private profileRequestId = 0;
+  private timeseriesRequestId = 0;
+
   private provider: OceanDataProvider;
   private listeners: Set<OceanStateListener> = new Set();
   private colorRanges: Record<OceanVariable, ColorRange[]> = loadStoredRanges();
 
   private constructor(provider?: OceanDataProvider) {
-    this.provider = provider || new MockOceanProvider();
+    this.provider = provider || new EmptyOceanProvider();
   }
 
   public static getInstance(): OceanState {
@@ -119,11 +185,6 @@ public setColorRanges(variable: OceanVariable, ranges: ColorRange[]): void {
   this.notify();
 }
 
-public getCesiumColorForVariable(variable: OceanVariable, value: number, alpha = 1): Cesium.Color {
-  const ranges = this.colorRanges[variable] || DEFAULT_COLOR_RANGES[variable] || [];
-  return cesiumColorFromHex(getColorForValue(value, ranges), alpha);
-}
-
 public getCesiumColorForActiveVariable(value: number, alpha = 1): Cesium.Color {
   return this.getCesiumColorForVariable(this.activeVariable, value, alpha);
 }
@@ -147,9 +208,260 @@ return {
     current: this.getColorRanges('current'),
     chlorophyll: this.getColorRanges('chlorophyll'),
   },
+  queryPoint: this.queryPoint ? { ...this.queryPoint } : null,
+  visualization: { ...this.visualization },
+  fieldStatus: this.fieldStatus,
+  fieldError: this.fieldError,
+  currentsStatus: this.currentsStatus,
+  currentsError: this.currentsError,
+  profileStatus: this.profileStatus,
+  profileError: this.profileError,
+  timeseriesStatus: this.timeseriesStatus,
+  timeseriesError: this.timeseriesError,
 };
 }
 
+  public setTime(time: Date): void {
+    if (this.time.getTime() === time.getTime()) return;
+    this.time = new Date(time);
+    this.notify();
+  }
+
+  public getTime(): Date {
+    return new Date(this.time);
+  }
+
+  public setQueryPoint(latitude: number, longitude: number): void {
+    if (this.queryPoint?.latitude === latitude && this.queryPoint.longitude === longitude) {
+      return;
+    }
+    this.queryPoint = { latitude, longitude };
+    this.notify();
+  }
+
+  public getQueryPoint(): QueryPoint | null {
+    return this.queryPoint ? { ...this.queryPoint } : null;
+  }
+
+  public getDepthSlice(): OceanSliceResponse | null {
+    return this.depthSlice;
+  }
+
+  public getCurrentVectors(): OceanCurrentVector[] {
+    return this.currentVectors;
+  }
+
+  public getPointSample(): OceanPointSample | null {
+    return this.pointSample;
+  }
+
+  public getTimeseriesPoints(): OceanTimeSeriesPoint[] {
+    return this.timeseriesPoints;
+  }
+
+  public getTimeseriesIndex(): number {
+    return this.timeseriesIndex;
+  }
+
+  public setTimeseriesIndex(index: number): void {
+    if (!this.timeseriesPoints.length) return;
+    const next = Math.max(0, Math.min(this.timeseriesPoints.length - 1, index));
+    if (next === this.timeseriesIndex) return;
+    this.timeseriesIndex = next;
+    const ts = this.timeseriesPoints[next]?.timestamp;
+    if (ts) {
+      const parsed = new Date(ts);
+      if (!Number.isNaN(parsed.getTime())) {
+        this.time = parsed;
+      }
+    }
+    this.notify();
+  }
+
+  public updateVisualization(partial: Partial<VisualizationSettings>): void {
+    let changed = false;
+    for (const key of Object.keys(partial) as (keyof VisualizationSettings)[]) {
+      if (partial[key] !== undefined && this.visualization[key] !== partial[key]) {
+        (this.visualization as unknown as Record<string, unknown>)[key] = partial[key] as never;
+        changed = true;
+      }
+    }
+    if (!changed) return;
+
+    if (
+      partial.palette !== undefined ||
+      partial.minVal !== undefined ||
+      partial.maxVal !== undefined
+    ) {
+      this.applyPaletteRanges();
+    }
+    this.notify();
+  }
+
+  public getVisualization(): VisualizationSettings {
+    return { ...this.visualization };
+  }
+
+  private applyPaletteRanges(): void {
+    const { palette, minVal, maxVal } = this.visualization;
+    this.colorRanges[this.activeVariable] = buildPaletteRanges(
+      this.activeVariable,
+      palette,
+      minVal,
+      maxVal,
+    );
+  }
+
+  public getCesiumColorForVariable(variable: OceanVariable, value: number, alpha = 1): Cesium.Color {
+    if (!Number.isFinite(value)) {
+      return Cesium.Color.TRANSPARENT;
+    }
+    const mapped = mapValueForScale(
+      value,
+      this.visualization.minVal,
+      this.visualization.maxVal,
+      this.visualization.scaleType,
+    );
+    const ranges = this.colorRanges[variable] || DEFAULT_COLOR_RANGES[variable] || [];
+    return cesiumColorFromHex(getColorForValue(mapped, ranges), alpha);
+  }
+
+  private isoTimeParam(): string | null {
+    return Number.isNaN(this.time.getTime()) ? null : this.time.toISOString();
+  }
+
+  public async refreshDepthSlice(): Promise<void> {
+    const requestId = ++this.fieldRequestId;
+    this.fieldStatus = 'loading';
+    this.fieldError = null;
+    this.notify();
+    try {
+      const slice = await fetchDepthSlice({
+        parameter: this.activeVariable,
+        depth: this.parameters.depth,
+        time: this.isoTimeParam(),
+      });
+      if (requestId !== this.fieldRequestId) return;
+      this.depthSlice = slice;
+      if (this.visualization.autoRange && Number.isFinite(slice.min_val) && Number.isFinite(slice.max_val)) {
+        this.visualization.minVal = slice.min_val;
+        this.visualization.maxVal = slice.max_val === slice.min_val ? slice.min_val + 1 : slice.max_val;
+        this.applyPaletteRanges();
+      }
+      this.fieldStatus = sliceHasValues(slice) ? 'ready' : 'empty';
+    } catch (err) {
+      if (requestId !== this.fieldRequestId) return;
+      this.depthSlice = null;
+      this.fieldStatus = 'error';
+      this.fieldError = err instanceof Error ? err.message : 'Failed to load depth slice';
+    }
+    this.notify();
+  }
+
+  public async refreshCurrents(): Promise<void> {
+    const requestId = ++this.currentsRequestId;
+    this.currentsStatus = 'loading';
+    this.currentsError = null;
+    this.notify();
+    try {
+      const payload = await fetchOceanCurrents({
+        depth: this.parameters.depth,
+        time: this.isoTimeParam(),
+      });
+      if (requestId !== this.currentsRequestId) return;
+      this.currentVectors = payload.vectors || [];
+      this.currentsStatus = this.currentVectors.length > 0 ? 'ready' : 'empty';
+    } catch (err) {
+      if (requestId !== this.currentsRequestId) return;
+      this.currentVectors = [];
+      this.currentsStatus = 'error';
+      this.currentsError = err instanceof Error ? err.message : 'Failed to load currents';
+    }
+    this.notify();
+  }
+
+  public async refreshPointSample(): Promise<void> {
+    if (!this.queryPoint) {
+      this.pointSample = null;
+      this.profileStatus = 'idle';
+      this.profileError = null;
+      this.notify();
+      return;
+    }
+    const requestId = ++this.profileRequestId;
+    this.profileStatus = 'loading';
+    this.profileError = null;
+    this.notify();
+    try {
+      const sample = await fetchOceanProfile({
+        lat: this.queryPoint.latitude,
+        lon: this.queryPoint.longitude,
+        depth: this.parameters.depth,
+      });
+      if (requestId !== this.profileRequestId) return;
+      this.pointSample = sample;
+      this.profileStatus = 'ready';
+    } catch (err) {
+      if (requestId !== this.profileRequestId) return;
+      this.pointSample = null;
+      this.profileStatus = 'error';
+      this.profileError = err instanceof Error ? err.message : 'Failed to load profile';
+    }
+    this.notify();
+  }
+
+  public async refreshTimeseries(): Promise<void> {
+    if (!this.queryPoint) {
+      this.timeseriesPoints = [];
+      this.timeseriesIndex = 0;
+      this.timeseriesStatus = 'idle';
+      this.timeseriesError = null;
+      this.notify();
+      return;
+    }
+    const requestId = ++this.timeseriesRequestId;
+    this.timeseriesStatus = 'loading';
+    this.timeseriesError = null;
+    this.notify();
+    try {
+      const payload = await fetchOceanTimeseries({
+        parameter: this.activeVariable,
+        lat: this.queryPoint.latitude,
+        lon: this.queryPoint.longitude,
+        depth: this.parameters.depth,
+      });
+      if (requestId !== this.timeseriesRequestId) return;
+      this.timeseriesPoints = payload.points || [];
+      if (this.timeseriesPoints.length === 0) {
+        this.timeseriesStatus = 'empty';
+        this.timeseriesIndex = 0;
+      } else {
+        this.timeseriesStatus = 'ready';
+        if (this.timeseriesIndex >= this.timeseriesPoints.length) {
+          this.timeseriesIndex = this.timeseriesPoints.length - 1;
+        }
+        const ts = this.timeseriesPoints[this.timeseriesIndex]?.timestamp;
+        if (ts) {
+          const parsed = new Date(ts);
+          if (!Number.isNaN(parsed.getTime())) this.time = parsed;
+        }
+      }
+    } catch (err) {
+      if (requestId !== this.timeseriesRequestId) return;
+      this.timeseriesPoints = [];
+      this.timeseriesStatus = 'error';
+      this.timeseriesError = err instanceof Error ? err.message : 'Failed to load timeseries';
+    }
+    this.notify();
+  }
+
+  public modelLayerVisibleFor(variable: OceanVariable): boolean {
+    if (variable === 'temperature') return this.visualization.showModelTemperature;
+    if (variable === 'salinity') return this.visualization.showModelSalinity;
+    if (variable === 'chlorophyll') return this.visualization.showModelChlorophyll;
+    if (variable === 'current') return this.visualization.showModelCurrents;
+    return true;
+  }
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {
       // If no observation is selected, default to the first real glider
