@@ -37,6 +37,49 @@ export const DataInstrumentsPanel: React.FC = () => {
   };
   const modelCell = (value: number | null | undefined, unit: string) => profileMessage ? 'N/A' : format(value, unit);
 
+  const gliderVal = (key: string, unit: string) => {
+    if (!snapshot.queryPoint) return 'N/A';
+    const gliders = snapshot.gliders || [];
+    if (!gliders.length) return 'N/A';
+    let best = gliders[0];
+    let bestDist = Infinity;
+    for (const g of gliders) {
+      const wp = g.waypoints[g.waypoints.length - 1];
+      if (!wp) continue;
+      const d = (wp.latitude - snapshot.queryPoint.latitude) ** 2 + (wp.longitude - snapshot.queryPoint.longitude) ** 2;
+      if (d < bestDist) {
+        bestDist = d;
+        best = g;
+      }
+    }
+    const latest = best.waypoints[best.waypoints.length - 1];
+    if (!latest) return 'N/A';
+    if (key === 'temperature') return format(latest.temperature, unit);
+    if (key === 'salinity') return format(latest.salinity, unit);
+    return 'N/A';
+  };
+
+  const argoVal = (key: string, unit: string) => {
+    if (!snapshot.queryPoint) return 'N/A';
+    const argos = snapshot.argoProfiles || [];
+    if (!argos.length) return 'N/A';
+    let best = argos[0];
+    let bestDist = Infinity;
+    for (const a of argos) {
+      const d = (a.latitude - snapshot.queryPoint.latitude) ** 2 + (a.longitude - snapshot.queryPoint.longitude) ** 2;
+      if (d < bestDist) {
+        bestDist = d;
+        best = a;
+      }
+    }
+    const nodes = best.nodes || [];
+    if (!nodes.length) return 'N/A';
+    const n = nodes[0];
+    if (key === 'temperature') return format(n.temperature, unit);
+    if (key === 'salinity') return format(n.salinity, unit);
+    return 'N/A';
+  };
+
   return <aside className="ariel-panel panel-right-data" aria-label="Data & Instruments">
     <div className="panel-title-bar"><h2 className="panel-heading">Data & Instruments</h2><Database size={13} className="panel-head-icon" /></div>
     <div className="panel-content-scroll">
@@ -66,7 +109,7 @@ export const DataInstrumentsPanel: React.FC = () => {
         {comparisonOpen && <div className="accordion-body"><div className="comparison-tabs-row" role="tablist">
           {(['glider', 'argo', 'all'] as const).map(tab => <button type="button" role="tab" aria-selected={comparisonTab === tab} className={`comp-tab-btn ${comparisonTab === tab ? 'comp-tab-active' : ''}`} onClick={() => setComparisonTab(tab)} key={tab}>{tab === 'all' ? 'All' : `Model vs ${tab === 'argo' ? 'Argo' : 'Glider'}`}</button>)}</div>
           <table className="ariel-compact-table"><thead><tr><th>Variable</th><th>Model (SIM)</th>{comparisonTab !== 'argo' && <th>Glider (REAL)</th>}{comparisonTab !== 'glider' && <th>Argo (REAL)</th>}</tr></thead><tbody>
-            {values.map(([label, key, value, unit]) => <tr key={key}><td>{label}</td><td>{modelCell(value, unit)}</td>{comparisonTab !== 'argo' && <td>N/A</td>}{comparisonTab !== 'glider' && <td>N/A</td>}</tr>)}
+            {values.map(([label, key, value, unit]) => <tr key={key}><td>{label}</td><td>{modelCell(value, unit)}</td>{comparisonTab !== 'argo' && <td>{gliderVal(key, unit)}</td>}{comparisonTab !== 'glider' && <td>{argoVal(key, unit)}</td>}</tr>)}
           </tbody></table></div>}
       </div>
     </div>

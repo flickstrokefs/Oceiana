@@ -1742,16 +1742,20 @@ export class UnderwaterFieldMesh {
           distanceSquared,
         );
 
+      const ptTemp = Number.isFinite(point.temperature) ? point.temperature : 20;
+      const ptSal = Number.isFinite(point.salinity) ? point.salinity : 35;
+      const ptVal = Number.isFinite(point.value) ? point.value : ptTemp;
+
       temperature +=
-        point.temperature *
+        ptTemp *
         weight;
 
       salinity +=
-        point.salinity *
+        ptSal *
         weight;
 
       value +=
-        point.value *
+        ptVal *
         weight;
 
       totalWeight +=
@@ -1759,7 +1763,7 @@ export class UnderwaterFieldMesh {
     }
 
     if (
-      totalWeight <= 0
+      totalWeight <= 0 || !Number.isFinite(totalWeight)
     ) {
       return {
         temperature: 15,
@@ -1768,18 +1772,19 @@ export class UnderwaterFieldMesh {
       };
     }
 
+    const avgTemp = temperature / totalWeight;
+    const avgSal = salinity / totalWeight;
+    const avgVal = value / totalWeight;
+
     return {
       temperature:
-        temperature /
-        totalWeight,
+        Number.isFinite(avgTemp) ? avgTemp : 15,
 
       salinity:
-        salinity /
-        totalWeight,
+        Number.isFinite(avgSal) ? avgSal : 35,
 
       value:
-        value /
-        totalWeight,
+        Number.isFinite(avgVal) ? avgVal : 1,
     };
   }
 

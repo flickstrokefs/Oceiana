@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { CesiumViewerContainer } from './cesium/CesiumViewerContainer';
 import { ArielSidebar } from './components/Navigation/ArielSidebar';
 import { SurfaceWorkspace } from './components/Workspaces/SurfaceWorkspace';
@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [mode, setMode] = useState<OceanMode>('surface');
   const [activePage, setActivePage] = useState<ArielPage>('3d-ocean');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [engine, setEngine] = useState<OceanEngine | null>(null);
   const engineRef = useRef<OceanEngine | null>(null);
 
   useEffect(() => {
@@ -32,6 +33,11 @@ export const App: React.FC = () => {
     return unsub;
   }, []);
 
+  const handleEngineReady = useCallback((eng: OceanEngine) => {
+    engineRef.current = eng;
+    setEngine(eng);
+  }, []);
+
   const handleResetView = () => {
     if (engineRef.current) {
       engineRef.current.resetView();
@@ -42,9 +48,6 @@ export const App: React.FC = () => {
     setSidebarCollapsed((prev) => !prev);
   };
 
-  const handleEngineReady = React.useCallback((engine: OceanEngine) => {
-    engineRef.current = engine;
-  }, []);
 
   return (
     <div className="ariel-app-shell">
@@ -53,9 +56,7 @@ export const App: React.FC = () => {
         CRITICAL: Kept mounted at z-index 0 at all times.
         Never unmounted, never reset, never replaced with a mock image.
       */}
-      <CesiumViewerContainer
-        onEngineReady={handleEngineReady}
-      />
+      <CesiumViewerContainer onEngineReady={handleEngineReady} />
 
       {/* Main UI Overlay Layer */}
       <div className="ariel-ui-overlay">
@@ -66,7 +67,13 @@ export const App: React.FC = () => {
         />
 
         {/* View Content Area */}
-        <main className={`ariel-main-content ${activePage === '3d-ocean' && sidebarCollapsed ? 'content-full' : ''}`}>
+        <main
+          className={`ariel-main-content ${
+            activePage === '3d-ocean' && sidebarCollapsed ? 'content-full' : ''
+          } ${activePage === 'hazard' ? 'hazard-mode' : ''} ${
+            activePage === 'fishery' ? 'fishery-mode' : ''
+          }`}
+        >
           {activePage === '3d-ocean' && (
             mode === 'surface' ? (
               <SurfaceWorkspace onResetView={handleResetView} onToggleSidebar={toggleSidebar} />
@@ -79,8 +86,8 @@ export const App: React.FC = () => {
           {activePage === 'data-manager' && <DataManagerView />}
           {activePage === 'settings' && <SettingsView />}
           {activePage === 'search' && <SearchResourcesView />}
-          {activePage === 'hazard' && <HazardAssessmentView />}
-          {activePage === 'fishery' && <FisheryAdvisoriesView />}
+          {activePage === 'hazard' && <HazardAssessmentView engine={engine} />}
+          {activePage === 'fishery' && <FisheryAdvisoriesView engine={engine} />}
         </main>
       </div>
 

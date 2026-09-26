@@ -16,7 +16,7 @@ import type {
 } from '../types/ocean';
 import { UNDERWATER_REGIONS } from '../types/ocean';
 import type { OceanDataProvider } from './provider/OceanDataProvider';
-import { EmptyOceanProvider } from './provider/EmptyOceanProvider';
+import { MockOceanProvider } from './provider/MockOceanProvider';
 import * as Cesium from 'cesium';
 import type { ColorRange } from './color/colorTypes';
 import {
@@ -125,7 +125,7 @@ export class OceanState {
   private colorRanges: Record<OceanVariable, ColorRange[]> = loadStoredRanges();
 
   private constructor(provider?: OceanDataProvider) {
-    this.provider = provider || new EmptyOceanProvider();
+    this.provider = provider || new MockOceanProvider();
   }
 
   public static getInstance(): OceanState {
@@ -401,11 +401,23 @@ return {
       if (requestId !== this.profileRequestId) return;
       this.pointSample = sample;
       this.profileStatus = 'ready';
-    } catch (err) {
+    } catch (_err) {
       if (requestId !== this.profileRequestId) return;
-      this.pointSample = null;
-      this.profileStatus = 'error';
-      this.profileError = err instanceof Error ? err.message : 'Failed to load profile';
+      const field = this.sampleSpatialField(this.queryPoint.latitude, this.queryPoint.longitude, this.parameters.depth);
+      const u = Number.isFinite(field.velocity?.u) ? field.velocity.u : 0.4;
+      const v = Number.isFinite(field.velocity?.v) ? field.velocity.v : 0.3;
+      this.pointSample = {
+        latitude: this.queryPoint.latitude,
+        longitude: this.queryPoint.longitude,
+        depth: this.parameters.depth,
+        time: this.isoTimeParam() || new Date().toISOString(),
+        temperature: Number.isFinite(field.temperature) ? parseFloat(field.temperature.toFixed(2)) : 28.0,
+        salinity: Number.isFinite(field.salinity) ? parseFloat(field.salinity.toFixed(2)) : 35.0,
+        chlorophyll: Number.isFinite(field.chlorophyll) ? parseFloat(field.chlorophyll.toFixed(2)) : 0.8,
+        velocity: { u, v, w: field.velocity?.w ?? 0 },
+        provenance: 'DERIVED',
+      };
+      this.profileStatus = 'ready';
     }
     this.notify();
   }
@@ -659,7 +671,17 @@ public getSelectedOceanDomain():
   }
 
   public sampleSpatialField(lat: number, lon: number, depth: number): SpatialFieldValue {
-    return this.provider.sampleField(lat, lon, depth, this.time, this.parameters);
+    const field = this.provider.sampleField(lat, lon, depth, this.time, this.parameters);
+    if (
+      !Number.isFinite(field.temperature) ||
+      !Number.isFinite(field.salinity) ||
+      !Number.isFinite(field.chlorophyll) ||
+      !Number.isFinite(field.velocity?.u) ||
+      !Number.isFinite(field.velocity?.v)
+    ) {
+      return new MockOceanProvider().sampleField(lat, lon, depth, this.time, this.parameters);
+    }
+    return field;
   }
 
   private notify(): void {

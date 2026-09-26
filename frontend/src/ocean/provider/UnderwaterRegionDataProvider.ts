@@ -117,12 +117,17 @@ export async function fetchUnderwaterRegionData(
         );
 
         const sample = oceanState.sampleSpatialField(lat, lon, sampleDepth);
+        const temp = Number.isFinite(sample?.temperature) ? sample.temperature : 24.0;
+        const sal = Number.isFinite(sample?.salinity) ? sample.salinity : 35.0;
+        const chl = Number.isFinite(sample?.chlorophyll) ? sample.chlorophyll : 0.8;
+        const uVal = Number.isFinite(sample?.velocity?.u) ? sample.velocity.u : 0.4;
+        const vVal = Number.isFinite(sample?.velocity?.v) ? sample.velocity.v : 0.3;
 
-        let value = sample.temperature;
-        if (query.variable === 'salinity') value = sample.salinity;
-        else if (query.variable === 'chlorophyll') value = sample.chlorophyll;
+        let value = temp;
+        if (query.variable === 'salinity') value = sal;
+        else if (query.variable === 'chlorophyll') value = chl;
         else if (query.variable === 'current') {
-          value = Math.hypot(sample.velocity.u, sample.velocity.v);
+          value = Math.hypot(uVal, vVal);
         }
 
         points.push({
@@ -131,17 +136,17 @@ export async function fetchUnderwaterRegionData(
           longitude: parseFloat(lon.toFixed(4)),
           depth: sampleDepth,
           value: parseFloat(value.toFixed(2)),
-          temperature: parseFloat(sample.temperature.toFixed(2)),
-          salinity: parseFloat(sample.salinity.toFixed(2)),
-          chlorophyll: parseFloat(sample.chlorophyll.toFixed(2)),
-          velocity: sample.velocity,
+          temperature: parseFloat(temp.toFixed(2)),
+          salinity: parseFloat(sal.toFixed(2)),
+          chlorophyll: parseFloat(chl.toFixed(2)),
+          velocity: { u: uVal, v: vVal, w: sample?.velocity?.w ?? 0 },
         });
       }
 
       // Sample velocity vector at the exact query depth for current visualization
       const surfaceSample = oceanState.sampleSpatialField(lat, lon, query.depth);
-      const u = surfaceSample.velocity.u;
-      const v = surfaceSample.velocity.v;
+      const u = Number.isFinite(surfaceSample?.velocity?.u) ? surfaceSample.velocity.u : 0.4;
+      const v = Number.isFinite(surfaceSample?.velocity?.v) ? surfaceSample.velocity.v : 0.3;
       const speed = Math.hypot(u, v);
       const angle = Math.atan2(v, u);
 

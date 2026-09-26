@@ -1,7 +1,7 @@
 from typing import Literal, Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 
-ProvenanceType = Literal["REAL", "DERIVED", "SIMULATED"]
+from .provenance import ProvenanceType, ProvenanceMetadata
 
 
 class SpatialBoundingBox(BaseModel):

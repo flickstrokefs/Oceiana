@@ -30,8 +30,17 @@ class IngestionError(ArielException):
     pass
 
 
+class DataProviderUnavailableError(ArielException):
+    """Raised when an external or local scientific data provider cannot supply the requested product."""
+    def __init__(self, message: str, source: str, retryable: bool = True, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, details)
+        self.source = source
+        self.retryable = retryable
+
+
 def to_http_exception(exc: ArielException) -> HTTPException:
     """Map domain exceptions to standard HTTP status codes."""
+    from datetime import datetime, timezone
     if isinstance(exc, DatasetNotFoundError):
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -47,7 +56,20 @@ def to_http_exception(exc: ArielException) -> HTTPException:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"error": "IngestionFailure", "message": exc.message, "details": exc.details},
         )
+    elif isinstance(exc, DataProviderUnavailableError):
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "unavailable",
+                "message": exc.message,
+                "source": exc.source,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "retryable": exc.retryable,
+                "details": exc.details,
+            },
+        )
     return HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail={"error": "InternalScientificError", "message": exc.message, "details": exc.details},
     )
+

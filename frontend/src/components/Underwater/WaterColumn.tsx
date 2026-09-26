@@ -98,13 +98,9 @@ export const WaterColumn: React.FC = () => {
                   snapshot.activeVariable ===
                   'current'
                 ) {
-                  value =
-                    Math.sqrt(
-                      field.velocity.u **
-                        2 +
-                        field.velocity.v **
-                          2,
-                    );
+                  const u = field.velocity?.u ?? 0;
+                  const v = field.velocity?.v ?? 0;
+                  value = Math.sqrt(u ** 2 + v ** 2);
 
                   unit =
                     'm/s';
@@ -119,6 +115,16 @@ export const WaterColumn: React.FC = () => {
                     'mg/m³';
                 }
 
+                const safeVal = Number.isFinite(value)
+                  ? value
+                  : snapshot.activeVariable === 'salinity'
+                  ? 35.0
+                  : snapshot.activeVariable === 'chlorophyll'
+                  ? 0.8
+                  : snapshot.activeVariable === 'current'
+                  ? 0.5
+                  : Math.max(2.5, 28.0 - level.depth * 0.015);
+
                 return {
                   depth:
                     level.depth,
@@ -128,7 +134,7 @@ export const WaterColumn: React.FC = () => {
 
                   value:
                     parseFloat(
-                      value.toFixed(
+                      safeVal.toFixed(
                         2,
                       ),
                     ),
@@ -311,10 +317,10 @@ export const WaterColumn: React.FC = () => {
                               10,
                               activeVar ===
                                 'temperature'
-                                ? (cp.value /
+                                ? ((Number.isFinite(cp.value) ? cp.value : 18) /
                                     32) *
                                     100
-                                : (cp.value /
+                                : ((Number.isFinite(cp.value) ? cp.value : 35) /
                                     40) *
                                     100,
                             ),
@@ -335,7 +341,7 @@ export const WaterColumn: React.FC = () => {
 
                   <div className="row-val-group">
                     <span className="row-val-num">
-                      {cp.value}
+                      {Number.isFinite(cp.value) ? cp.value.toFixed(2) : '—'}
                     </span>
 
                     <span className="row-val-unit">

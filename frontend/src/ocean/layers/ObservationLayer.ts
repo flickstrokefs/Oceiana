@@ -138,7 +138,10 @@ export class ObservationLayer {
           }
 
           if (isUnderwater) {
-            return `● ${argo.stationCode} [-${closest.depth}m: ${closest.temperature?.toFixed(1) ?? 'N/A'}°C]`;
+            const tempStr = typeof closest?.temperature === 'number' && Number.isFinite(closest.temperature)
+              ? `${closest.temperature.toFixed(1)}°C`
+              : 'N/A';
+            return `● ${argo.stationCode} [-${closest.depth}m: ${tempStr}]`;
           }
           return `● ${argo.stationCode}`;
         }, false),
@@ -327,7 +330,46 @@ export class ObservationLayer {
     const coordinate = (value: number | undefined, positive: string, negative: string) => value == null || !Number.isFinite(value) ? 'N/A' : `${Math.abs(value).toFixed(3)}°${value >= 0 ? positive : negative}`;
     const row = (label: string, value: string) => `<div class="instrument-hover-row"><span>${label}</span><strong>${value}</strong></div>`;
     const name = argo?.stationCode ?? glider?.name ?? 'Unknown instrument';
-    this.hoverCard.innerHTML = `<div class="instrument-hover-kind ${type}">${type === 'argo' ? 'ARGO FLOAT' : 'GLIDER'}</div><div class="instrument-hover-name"></div>${row('Lat', coordinate(latitude, 'N', 'S'))}${row('Lon', coordinate(longitude, 'E', 'W'))}${row('Depth', latest ? `${latest.depth.toFixed(0)} m` : 'N/A')}${row('Temperature', ObservationLayer.value(latest?.temperature, '°C'))}${row('Salinity', ObservationLayer.value(latest?.salinity, 'PSU'))}`;
+
+    let depthVal: number | null | undefined;
+    let tempVal: number | null | undefined;
+    let salVal: number | null | undefined;
+
+    if (type === 'glider' && glider) {
+      depthVal = latest?.depth ?? 0;
+      tempVal = latest?.temperature;
+      salVal = latest?.salinity;
+    } else if (type === 'argo' && argo) {
+      const snapshot = OceanState.getInstance().getSnapshot();
+      const currentDepth = snapshot.mode === 'underwater' ? snapshot.parameters.depth : 0;
+      const nodes = argo.nodes || [];
+      if (nodes.length > 0) {
+        let best = nodes[0];
+        let minDiff = Math.abs(best.depth - currentDepth);
+        for (const n of nodes) {
+          const diff = Math.abs(n.depth - currentDepth);
+          if (diff < minDiff) {
+            minDiff = diff;
+            best = n;
+          }
+        }
+        depthVal = best.depth;
+        tempVal = best.temperature;
+        salVal = best.salinity;
+      }
+      if (tempVal == null || !Number.isFinite(tempVal)) {
+        const field = OceanState.getInstance().sampleSpatialField(argo.latitude, argo.longitude, currentDepth);
+        depthVal = currentDepth;
+        tempVal = field.temperature;
+        salVal = field.salinity;
+      }
+    }
+
+    const depthStr = typeof depthVal === 'number' && Number.isFinite(depthVal) ? `${depthVal.toFixed(0)} m` : '0 m';
+    const tempStr = ObservationLayer.value(tempVal, '°C');
+    const salStr = ObservationLayer.value(salVal, 'PSU');
+
+    this.hoverCard.innerHTML = `<div class="instrument-hover-kind ${type}">${type === 'argo' ? 'ARGO FLOAT' : 'GLIDER'}</div><div class="instrument-hover-name"></div>${row('Lat', coordinate(latitude, 'N', 'S'))}${row('Lon', coordinate(longitude, 'E', 'W'))}${row('Depth', depthStr)}${row('Temperature', tempStr)}${row('Salinity', salStr)}`;
     const nameElement = this.hoverCard.querySelector('.instrument-hover-name');
     if (nameElement) nameElement.textContent = name;
     this.hoverCard.style.left = `${position.x + 16}px`;

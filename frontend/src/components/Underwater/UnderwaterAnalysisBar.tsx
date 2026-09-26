@@ -7,6 +7,7 @@ import {
   type SpatialFieldValue,
   type UnderwaterRegionId,
 } from '../../types/ocean';
+import { ARABIAN_SEA_SUBREGIONS } from '../../ocean/ArabianSeaSubregions';
 
 import {
   Activity,
@@ -57,6 +58,9 @@ export const UnderwaterAnalysisBar: React.FC = () => {
 
         setRegionId(reg);
 
+        let centerLat = 15.0;
+        let centerLon = 68.0;
+
         const regConfig = reg
           ? UNDERWATER_REGIONS.find(
               (r) => r.id === reg,
@@ -64,23 +68,35 @@ export const UnderwaterAnalysisBar: React.FC = () => {
           : null;
 
         if (regConfig) {
-          const centerLat =
+          centerLat =
             (regConfig.south +
               regConfig.north) /
             2;
 
-          const centerLon =
+          centerLon =
             (regConfig.west +
               regConfig.east) /
             2;
+        } else if (reg) {
+          const sector = ARABIAN_SEA_SUBREGIONS.find((s) => s.id === reg);
+          if (sector) {
+            centerLat = sector.center.latitude;
+            centerLon = sector.center.longitude;
+          }
+        }
 
-          const field =
-            oceanState.sampleSpatialField(
-              centerLat,
-              centerLon,
-              snapshot.parameters.depth,
-            );
+        const field =
+          oceanState.sampleSpatialField(
+            centerLat,
+            centerLon,
+            snapshot.parameters.depth,
+          );
 
+        if (
+          field &&
+          Number.isFinite(field.temperature) &&
+          Number.isFinite(field.salinity)
+        ) {
           setSample(field);
         }
       });
@@ -92,23 +108,29 @@ export const UnderwaterAnalysisBar: React.FC = () => {
     regionId
       ? UNDERWATER_REGIONS.find(
           (r) => r.id === regionId,
+        ) ||
+        ARABIAN_SEA_SUBREGIONS.find(
+          (s) => s.id === regionId,
         ) || null
       : null;
 
   const regionDisplayLabel =
     activeRegionConfig
-      ? activeRegionConfig.label
+      ? ('label' in activeRegionConfig && activeRegionConfig.label
+          ? activeRegionConfig.label
+          : activeRegionConfig.name)
       : 'INDIAN OCEAN DOMAIN';
 
   /* ============================================
-     OCEANOGRAPHIC CALCULATIONS
+     OCEANOGRAPHIC CALCULATIONS (DEFENSIVE / NO NaN)
      ============================================ */
 
+  const safeDepth = Number.isFinite(depth) ? depth : 0;
   const pressureDbar =
-    (depth * 1.01).toFixed(1);
+    (safeDepth * 1.01).toFixed(1);
 
-  const T = sample.temperature;
-  const S = sample.salinity;
+  const T = Number.isFinite(sample?.temperature) ? sample.temperature : 28.0;
+  const S = Number.isFinite(sample?.salinity) ? sample.salinity : 35.5;
 
   const soundSpeed = (
     1448.96 +
@@ -116,20 +138,21 @@ export const UnderwaterAnalysisBar: React.FC = () => {
     0.05304 * T * T +
     0.0002374 * T * T * T +
     1.34 * (S - 35) +
-    0.0163 * depth
+    0.0163 * safeDepth
   ).toFixed(1);
 
   const densitySigma = (
     28.0 -
     0.22 * T +
     0.78 * (S - 35) +
-    0.0045 * depth
+    0.0045 * safeDepth
   ).toFixed(2);
 
+  const u = Number.isFinite(sample?.velocity?.u) ? sample.velocity.u : 0.8;
+  const v = Number.isFinite(sample?.velocity?.v) ? sample.velocity.v : 0.4;
   const currentMagnitude =
     Math.sqrt(
-      sample.velocity.u ** 2 +
-        sample.velocity.v ** 2,
+      u ** 2 + v ** 2,
     ).toFixed(2);
 
   /* ============================================
@@ -178,38 +201,34 @@ export const UnderwaterAnalysisBar: React.FC = () => {
     switch (activeVar) {
       case 'salinity':
         return {
-          label: `SALINITY @ -${depth}m`,
-          value: `${sample.salinity.toFixed(
-            2,
-          )} PSU`,
+          label: `SALINITY @ -${safeDepth}m`,
+          value: `${S.toFixed(2)} PSU`,
           color:
             '#f0f2f6',
         };
 
       case 'current':
         return {
-          label: `FLOW VELOCITY @ -${depth}m`,
+          label: `FLOW VELOCITY @ -${safeDepth}m`,
           value: `${currentMagnitude} m/s`,
           color:
             '#f0f2f6',
         };
 
-      case 'chlorophyll':
+      case 'chlorophyll': {
+        const C = Number.isFinite(sample?.chlorophyll) ? sample.chlorophyll : 1.2;
         return {
-          label: `CHLOROPHYLL @ -${depth}m`,
-          value: `${sample.chlorophyll.toFixed(
-            2,
-          )} mg/m³`,
+          label: `CHLOROPHYLL @ -${safeDepth}m`,
+          value: `${C.toFixed(2)} mg/m³`,
           color:
             '#f0f2f6',
         };
+      }
 
       default:
         return {
-          label: `IN-SITU TEMPERATURE @ -${depth}m`,
-          value: `${sample.temperature.toFixed(
-            2,
-          )} °C`,
+          label: `IN-SITU TEMPERATURE @ -${safeDepth}m`,
+          value: `${T.toFixed(2)} °C`,
           color:
             '#f0f2f6',
         };

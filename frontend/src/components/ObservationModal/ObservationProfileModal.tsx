@@ -279,43 +279,52 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
 
   const handleRetry = () => setLoadToken((t) => t + 1);
 
+  // Helper to ensure finite number with fallback
+  const safeNum = (v: number | null | undefined, fallback: number): number =>
+    typeof v === 'number' && Number.isFinite(v) ? v : fallback;
+
   // Standard Comparison Table Rows matching reference
   const comparisonRows = [
     {
       variable: 'Temperature (°C)',
-      model: payload?.model.surfaceValues.temperature ?? 18.2,
-      glider: payload?.glider?.surfaceValues.temperature ?? 18.4,
-      argo: payload?.argo?.surfaceValues.temperature ?? 18.1,
+      model: safeNum(payload?.model.surfaceValues.temperature, 18.2),
+      glider: safeNum(payload?.glider?.surfaceValues.temperature, 18.4),
+      argo: safeNum(payload?.argo?.surfaceValues.temperature, 18.1),
     },
     {
       variable: 'Salinity (PSU)',
-      model: payload?.model.surfaceValues.salinity ?? 35.0,
-      glider: payload?.glider?.surfaceValues.salinity ?? 35.1,
-      argo: payload?.argo?.surfaceValues.salinity ?? 35.1,
+      model: safeNum(payload?.model.surfaceValues.salinity, 35.0),
+      glider: safeNum(payload?.glider?.surfaceValues.salinity, 35.1),
+      argo: safeNum(payload?.argo?.surfaceValues.salinity, 35.1),
     },
     {
       variable: 'Current Speed (m/s)',
-      model: payload?.model.surfaceValues.currentSpeed ?? 0.6,
-      glider: payload?.glider?.surfaceValues.currentSpeed ?? 0.6,
-      argo: payload?.argo?.surfaceValues.currentSpeed ?? 0.6,
+      model: safeNum(payload?.model.surfaceValues.currentSpeed, 0.6),
+      glider: safeNum(payload?.glider?.surfaceValues.currentSpeed, 0.6),
+      argo: safeNum(payload?.argo?.surfaceValues.currentSpeed, 0.6),
     },
     {
       variable: 'Chlorophyll (mg/m³)',
-      model: payload?.model.surfaceValues.chlorophyll ?? 0.4,
-      glider: payload?.glider?.surfaceValues.chlorophyll ?? 0.6,
-      argo: payload?.argo?.surfaceValues.chlorophyll ?? 0.8,
+      model: safeNum(payload?.model.surfaceValues.chlorophyll, 0.4),
+      glider: safeNum(payload?.glider?.surfaceValues.chlorophyll, 0.6),
+      argo: safeNum(payload?.argo?.surfaceValues.chlorophyll, 0.8),
     },
   ];
 
   // Standard Profile table data matching reference
   const profileTableData = useMemo(() => {
     if (payload?.profile?.depths?.length) {
-      return payload.profile.depths.map((depth, idx) => ({
-        depth,
-        model: payload.profile.model[idx]?.[selectedVar] ?? null,
-        glider: payload.profile.glider[idx]?.[selectedVar] ?? null,
-        argo: payload.profile.argo[idx]?.[selectedVar] ?? null,
-      }));
+      return payload.profile.depths.map((depth, idx) => {
+        const m = payload.profile.model[idx]?.[selectedVar];
+        const g = payload.profile.glider[idx]?.[selectedVar];
+        const a = payload.profile.argo[idx]?.[selectedVar];
+        return {
+          depth,
+          model: typeof m === 'number' && Number.isFinite(m) ? m : null,
+          glider: typeof g === 'number' && Number.isFinite(g) ? g : null,
+          argo: typeof a === 'number' && Number.isFinite(a) ? a : null,
+        };
+      });
     }
     // Static fallback matching reference image exactly if payload is empty
     return [
@@ -649,9 +658,9 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                     {comparisonRows.map((row) => (
                       <tr key={row.variable}>
                         <td>{row.variable}</td>
-                        <td className="text-cyan">{typeof row.model === 'number' ? row.model.toFixed(1) : row.model}</td>
-                        <td className="text-amber">{typeof row.glider === 'number' ? row.glider.toFixed(1) : row.glider}</td>
-                        <td className="text-coral">{typeof row.argo === 'number' ? row.argo.toFixed(1) : row.argo}</td>
+                        <td className="text-cyan">{typeof row.model === 'number' && Number.isFinite(row.model) ? row.model.toFixed(1) : (row.model ?? '—')}</td>
+                        <td className="text-amber">{typeof row.glider === 'number' && Number.isFinite(row.glider) ? row.glider.toFixed(1) : (row.glider ?? '—')}</td>
+                        <td className="text-coral">{typeof row.argo === 'number' && Number.isFinite(row.argo) ? row.argo.toFixed(1) : (row.argo ?? '—')}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -818,13 +827,13 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                           <tr key={row.depth}>
                             <td className="cell-depth">{row.depth}</td>
                             <td className="cell-model text-cyan">
-                              {typeof row.model === 'number' ? row.model.toFixed(1) : '—'}
+                              {typeof row.model === 'number' && Number.isFinite(row.model) ? row.model.toFixed(1) : '—'}
                             </td>
                             <td className="cell-glider text-amber">
-                              {typeof row.glider === 'number' ? row.glider.toFixed(1) : '—'}
+                              {typeof row.glider === 'number' && Number.isFinite(row.glider) ? row.glider.toFixed(1) : '—'}
                             </td>
                             <td className="cell-argo text-coral">
-                              {typeof row.argo === 'number' ? row.argo.toFixed(1) : '—'}
+                              {typeof row.argo === 'number' && Number.isFinite(row.argo) ? row.argo.toFixed(1) : '—'}
                             </td>
                           </tr>
                         ))}

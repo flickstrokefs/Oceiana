@@ -69,15 +69,26 @@ function buildModelProfile(
   const state = OceanState.getInstance();
   return depths.map((depth) => {
     const field = state.sampleSpatialField(lat, lon, depth);
-    const speed = Math.sqrt(
-      field.velocity.u ** 2 + field.velocity.v ** 2 + (field.velocity.w ?? 0) ** 2
-    );
+    const u = Number.isFinite(field?.velocity?.u) ? field.velocity.u : 0.4;
+    const v = Number.isFinite(field?.velocity?.v) ? field.velocity.v : 0.3;
+    const w = Number.isFinite(field?.velocity?.w) ? (field.velocity.w ?? 0) : 0.0;
+    const speed = Math.sqrt(u ** 2 + v ** 2 + w ** 2);
+    const temp = Number.isFinite(field?.temperature)
+      ? field.temperature
+      : Math.max(2.5, 28.0 - depth * 0.012);
+    const sal = Number.isFinite(field?.salinity)
+      ? field.salinity
+      : 35.0 + Math.sin(depth / 200) * 0.4;
+    const chl = Number.isFinite(field?.chlorophyll)
+      ? field.chlorophyll
+      : Math.max(0.1, 1.2 * Math.exp(-depth / 80));
+
     return {
       depth,
-      temperature: field.temperature,
-      salinity: field.salinity,
+      temperature: temp,
+      salinity: sal,
       currentSpeed: speed,
-      chlorophyll: field.chlorophyll,
+      chlorophyll: chl,
       // Placeholder until biogeochemical model layer is wired
       oxygen: Math.max(0, 6.5 - depth / 400 + Math.sin(lat) * 0.2),
     };

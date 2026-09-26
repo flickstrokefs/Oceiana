@@ -163,8 +163,8 @@ Every observation and profile item returned by the API must declare its provenan
     {
       "variable": "Current Speed (m/s)",
       "threshold": 1.5,
-      "region": "Indian Ocean",
-      "time": "2024-09-12T00:00:00Z"
+      "region": "Arabian Sea",
+      "time_range": "2026-09-18T00:00:00Z"
     }
     ```
   - **Response**:
@@ -172,19 +172,47 @@ Every observation and profile item returned by the API must declare its provenan
     {
       "variable": "Current Speed (m/s)",
       "threshold": 1.5,
-      "total_exceedance_area_km2": 435000.0,
-      "max_value": 2.5,
+      "region": "Arabian Sea",
       "unit": "m/s",
+      "max_value": 2.45,
+      "total_area_exceeded_km2": 43500.0,
+      "provenance": "MODEL",
+      "timestamp": "2026-09-18T06:00:00Z",
       "regions": [
-        { "name": "North Arabian Sea", "area": "125,000", "maxValue": "2.4", "risk_level": "HIGH" },
-        { "name": "Bay of Bengal", "area": "98,000", "maxValue": "2.1", "risk_level": "MODERATE" },
-        { "name": "Lakshadweep", "area": "62,000", "maxValue": "1.8", "risk_level": "MODERATE" },
-        { "name": "Andaman Sea", "area": "40,000", "maxValue": "1.7", "risk_level": "LOW" },
-        { "name": "Equatorial IO", "area": "110,000", "maxValue": "2.5", "risk_level": "HIGH" }
+        {
+          "name": "North Arabian Sea",
+          "region_id": "north_arabian_sea",
+          "area_exceeded_km2": 43500.0,
+          "total_area_km2": 1820000.0,
+          "exceedance_pct": 2.39,
+          "max_value": 2.45,
+          "threshold": 1.5,
+          "unit": "m/s",
+          "risk_level": "MODERATE",
+          "status": "Localized boundary current jet exceeding operational limits",
+          "source": "Copernicus Marine Service (GLORYS12V1)",
+          "provenance": "MODEL",
+          "timestamp": "2026-09-18T06:00:00Z"
+        }
       ],
-      "provenance": "REAL"
+      "provenance_meta": {
+        "provenance": "MODEL",
+        "source": "Copernicus Marine Service (E.U. Copernicus Programme)",
+        "dataset": "GLOBAL_ANALYSISFORECAST_PHY_001_024",
+        "timestamp": "2026-09-18T06:00:00Z",
+        "processing_level": "L4 Daily Near-Real-Time Physics Reanalysis/Forecast",
+        "resolution": "0.083° (~9 km)",
+        "region": "Arabian Sea"
+      }
     }
     ```
+- `GET /api/hazard/grid`
+  - **Query Params**: `variable`, `region`, `threshold` (optional), `time_range` (optional)
+  - **Response**: `HazardGridData` with 2D arrays `latitudes`, `longitudes`, `values`, `mask` (boolean exceedance matrix), `exceeded_area_km2`, and full `provenance_meta`.
+- `GET /api/hazard/layers`
+  - **Response**: Registered ocean hazard layers with operational thresholds and metadata.
+- `GET /api/hazard/sources`
+  - **Response**: Operational provider catalog metadata (Copernicus GLORYS12V1, Copernicus Wave, NOAA Coral Reef Watch).
 
 ---
 
@@ -194,25 +222,56 @@ Every observation and profile item returned by the API must declare its provenan
   - **Response**:
     ```json
     {
-      "region": "Indian Ocean",
-      "generated_date": "12 Sep 2024",
+      "region": "Arabian Sea",
+      "variable": "Chlorophyll (mg/m³)",
+      "time_range": "Next 7 days",
+      "generated_date": "18 Sep 2026 06:00 UTC",
+      "valid_until": "21 Sep 2026 23:59 UTC",
+      "provenance": "OFFICIAL",
       "conditions": {
-        "status": "Favourable Conditions",
-        "chlorophyll_range": "0.3 – 2.5 mg/m³",
-        "sst_range": "26 – 29 °C",
-        "current_state": "Moderate (0.4 – 0.8 m/s)"
+        "chlorophyll_range": "0.15 – 3.52 mg/m³",
+        "sst_range": "26.0 – 29.5 °C",
+        "current_state": "Moderate (0.2 – 0.8 m/s)",
+        "wave_state": "Slight to Moderate (1.5 – 2.6 m)",
+        "pfz_count": 14,
+        "mean_productivity_score": 72.4,
+        "summary_text": "Active coastal thermal/chlorophyll fronts detected along continental shelf."
       },
       "recommended_zones": [
-        { "name": "Eastern Arabian Sea", "status": "High productivity (thermal front)", "rating": "HIGH", "lat": 15.2, "lon": 72.8 },
-        { "name": "Persian Bay of Bengal", "status": "Good conditions", "rating": "GOOD", "lat": 18.4, "lon": 86.1 },
-        { "name": "Western Bay of Bengal", "status": "Good conditions", "rating": "GOOD", "lat": 13.5, "lon": 81.2 },
-        { "name": "Equatorial Indian Ocean", "status": "Moderate conditions", "rating": "MODERATE", "lat": 2.1, "lon": 78.0 }
+        {
+          "id": "pfz-incois-karnataka",
+          "name": "Karnataka Coastal Sector PFZ",
+          "region": "Arabian Sea",
+          "status": "Active Upwelling Front",
+          "rating": "VERY_GOOD",
+          "chlorophyll_mean": 2.4,
+          "sst_mean": 27.5,
+          "front_strength": 0.42,
+          "current_speed": 0.45,
+          "wave_height": 1.6,
+          "score": 88.0,
+          "confidence": 0.90,
+          "is_official": true,
+          "sector": "Karnataka Sector",
+          "landing_center": "Mangalore (Old Port)",
+          "distance_km": 42.0,
+          "bearing_deg": 285.0,
+          "source": "INCOIS Marine Fisheries Advisory Services (MFAS)",
+          "provenance": "OFFICIAL",
+          "valid_until": "21 Sep 2026 23:59 UTC"
+        }
       ],
-      "provenance": "DERIVED"
+      "provenance_meta": { ... }
     }
     ```
 - `GET /api/fishery/pfz`
-  - **Description**: Vector feature coordinates of high biological productivity blooms and thermal fronts.
+  - **Query Params**: `region`
+  - **Response**: Georeferenced coordinates of both official INCOIS PFZs (`provenance: "OFFICIAL"`) and Ocean-X algorithmic front detections (`provenance: "DERIVED"`).
+- `GET /api/fishery/grid`
+  - **Query Params**: `variable`, `region`, `time_range`
+  - **Response**: 2D geospatial raster grid for Chlorophyll, SST, Currents, Wave Height, Thermal Front Gradient, or Productivity Index.
+- `GET /api/fishery/pfz/{id}`
+  - **Response**: Comprehensive in-situ parameters for single selected PFZ zone.
 
 ---
 
