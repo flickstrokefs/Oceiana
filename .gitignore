@@ -27,3 +27,7 @@ dist/
 # Python virtual environment
 .venv/
 Ariel.zip
+
+scratch/iho/World_Seas_IHO_v3/*.shp
+
+scratch/iho/World_Seas_IHO_v3/*.shp

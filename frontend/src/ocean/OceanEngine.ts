@@ -115,13 +115,15 @@ export class OceanEngine {
               snapshot.parameters.depth,
             );
 
-            this.oceanDomainLayer.setVisible(
-              snapshot.mode === 'underwater',
-            );
+            const hasSelectedDomainOrRegion =
+              Boolean(snapshot.underwaterRegion) ||
+              Boolean(snapshot.selectedOceanDomain);
 
-            this.underwaterVolumeLayer.setVisible(
-              snapshot.mode === 'underwater',
-            );
+            const shouldShowLayer =
+              snapshot.mode === 'underwater' || hasSelectedDomainOrRegion;
+
+            this.oceanDomainLayer.setVisible(shouldShowLayer);
+            this.underwaterVolumeLayer.setVisible(shouldShowLayer);
           } else {
             this.cameraController.setDepth(
               snapshot.parameters.depth,
@@ -140,37 +142,35 @@ export class OceanEngine {
         }
 
         // ------------------------------------------------------
-        // UNDERWATER REGION & DOMAIN
+        // UNDERWATER REGION & DOMAIN (2D CLIPPED GRID & BOUNDARY)
         // ------------------------------------------------------
 
-        if (snapshot.mode === 'underwater') {
-          const domainChanged =
-            snapshot.selectedOceanDomain !== this.lastDomain;
-          const regionChanged =
-            snapshot.underwaterRegion !== this.lastRegion;
+        const domainChanged =
+          snapshot.selectedOceanDomain !== this.lastDomain;
+        const regionChanged =
+          snapshot.underwaterRegion !== this.lastRegion;
 
-          if (domainChanged || regionChanged) {
-            this.lastDomain = snapshot.selectedOceanDomain;
-            this.lastRegion = snapshot.underwaterRegion;
+        if (domainChanged || regionChanged) {
+          this.lastDomain = snapshot.selectedOceanDomain;
+          this.lastRegion = snapshot.underwaterRegion;
 
-            this.underwaterVolumeLayer.setDomainAndRegion(
-              snapshot.selectedOceanDomain,
-              snapshot.underwaterRegion,
-            );
-
-            const target =
-              snapshot.underwaterRegion ?? snapshot.selectedOceanDomain;
-
-            if (target) {
-              this.cameraController.flyToRegion(target);
-            }
-          }
-
-          this.underwaterVolumeLayer.setDepth(
-            snapshot.parameters.depth,
-            snapshot.activeVariable,
+          this.underwaterVolumeLayer.setDomainAndRegion(
+            snapshot.selectedOceanDomain,
+            snapshot.underwaterRegion,
           );
+
+          const target =
+            snapshot.underwaterRegion ?? snapshot.selectedOceanDomain;
+
+          if (target) {
+            this.cameraController.flyToRegion(target);
+          }
         }
+
+        this.underwaterVolumeLayer.setDepth(
+          snapshot.parameters.depth,
+          snapshot.activeVariable,
+        );
 
         // ------------------------------------------------------
         // VARIABLE

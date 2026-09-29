@@ -3,7 +3,6 @@ import { OceanState } from '../../ocean/OceanState';
 import { Search, Menu, User, Compass, ChevronDown, MapPin } from 'lucide-react';
 import {
   UNDERWATER_REGIONS,
-  OCEAN_DOMAINS,
   type UnderwaterRegionId,
   type OceanDomainId,
 } from '../../types/ocean';
@@ -85,10 +84,11 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
   const handleSelectDomain = (domainId: OceanDomainId) => {
     setIsDropdownOpen(false);
     OceanState.getInstance().setOceanDomain(domainId);
+    OceanState.getInstance().setUnderwaterRegion(domainId);
     if (domainId === 'southern-ocean') {
-      OceanState.getInstance().requestFlyToLocation(-60.0, 70.0, 3500000);
+      OceanState.getInstance().requestFlyToLocation(-70.0, 65.0, 4500000);
     } else {
-      OceanState.getInstance().requestFlyToLocation(10.0, 78.0, 3200000);
+      OceanState.getInstance().requestFlyToLocation(-12.0, 80.0, 7800000);
     }
   };
 
@@ -257,8 +257,16 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
             onClick={() => setIsDropdownOpen((v) => !v)}
             title="Select Ocean Domain or Marginal Sea"
           >
-            <Compass size={2} className="trigger-icon" />
-            
+            <Compass size={12} className="trigger-icon" />
+            <span className="trigger-label">
+              {activeRegionDef
+                ? activeRegionDef.name.toUpperCase()
+                : selectedDomain === 'southern-ocean'
+                ? 'SOUTHERN OCEAN'
+                : selectedDomain === 'indian-ocean'
+                ? 'INDIAN OCEAN'
+                : 'SELECT REGION'}
+            </span>
             <ChevronDown size={11} className="trigger-caret" />
           </button>
 
