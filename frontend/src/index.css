@@ -1479,7 +1479,9 @@ body, html, #root {
   padding: 4px 8px;
   cursor: pointer;
   transition: all 0.12s ease;
+  opacity: 1 !important;
 }
+
 
 .obs-unit-card:hover {
   background: var(--surface-3);
@@ -1510,8 +1512,10 @@ body, html, #root {
 .obs-name-text {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
-  color: #3F3428;
+  font-weight: 700;
+  color: #263238 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .view-profile-mini-btn {
@@ -1543,8 +1547,15 @@ body, html, #root {
   gap: 4px;
 }
 
-.chip-label { color: var(--text-faint); }
-.chip-val { color: var(--text-dim); }
+.chip-label {
+  color: #5f6368 !important;
+  opacity: 1 !important;
+}
+
+.chip-val {
+  color: #263238 !important;
+  opacity: 1 !important;
+}
 
 /* 5. Bottom Right: Dynamic Scalar Gradient Legend */
 .underwater-legend-panel {

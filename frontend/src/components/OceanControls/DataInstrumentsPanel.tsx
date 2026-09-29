@@ -220,10 +220,10 @@ export const DataInstrumentsPanel: React.FC = () => {
                           }}
                           title={`Focus camera on ${g.name}`}
                         >
-                          <span style={{ color: '#cbd5e1', fontSize: '10px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
+                          <span style={{ color: '#0d2c52', fontSize: '10px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
                             ● {g.name.replace(/\(.*\)/, '').trim()}
                           </span>
-                          <span style={{ color: '#00f0ff', fontSize: '9px', fontFamily: 'monospace', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <span style={{ color: '#0b640b', fontSize: '9px', fontFamily: 'monospace', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '3px' }}>
                             <Navigation size={9} />
                             VIEW
                           </span>
