@@ -123,6 +123,8 @@ export class OceanCameraController {
   private flyToStartPitch = 0;
   private flyToEndPitch = 0;
   private flyToOnComplete: (() => void) | null = null;
+  // Prevent the same selected region from repeatedly triggering fly-to.
+  private lastRegionFlyToId: string | null = null;
 
   // Keyboard navigation flags
   private keyState = {
@@ -829,6 +831,13 @@ const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
       this.flyToActive = false;
       this.interactionMode = 'IDLE';
       this.flyToOnComplete = null;
+
+      // Clear any remaining motion from the automatic flight.
+      this.zoomVelocity = 0.0;
+      this.panVelocityX = 0.0;
+      this.panVelocityY = 0.0;
+      this.orbitVelocityHeading = 0.0;
+      this.orbitVelocityPitch = 0.0;
     }
   }
 
@@ -841,22 +850,37 @@ const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
    * Bay of Bengal, Arabian Sea, or Southern Ocean.
    */
   public flyToRegion(regionId: string): void {
-    const reg = UNDERWATER_REGIONS.find((r) => r.id === regionId || r.name.toLowerCase().includes(regionId.toLowerCase()));
-    if (reg) {
-      const centerLon = (reg.west + reg.east) * 0.5;
-      const centerLat = (reg.south + reg.north) * 0.5;
-      const isSO = reg.id === 'southern-ocean';
-      const isIO = reg.id === 'indian-ocean';
+    const reg = UNDERWATER_REGIONS.find(
+      (r) =>
+        r.id === regionId ||
+        r.name.toLowerCase().includes(regionId.toLowerCase())
+    );
 
-      this.flyTo({
-        latitude: isIO ? -12.0 : (isSO ? -70.0 : centerLat),
-        longitude: isIO ? 80.0 : (isSO ? 65.0 : centerLon),
-        altitude: isIO ? 7800000 : (isSO ? 4500000 : 1850000),
-        heading: 0,
-        pitch: isIO ? -65 : (isSO ? -70 : -58),
-        duration: 2.2,
-      });
+    if (!reg) {
+      return;
     }
+
+    // Prevent the same region from repeatedly restarting the camera flight.
+    if (this.lastRegionFlyToId === reg.id) {
+      return;
+    }
+
+    this.lastRegionFlyToId = reg.id;
+
+    const centerLon = (reg.west + reg.east) * 0.5;
+    const centerLat = (reg.south + reg.north) * 0.5;
+
+    const isSO = reg.id === 'southern-ocean';
+    const isIO = reg.id === 'indian-ocean';
+
+    this.flyTo({
+      latitude: isIO ? -12.0 : (isSO ? -70.0 : centerLat),
+      longitude: isIO ? 80.0 : (isSO ? 65.0 : centerLon),
+      altitude: isIO ? 7800000 : (isSO ? 4500000 : 1850000),
+      heading: 0,
+      pitch: isIO ? -65 : (isSO ? -70 : -58),
+      duration: 2.2,
+    });
   }
 
   /**

@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { CesiumViewerContainer } from './cesium/CesiumViewerContainer';
+import React, { useEffect, useState, useRef, useCallback } from 'react';import { CesiumViewerContainer } from './cesium/CesiumViewerContainer';
 import { ArielSidebar } from './components/Navigation/ArielSidebar';
 import { SurfaceWorkspace } from './components/Workspaces/SurfaceWorkspace';
 import { UnderwaterWorkspace } from './components/Workspaces/UnderwaterWorkspace';
@@ -42,6 +41,10 @@ export const App: React.FC = () => {
     setSidebarCollapsed((prev) => !prev);
   };
 
+  const handleEngineReady = useCallback((engine: OceanEngine) => {
+    engineRef.current = engine;
+  }, []);
+
   return (
     <div className="ariel-app-shell">
       {/* 
@@ -50,9 +53,8 @@ export const App: React.FC = () => {
         Never unmounted, never reset, never replaced with a mock image.
       */}
       <CesiumViewerContainer
-        onEngineReady={(engine) => {
-          engineRef.current = engine;
-        }}
+        onEngineReady={handleEngineReady}
+        
       />
 
       {/* Main UI Overlay Layer */}
