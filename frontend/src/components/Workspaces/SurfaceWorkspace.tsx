@@ -3,6 +3,7 @@ import { HeaderControls } from '../Header/HeaderControls';
 import { VisualizationControlsPanel } from '../OceanControls/VisualizationControlsPanel';
 import { DataInstrumentsPanel } from '../OceanControls/DataInstrumentsPanel';
 import { OceanBottomBar } from '../OceanControls/OceanBottomBar';
+import { ContextualCompass } from '../OceanControls/ContextualCompass';
 
 interface SurfaceWorkspaceProps {
   onResetView?: () => void;
@@ -16,6 +17,7 @@ export const SurfaceWorkspace: React.FC<SurfaceWorkspaceProps> = ({
   return (
     <div className="ocean-operational-layout">
       <HeaderControls onResetView={onResetView} onToggleSidebar={onToggleSidebar} />
+      <ContextualCompass />
       <div className="ocean-workspace-panels">
         <VisualizationControlsPanel />
         <DataInstrumentsPanel />

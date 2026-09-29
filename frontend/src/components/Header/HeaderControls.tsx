@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { OceanState } from '../../ocean/OceanState';
-import { Search, Menu, User } from 'lucide-react';
+import { Search, Menu, User, Compass, ChevronDown, MapPin } from 'lucide-react';
+import {
+  UNDERWATER_REGIONS,
+  OCEAN_DOMAINS,
+  type UnderwaterRegionId,
+  type OceanDomainId,
+} from '../../types/ocean';
 
 interface HeaderControlsProps {
   onToggleSidebar?: () => void;
@@ -15,6 +21,28 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
     '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
   >('3d-ocean');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDomain, setSelectedDomain] = useState<OceanDomainId | null>(null);
+  const [activeRegionId, setActiveRegionId] = useState<UnderwaterRegionId | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unsub = OceanState.getInstance().subscribe((snapshot) => {
+      setSelectedDomain(snapshot.selectedOceanDomain ?? null);
+      setActiveRegionId(snapshot.underwaterRegion ?? null);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleModeClick = (
     mode: '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
@@ -28,17 +56,74 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
     }
   };
 
+  const handleSelectSea = (seaId: UnderwaterRegionId | null) => {
+    setIsDropdownOpen(false);
+    if (!seaId) {
+      OceanState.getInstance().setOceanDomain(null);
+      OceanState.getInstance().setUnderwaterRegion(null);
+      return;
+    }
+
+    if (seaId === 'southern-ocean') {
+      OceanState.getInstance().setOceanDomain('southern-ocean');
+      OceanState.getInstance().setUnderwaterRegion('southern-ocean');
+      OceanState.getInstance().requestFlyToLocation(-67.5, 83.5, 3200000);
+      return;
+    }
+
+    OceanState.getInstance().setOceanDomain('indian-ocean');
+    OceanState.getInstance().setUnderwaterRegion(seaId);
+
+    const reg = UNDERWATER_REGIONS.find((r) => r.id === seaId);
+    if (reg) {
+      const lat = (reg.south + reg.north) / 2;
+      const lon = (reg.west + reg.east) / 2;
+      OceanState.getInstance().requestFlyToLocation(lat, lon, 1850000);
+    }
+  };
+
+  const handleSelectDomain = (domainId: OceanDomainId) => {
+    setIsDropdownOpen(false);
+    OceanState.getInstance().setOceanDomain(domainId);
+    if (domainId === 'southern-ocean') {
+      OceanState.getInstance().requestFlyToLocation(-60.0, 70.0, 3500000);
+    } else {
+      OceanState.getInstance().requestFlyToLocation(10.0, 78.0, 3200000);
+    }
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery) return;
     const q = searchQuery.toLowerCase().trim();
 
     if (q.includes('bengal') || q === 'bob') {
-      OceanState.getInstance().requestFlyToLocation(15.0, 88.0, 1850000);
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().setUnderwaterRegion('bay-of-bengal');
+      OceanState.getInstance().requestFlyToLocation(14.1, 87.6, 1850000);
     } else if (q.includes('arabian') || q === 'as') {
-      OceanState.getInstance().requestFlyToLocation(16.0, 65.0, 1850000);
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().setUnderwaterRegion('arabian-sea');
+      OceanState.getInstance().requestFlyToLocation(15.4, 65.0, 1850000);
+    } else if (q.includes('andaman')) {
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().setUnderwaterRegion('andaman-sea');
+      OceanState.getInstance().requestFlyToLocation(10.9, 95.5, 1850000);
+    } else if (q.includes('laccadive') || q.includes('lakshadweep') || q.includes('maldives')) {
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().setUnderwaterRegion('laccadive-sea');
+      OceanState.getInstance().requestFlyToLocation(6.2, 76.0, 1850000);
+    } else if (q.includes('java')) {
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().setUnderwaterRegion('java-sea');
+      OceanState.getInstance().requestFlyToLocation(-5.0, 111.0, 1850000);
     } else if (q.includes('southern') || q.includes('antarct') || q === 'so') {
-      OceanState.getInstance().requestFlyToLocation(-58.0, 70.0, 3200000);
+      OceanState.getInstance().setOceanDomain('southern-ocean');
+      OceanState.getInstance().setUnderwaterRegion('southern-ocean');
+      OceanState.getInstance().requestFlyToLocation(-67.5, 83.5, 3200000);
+    } else if (q.includes('indian ocean')) {
+      OceanState.getInstance().setOceanDomain('indian-ocean');
+      OceanState.getInstance().requestFlyToLocation(10.0, 78.0, 3200000);
     } else {
       // Coordinate regex parser for "15.4 N, 72.2 E" or "15.4, 72.2"
       const match = q.match(/(-?\d+\.?\d*)\s*[nNsS]?,?\s*(-?\d+\.?\d*)\s*[eEwW]?/);
@@ -54,6 +139,10 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
       OceanState.getInstance().requestFlyToLocation(14.0, 75.0, 2500000);
     }
   };
+
+  const activeRegionDef = activeRegionId
+    ? UNDERWATER_REGIONS.find((r) => r.id === activeRegionId)
+    : null;
 
   return (
     <header className="ariel-top-header">
@@ -145,19 +234,79 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
         </nav>
       </div>
 
-      {/* Center Search Bar - Rectangular, restrained */}
-      <form className="top-search-form" onSubmit={handleSearchSubmit}>
-        <div className="search-input-container">
-          <Search size={13} className="search-icon" />
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search location (e.g. Arabian Sea or 15.4 N, 73.2 E)"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      {/* Center Search Bar & Domain/Sea Selector */}
+      <div className="top-search-and-domain-group">
+        <form className="top-search-form" onSubmit={handleSearchSubmit}>
+          <div className="search-input-container">
+            <Search size={13} className="search-icon" />
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search location (e.g. Arabian Sea or 15.4 N, 73.2 E)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
+
+        {/* Dynamic Sea & Ocean Domain Selector Trigger */}
+        <div ref={dropdownRef} className="header-domain-sea-dropdown">
+          <button
+            type="button"
+            className={`domain-sea-trigger-btn ${activeRegionDef || selectedDomain ? 'trigger-selected' : ''}`}
+            onClick={() => setIsDropdownOpen((v) => !v)}
+            title="Select Ocean Domain or Marginal Sea"
+          >
+            <Compass size={2} className="trigger-icon" />
+            
+            <ChevronDown size={11} className="trigger-caret" />
+          </button>
+
+          {isDropdownOpen && (
+            <div className="domain-sea-menu">
+              <div className="dropdown-section-title">// MISSION DOMAINS</div>
+              <button
+                type="button"
+                className={`menu-option-btn ${selectedDomain === 'indian-ocean' && !activeRegionId ? 'opt-active' : ''}`}
+                onClick={() => handleSelectDomain('indian-ocean')}
+              >
+                <span>INDIAN OCEAN DOMAIN (OVERVIEW)</span>
+              </button>
+              <button
+                type="button"
+                className={`menu-option-btn ${selectedDomain === 'southern-ocean' ? 'opt-active' : ''}`}
+                onClick={() => handleSelectDomain('southern-ocean')}
+              >
+                <span>SOUTHERN OCEAN DOMAIN</span>
+              </button>
+
+              <div className="dropdown-section-title">// REGIONAL SEAS (COMPASS)</div>
+              {UNDERWATER_REGIONS.filter(
+                (r) => r.id !== 'southern-ocean' && r.id !== 'indian-ocean'
+              ).map((sea) => (
+                <button
+                  key={sea.id}
+                  type="button"
+                  className={`menu-option-btn ${activeRegionId === sea.id ? 'opt-active' : ''}`}
+                  onClick={() => handleSelectSea(sea.id)}
+                >
+                  <MapPin size={10} />
+                  <span>{sea.name}</span>
+                </button>
+              ))}
+
+              <div className="dropdown-divider" />
+              <button
+                type="button"
+                className="menu-option-btn opt-clear"
+                onClick={() => handleSelectSea(null)}
+              >
+                <span>HIDE COMPASS (CLEAR SELECTION)</span>
+              </button>
+            </div>
+          )}
         </div>
-      </form>
+      </div>
 
       {/* Center Mode Selector Buttons - Compact rectangular */}
       <div className="top-mode-pills" role="tablist" aria-label="Visualization Mode">

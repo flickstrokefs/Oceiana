@@ -6,6 +6,7 @@ import { WaterColumn } from '../Underwater/WaterColumn';
 import { UnderwaterAnalysisBar } from '../Underwater/UnderwaterAnalysisBar';
 import { UnderwaterLegend } from '../Underwater/UnderwaterLegend';
 import { UnderwaterObservationPanel } from '../Underwater/UnderwaterObservationPanel';
+import { ContextualCompass } from '../OceanControls/ContextualCompass';
 
 interface UnderwaterWorkspaceProps {
   onResetView?: () => void;
@@ -19,6 +20,8 @@ export const UnderwaterWorkspace: React.FC<
       <UnderwaterHeader
         onResetView={onResetView}
       />
+
+      <ContextualCompass />
 
       <UnderwaterAnalysisBar />
 

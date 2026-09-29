@@ -1,35 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg: #0c0e12;
-  --surface: #111418;
-  --surface-2: #161920;
-  --surface-3: #1d212a;
-  --line: #20242b;
-  --line-light: #2c323e;
-  --text: #c5c9d2;
-  --text-dim: #88909e;
-  --text-faint: #505664;
-  --text-bright: #f0f2f6;
-  --blue: #2d5e94;
-  --blue-dim: #1a324d;
-  --blue-hover: #366ea8;
-  --ok: #65a357;
-  --warn: #b8864a;
+  /* ============================================================
+     ARIEL THEME: Scientific Sunset × Artistic Oceanography
+     ============================================================ */
 
-  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Primary Surfaces & Backgrounds */
+  --color-seashell: #F7F0E6;
+  --color-warm-sand: #EBD8B7;
+  --color-cream: #FAF6F0;
+  --color-sand-light: #F2E5CE;
+  --color-sand-muted: #E2CFAB;
+
+  /* Secondary Accents */
+  --color-muted-peach: #EFA58F;
+  --color-coral: #D87862;
+  --color-coral-dark: #C2634E;
+  --color-gold: #D6AE63;
+  --color-dusty-lavender: #A99ABF;
+  --color-muted-sage: #91A98F;
+  --color-seafoam: #7FB8AD;
+  --color-mist-blue: #AFC7D0;
+
+  /* Structural Colors (minor, not dominant) */
+  --color-near-black: #20242A;
+  --color-deep-navy: #17324A;
+  --color-navy-muted: #244868;
+
+  /* Semantic UI Tokens */
+  --bg: #F7F0E6; /* Seashell */
+  --surface: #FAF6F0; /* Cream / Warm Light */
+  --surface-2: #EBD8B7; /* Warm Sand */
+  --surface-3: #F2E5CE; /* Sand Light */
+  --line: rgba(32, 36, 42, 0.12); /* Subtle hairline warm divider */
+  --line-light: rgba(32, 36, 42, 0.08);
+
+  /* Typography */
+  --text: #20242A; /* Near Black */
+  --text-dim: #5C5248; /* Warm technical slate-brown */
+  --text-faint: #8A7E73;
+  --text-bright: #17324A; /* Deep Navy */
+  --text-contrast: #FAF6F0;
+
+  /* Accent Semantics */
+  --coral: #D87862;
+  --gold: #D6AE63;
+  --seafoam: #7FB8AD;
+  --sage: #91A98F;
+  --lavender: #A99ABF;
+  --mist-blue: #AFC7D0;
+  --blue: #17324A; /* Deep Navy structural */
+  --blue-dim: rgba(23, 50, 74, 0.08);
+  --blue-hover: #234360;
+  --ok: #91A98F; /* Muted Sage */
+  --warn: #D6AE63; /* Gold */
+
+  /* Fonts */
+  --font-serif: 'Cormorant Garamond', 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
-  /* Backward compatibility aliases */
+  /* Panel Geometry: Editorial art direction, 4px radius, flat, no shadows */
+  --panel-radius: 4px;
   --bg-dark: var(--bg);
   --panel-bg: var(--surface);
   --panel-border: var(--line);
-  --panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.85);
-  --accent-cyan: var(--blue);
-  --accent-green: var(--ok);
-  --accent-amber: var(--warn);
+  --panel-shadow: none; /* Strict no shadows */
+  --accent-cyan: var(--seafoam);
+  --accent-green: var(--sage);
+  --accent-amber: var(--gold);
   --accent-blue: var(--blue);
-  --accent-magenta: #9d456e;
+  --accent-magenta: var(--coral);
   --text-primary: var(--text-bright);
   --text-secondary: var(--text-dim);
   --text-muted: var(--text-faint);
@@ -1470,7 +1511,7 @@ body, html, #root {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
-  color: var(--text-bright);
+  color: #3F3428;
 }
 
 .view-profile-mini-btn {
@@ -1936,8 +1977,8 @@ body, html, #root {
   --op-text: #ffffff;
   --op-text-sec: #a8b5b8;
   --op-text-muted: #6b7a7e;
-  --op-model: #20c997;
-  --op-glider: #f0c000;
+  --op-model: #5020c9;
+  --op-glider: #f00000;
   --op-argo: #e85d4c;
   --op-overlay: rgba(0, 0, 0, 0.55);
 }

@@ -24,7 +24,7 @@ const INITIAL_DATASETS: DatasetEntry[] = [
     type: 'Model',
     variables: 'Temp, Sal, Currents',
     dateRange: '2019 - 2024',
-    status: 'Loaded',
+    status: 'Ready',
   },
   {
     id: 'ds-2',
@@ -32,7 +32,7 @@ const INITIAL_DATASETS: DatasetEntry[] = [
     type: 'Argo',
     variables: 'Temp, Sal, Oxy',
     dateRange: '2024',
-    status: 'Loaded',
+    status: 'Ready',
   },
   {
     id: 'ds-3',
@@ -40,7 +40,7 @@ const INITIAL_DATASETS: DatasetEntry[] = [
     type: 'Glider',
     variables: 'Temp, Sal, Oxy',
     dateRange: '2024',
-    status: 'Loaded',
+    status: 'Processing',
   },
   {
     id: 'ds-4',
@@ -48,7 +48,7 @@ const INITIAL_DATASETS: DatasetEntry[] = [
     type: 'CTD',
     variables: 'Temp, Sal',
     dateRange: '2023',
-    status: 'Loaded',
+    status: 'Ready',
   },
   {
     id: 'ds-5',
@@ -287,16 +287,16 @@ export const DataManagerView: React.FC = () => {
               <tbody>
                 {datasets.map((ds) => (
                   <tr key={ds.id}>
-                    <td className="font-mono text-white font-medium">{ds.name}</td>
+                    <td className="font-mono dataset-name-cell">{ds.name}</td>
                     <td>
                       <span className={`type-badge badge-${ds.type.toLowerCase()}`}>
                         {ds.type}
                       </span>
                     </td>
-                    <td className="text-slate-300">{ds.variables}</td>
-                    <td className="text-slate-400 font-mono text-xs">{ds.dateRange}</td>
+                    <td className="dataset-vars-cell">{ds.variables}</td>
+                    <td className="dataset-date-cell font-mono">{ds.dateRange}</td>
                     <td>
-                      <span className="status-badge-loaded">
+                      <span className={`status-badge status-badge-${ds.status.toLowerCase()}`}>
                         <CheckCircle2 size={11} className="inline mr-1" />
                         {ds.status}
                       </span>

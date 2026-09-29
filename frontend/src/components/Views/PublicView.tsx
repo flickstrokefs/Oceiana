@@ -23,6 +23,15 @@ export const PublicView: React.FC = () => {
 
   return (
     <div className="public-view-overlay">
+      {/* Editorial Oceanographic Artistic Title & Attribution */}
+      <div className="public-artistic-banner">
+        <div className="banner-kicker">✦ INCOIS SCIENTIFIC OBSERVATORY // PUBLIC ATLAS</div>
+        <h1 className="banner-editorial-title">Global Ocean Dynamics</h1>
+        <p className="banner-caption">
+          Hydrodynamic simulation of thermal fronts, salinity gradients and circulation currents inspired by sunset oceanography.
+        </p>
+      </div>
+
       {/* Top Bar with Variable Pills & Public View Switch */}
       <div className="public-top-bar">
         <div className="public-pills-group">
