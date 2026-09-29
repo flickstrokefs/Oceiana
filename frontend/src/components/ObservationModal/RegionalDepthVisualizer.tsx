@@ -137,11 +137,15 @@ export const RegionalDepthVisualizer: React.FC<RegionalDepthVisualizerProps> = (
         const sliceDepth = sliceNorm * maxM;
         const yPos = depthToY(sliceDepth);
 
+        const sliceVal = 2.5 + (28.0 - 2.5) * Math.exp(-sliceDepth / 450);
+        const sliceColor = getThreeColorForValue(sliceVal);
+        const contourColor = sliceColor.clone().multiplyScalar(1.2);
+
         // Outline contour ring
         const contourMat = new THREE.LineBasicMaterial({
-          color: s === 0 ? 0x38bdf8 : 0x224466,
+          color: contourColor,
           transparent: true,
-          opacity: s === 0 ? 0.9 : 0.35,
+          opacity: s === 0 ? 0.95 : 0.45,
           linewidth: s === 0 ? 2 : 1,
         });
         const contourLine = new THREE.LineLoop(outlineGeo, contourMat);
@@ -149,12 +153,12 @@ export const RegionalDepthVisualizer: React.FC<RegionalDepthVisualizerProps> = (
         contourLine.rotation.x = Math.PI / 2;
         rootGroup.add(contourLine);
 
-        // Subtle slice plane
+        // Volumetric slice plane with continuous depth gradient
         const planeGeo = new THREE.ShapeGeometry(shape);
         const planeMat = new THREE.MeshBasicMaterial({
-          color: s === 0 ? 0x0ea5e9 : 0x1e3a5f,
+          color: sliceColor,
           transparent: true,
-          opacity: s === 0 ? 0.08 : 0.03,
+          opacity: s === 0 ? 0.16 : 0.08,
           side: THREE.DoubleSide,
         });
         const planeMesh = new THREE.Mesh(planeGeo, planeMat);
@@ -416,22 +420,33 @@ export const RegionalDepthVisualizer: React.FC<RegionalDepthVisualizerProps> = (
       if (haloMesh) haloMesh.position.y = yPos;
     }
 
-    // Update active layer color based on selected variable value at this depth
+    // Update active layer color based on continuously interpolated variable value at this depth
     if (activeLayerMeshRef.current && payload?.profile) {
-      // Find closest depth sample in model profile
       let modelVal = 18.0;
-      if (payload.profile.depths && payload.profile.model) {
-        let bestDiff = Infinity;
-        payload.profile.depths.forEach((d, idx) => {
-          const diff = Math.abs(d - currentDepth);
-          if (diff < bestDiff) {
-            bestDiff = diff;
-            const sample = payload.profile.model[idx];
-            if (sample && typeof sample[variable] === 'number') {
-              modelVal = sample[variable] as number;
+      const depths = payload.profile.depths;
+      const samples = payload.profile.model;
+      if (depths && depths.length > 0 && samples && samples.length > 0) {
+        if (currentDepth <= depths[0]) {
+          const val = samples[0]?.[variable];
+          modelVal = typeof val === 'number' ? val : 18.0;
+        } else if (currentDepth >= depths[depths.length - 1]) {
+          const val = samples[samples.length - 1]?.[variable];
+          modelVal = typeof val === 'number' ? val : 18.0;
+        } else {
+          // Continuous linear interpolation between adjacent depth strata
+          for (let i = 0; i < depths.length - 1; i++) {
+            const dA = depths[i];
+            const dB = depths[i + 1];
+            if (currentDepth >= dA && currentDepth <= dB) {
+              const valA = (samples[i]?.[variable] as number) ?? 18.0;
+              const valB = (samples[i + 1]?.[variable] as number) ?? 18.0;
+              const span = Math.max(0.1, dB - dA);
+              const factor = (currentDepth - dA) / span;
+              modelVal = valA + factor * (valB - valA);
+              break;
             }
           }
-        });
+        }
       }
       const threeColor = getThreeColorForValue(modelVal);
       (activeLayerMeshRef.current.material as THREE.MeshBasicMaterial).color = threeColor;

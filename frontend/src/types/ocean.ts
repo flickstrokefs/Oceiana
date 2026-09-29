@@ -274,4 +274,7 @@ export interface OceanStateSnapshot {
   gliders?: GliderTrajectory[];
   argoProfiles?: ArgoProfile[];
   colorRanges: Record<OceanVariable, import('../ocean/color/colorTypes').ColorRange[]>;
+  cameraHeading?: number;
+  cameraCoords?: { lat: number; lon: number };
+  resetNorthToken?: number;
 }

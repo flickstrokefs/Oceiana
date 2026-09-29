@@ -180,6 +180,17 @@ export class UnderwaterVolumeLayer {
           return;
         }
 
+        // If an observation entity was clicked, do not intercept as a region click
+        const drilled = this.viewer.scene.drillPick(movement.position, 6);
+        const isObs = drilled.some(
+          (d) =>
+            Cesium.defined(d) &&
+            Boolean((d as { id?: { properties?: { obsType?: unknown } } }).id?.properties?.obsType)
+        );
+        if (isObs) {
+          return;
+        }
+
         const picked =
           this.viewer.scene.pick(
             movement.position,

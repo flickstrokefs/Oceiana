@@ -24,10 +24,6 @@ data/processed/
 node_modules/
 dist/
 
-# Python virtual environment
-.venv/
+# Scratch & temporary shapefiles
+scratch/
 Ariel.zip
-
-scratch/iho/World_Seas_IHO_v3/*.shp
-
-scratch/iho/World_Seas_IHO_v3/*.shp

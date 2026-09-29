@@ -360,11 +360,8 @@ export class UnderwaterRegionPolygon {
     this.currentDepth = depth;
     for (const record of this.pointRecords) {
       const dist = Math.abs(record.depth - depth);
-      if (dist < 50) {
-        record.primitive.pixelSize = 6.0;
-      } else {
-        record.primitive.pixelSize = 4.0;
-      }
+      const factor = Math.max(0, 1 - dist / 120);
+      record.primitive.pixelSize = 4.0 + factor * 2.5;
     }
   }
 

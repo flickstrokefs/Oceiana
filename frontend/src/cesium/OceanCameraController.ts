@@ -899,6 +899,18 @@ const pixelOffset = (topInset - bottomInset) * 0.5 - globeLiftPixels;
   }
 
   /**
+   * Aligns camera heading smoothly back to true North (0 deg).
+   */
+  public resetNorth(): void {
+    this.flyTo({
+      latitude: Cesium.Math.toDegrees(this.targetCartographic.latitude),
+      longitude: Cesium.Math.toDegrees(this.targetCartographic.longitude),
+      heading: 0,
+      duration: 1.2,
+    });
+  }
+
+  /**
    * Transitions camera between surface overview and underwater focused perspective.
    */
   public setMode(mode: OceanMode, depth = 0): void {

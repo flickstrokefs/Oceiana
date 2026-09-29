@@ -6191,3 +6191,77 @@ body, html, #root {
   .underwater-legend-panel.legend-panel-expanded { max-height: calc(100vh - 88px); }
   .editor-ranges-list { max-height: 160px; }
 }
+
+/* ============================================================ */
+/* TASK 1: SMALL NAVIGATION COMPASS ANCHORED AT BOTTOM-LEFT     */
+/* (Matching Reference Image 1)                                  */
+/* ============================================================ */
+.contextual-compass-bottom-left {
+  position: absolute;
+  bottom: 24px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 30;
+  pointer-events: auto;
+  user-select: none;
+  background: rgba(247, 243, 235, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 6px 12px 6px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(140, 109, 70, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.contextual-compass-bottom-left:hover {
+  background: rgba(247, 243, 235, 0.75);
+  border-color: rgba(140, 109, 70, 0.45);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.compass-rose-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nautical-compass-svg-mini {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  transition: transform 0.2s ease;
+}
+
+.compass-rose-container:hover .nautical-compass-svg-mini {
+  transform: scale(1.04);
+}
+
+.compass-coords-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.coord-lat-line,
+.coord-lon-line {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #2a3038;
+  line-height: 1.25;
+}
+
+.coord-lat-line {
+  color: #1e242b;
+}
+
+.coord-lon-line {
+  color: #4b5563;
+}
+

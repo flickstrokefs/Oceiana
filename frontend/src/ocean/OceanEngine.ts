@@ -1,4 +1,4 @@
-import type * as Cesium from 'cesium';
+import * as Cesium from 'cesium';
 
 import { OceanState } from './OceanState';
 
@@ -39,6 +39,7 @@ export class OceanEngine {
   private lastColorRanges: unknown = null;
   private lastDomain: string | null = null;
   private lastRegion: string | null = null;
+  private lastResetNorthToken = 0;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -228,8 +229,32 @@ export class OceanEngine {
           }
         }
 
+        // ------------------------------------------------------
+        // RESET NORTH HEADING
+        // ------------------------------------------------------
+        if (
+          snapshot.resetNorthToken &&
+          snapshot.resetNorthToken !== this.lastResetNorthToken
+        ) {
+          this.lastResetNorthToken = snapshot.resetNorthToken;
+          this.cameraController.resetNorth();
+        }
+
         this.depthSliceRenderer.update();
       });
+
+    // Report camera orientation / position to OceanState for compass & HUD
+    this.viewer.camera.changed.addEventListener(() => {
+      if (this.viewer.isDestroyed()) return;
+      const camera = this.viewer.camera;
+      const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
+      if (carto) {
+        const lat = Cesium.Math.toDegrees(carto.latitude);
+        const lon = Cesium.Math.toDegrees(carto.longitude);
+        const headingDeg = Cesium.Math.toDegrees(camera.heading);
+        oceanState.setCameraState(lat, lon, headingDeg);
+      }
+    });
   }
 
   public getCameraController(): CameraController {

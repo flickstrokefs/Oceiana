@@ -153,17 +153,33 @@ function getSampleValueAtDepth(
   fallback: number
 ): number {
   if (!samples || samples.length === 0) return fallback;
-  let best = samples[0];
-  let minDiff = Math.abs(best.depth - depth);
-  for (const s of samples) {
-    const diff = Math.abs(s.depth - depth);
-    if (diff < minDiff) {
-      minDiff = diff;
-      best = s;
+  const valid = [...samples]
+    .filter((s) => typeof s[variable] === 'number')
+    .sort((a, b) => a.depth - b.depth);
+
+  if (valid.length === 0) return fallback;
+
+  if (depth <= valid[0].depth) {
+    return (valid[0][variable] as number) ?? fallback;
+  }
+  if (depth >= valid[valid.length - 1].depth) {
+    return (valid[valid.length - 1][variable] as number) ?? fallback;
+  }
+
+  // Continuous linear interpolation between adjacent depth layers
+  for (let i = 0; i < valid.length - 1; i++) {
+    const a = valid[i];
+    const b = valid[i + 1];
+    if (depth >= a.depth && depth <= b.depth) {
+      const valA = a[variable] as number;
+      const valB = b[variable] as number;
+      const span = Math.max(0.1, b.depth - a.depth);
+      const factor = (depth - a.depth) / span;
+      return valA + factor * (valB - valA);
     }
   }
-  const val = best[variable];
-  return typeof val === 'number' ? val : fallback;
+
+  return fallback;
 }
 
 export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = ({

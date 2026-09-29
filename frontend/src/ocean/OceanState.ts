@@ -53,6 +53,9 @@ export class OceanState {
   private time: Date = new Date();
   private gliders: GliderTrajectory[] = [];
   private argoProfiles: ArgoProfile[] = [];
+  private cameraHeading = 0;
+  private cameraCoords: { lat: number; lon: number } = { lat: 12.9716, lon: 77.5946 };
+  private resetNorthToken = 0;
 
   private provider: OceanDataProvider;
   private listeners: Set<OceanStateListener> = new Set();
@@ -141,6 +144,9 @@ return {
   selectedOceanDomain: this.selectedOceanDomain,
   gliders: [...this.gliders],
   argoProfiles: [...this.argoProfiles],
+  cameraHeading: this.cameraHeading,
+  cameraCoords: { ...this.cameraCoords },
+  resetNorthToken: this.resetNorthToken,
   colorRanges: {
     temperature: this.getColorRanges('temperature'),
     salinity: this.getColorRanges('salinity'),
@@ -149,6 +155,22 @@ return {
   },
 };
 }
+
+  public setCameraState(lat: number, lon: number, heading: number): void {
+    const latDiff = Math.abs(this.cameraCoords.lat - lat);
+    const lonDiff = Math.abs(this.cameraCoords.lon - lon);
+    const headingDiff = Math.abs(this.cameraHeading - heading);
+    if (latDiff < 0.0001 && lonDiff < 0.0001 && headingDiff < 0.05) return;
+
+    this.cameraCoords = { lat, lon };
+    this.cameraHeading = heading;
+    this.notify();
+  }
+
+  public requestResetNorth(): void {
+    this.resetNorthToken += 1;
+    this.notify();
+  }
 
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {

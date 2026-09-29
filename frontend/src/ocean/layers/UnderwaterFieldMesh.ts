@@ -1847,40 +1847,26 @@ export class UnderwaterFieldMesh {
       return;
     }
 
-    for (
-      const cell of this.cells
-    ) {
-      const difference =
-        Math.abs(
-          cell.depth -
-            this.currentDepth,
-        );
+    for (const cell of this.cells) {
+      // Smooth continuous transition across depth range (approx 200 ft / ~70m)
+      const difference = Math.abs(cell.depth - this.currentDepth);
+      const range = this.isActive ? 600 : 850;
+      // Smooth Hermite interpolation (smoothstep) to eliminate discrete stepping
+      const t = Math.max(0, Math.min(1, difference / range));
+      const falloff = 1 - t * t * (3 - 2 * t);
 
-      const range =
-        this.isActive
-          ? 700
-          : 1000;
+      const alpha = this.isActive
+        ? 0.10 + falloff * 0.38
+        : 0.06 + falloff * 0.22;
 
-      const falloff =
-        Math.max(
-          0,
-          1 -
-            difference /
-              range,
-        );
-
-      const alpha =
-        this.isActive
-          ? 0.12 +
-            falloff * 0.34
-          : 0.07 +
-            falloff * 0.20;
-
-      const color =
-        cell.baseColor.clone();
-
-      color.alpha =
-        alpha;
+      const color = cell.baseColor.clone();
+      // Continuous field intensity interpolation near active sounding plane
+      if (falloff > 0.001) {
+        color.red = Math.min(1, color.red * (1.0 + 0.30 * falloff));
+        color.green = Math.min(1, color.green * (1.0 + 0.30 * falloff));
+        color.blue = Math.min(1, color.blue * (1.0 + 0.20 * falloff));
+      }
+      color.alpha = alpha;
 
       try {
         const attributes =

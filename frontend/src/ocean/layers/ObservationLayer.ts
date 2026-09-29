@@ -111,6 +111,7 @@ export class ObservationLayer {
         color: Cesium.Color.fromCssColorString('#c79a5b'), // Restrained instrument amber
         outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
         outlineWidth: 1.5,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       label: {
         text: new Cesium.CallbackProperty(() => {
@@ -231,6 +232,7 @@ export class ObservationLayer {
           color: Cesium.Color.fromCssColorString('#00f0ff'), // Vibrant ARIEL cyan/teal
           outlineColor: Cesium.Color.fromCssColorString('#020b1c'),
           outlineWidth: 2.0,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         label: {
           text: `● ${glider.name}`,
@@ -334,26 +336,68 @@ export class ObservationLayer {
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
 
     this.handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
-      const pickedObject = this.viewer.scene.pick(click.position);
+      const extractObs = (picked: unknown): SelectedObservation | null => {
+        if (
+          Cesium.defined(picked) &&
+          (picked as { id?: { properties?: Cesium.PropertyBag } }).id?.properties
+        ) {
+          const props = (picked as { id: { properties: Cesium.PropertyBag } }).id.properties;
+          const obsType = props.obsType ? props.obsType.getValue(Cesium.JulianDate.now()) : null;
+          const data = props.data ? props.data.getValue(Cesium.JulianDate.now()) : null;
+          if (obsType && data) {
+            return {
+              type: obsType as 'argo' | 'glider',
+              data,
+            };
+          }
+        }
+        return null;
+      };
 
-      if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.properties) {
-        const props = pickedObject.id.properties;
-        const obsType = props.obsType ? props.obsType.getValue() : null;
-        const data = props.data ? props.data.getValue() : null;
+      // 1. First, search for observation entities using drillPick (drills through any transparent region polygon, grid lines, or field mesh)
+      const pickedObjects = this.viewer.scene.drillPick(click.position, 15);
+      let foundSelection: SelectedObservation | null = null;
 
-        if (obsType && data) {
-          const selection: SelectedObservation = {
-            type: obsType,
-            data,
-          };
-          // Opens Observation Profile modal via OceanState (globe stays mounted)
-          OceanState.getInstance().selectObservation(selection);
-          return;
+      for (const obj of pickedObjects) {
+        const obs = extractObs(obj);
+        if (obs) {
+          foundSelection = obs;
+          break;
         }
       }
 
-      // Empty-globe click: clear selection + close modal
-      OceanState.getInstance().selectObservation(null);
+      // 2. Tolerance sampling: in 3D camera / tilted perspective, if clicked slightly beside an 8px-10px point, check surrounding pixels (radius 6px)
+      if (!foundSelection) {
+        const radiusOffsets = [
+          { x: -4, y: 0 }, { x: 4, y: 0 }, { x: 0, y: -4 }, { x: 0, y: 4 },
+          { x: -4, y: -4 }, { x: 4, y: 4 }, { x: -4, y: 4 }, { x: 4, y: -4 },
+          { x: -7, y: 0 }, { x: 7, y: 0 }, { x: 0, y: -7 }, { x: 0, y: 7 },
+        ];
+        for (const off of radiusOffsets) {
+          const testPos = new Cesium.Cartesian2(click.position.x + off.x, click.position.y + off.y);
+          const drilled = this.viewer.scene.drillPick(testPos, 8);
+          for (const obj of drilled) {
+            const obs = extractObs(obj);
+            if (obs) {
+              foundSelection = obs;
+              break;
+            }
+          }
+          if (foundSelection) break;
+        }
+      }
+
+      if (foundSelection) {
+        // Opens the exact same Observation Profile modal via OceanState in both surface & underwater modes
+        OceanState.getInstance().selectObservation(foundSelection);
+        return;
+      }
+
+      // 3. Only clear observation selection if clicked on empty globe/space (not on another region polygon or control)
+      const primaryPick = this.viewer.scene.pick(click.position);
+      if (!Cesium.defined(primaryPick) || !primaryPick.id) {
+        OceanState.getInstance().selectObservation(null);
+      }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
