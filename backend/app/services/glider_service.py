@@ -58,7 +58,10 @@ class GliderService:
         if loaded == 0:
             logger.warning("Glider cache empty. Triggering dynamic IFREMER ingestion...")
             try:
-                from backend.scripts.ingest_ifremer_gliders import run_full_ingestion
+                try:
+                    from scripts.ingest_ifremer_gliders import run_full_ingestion
+                except ModuleNotFoundError:
+                    from backend.scripts.ingest_ifremer_gliders import run_full_ingestion
                 summary = run_full_ingestion()
                 # Reload after ingestion
                 for cfile in self.cache_dir.glob("glider_*.json"):
@@ -111,7 +114,10 @@ class GliderService:
 
     def _fetch_from_ifremer(self, mission_id: str) -> Optional[Dict[str, Any]]:
         """Fetch mission metadata and track waypoints from IFREMER OceanGliders GDAC."""
-        from backend.scripts.ingest_ifremer_gliders import fetch_and_normalize_mission
+        try:
+            from scripts.ingest_ifremer_gliders import fetch_and_normalize_mission
+        except ModuleNotFoundError:
+            from backend.scripts.ingest_ifremer_gliders import fetch_and_normalize_mission
 
         # Determine target region if known
         g = self.get_glider(mission_id)
