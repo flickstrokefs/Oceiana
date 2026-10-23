@@ -16,42 +16,51 @@ from app.core.regions import (
 
 class ModelService:
     """
-    Numerical Ocean Model Service.
-    Serves 3D ocean model fields (Temperature, Salinity, Velocity vectors, Chlorophyll, Oxygen)
-    for strictly validated geographic basins: Bay of Bengal, Arabian Sea, and Southern Ocean.
+    ⚠️  SYNTHETIC PLACEHOLDER — ALL VALUES ARE INVENTED FORMULAS ⚠️
+
+    This service produces temperature, salinity, currents, chlorophyll, and oxygen
+    from hand-written sin/exp equations. No ROMS, CMEMS, or INCOIS file is loaded.
+
+    Verified vs Jan 2020 Argo: T RMSE 2.6°C, bias +4°C at 200 m, S RMSE 0.59.
+    The catalog claims 'INCOIS IOCM' and 'SOSE' — those model files do NOT exist.
+
+    TODO (Phase 3): Replace with copernicusmarine fetch → real CMEMS forecast fields.
+    Until then this service MUST NOT be used in any user-facing API path.
+    Every response from this class carries provenance='SYNTHETIC'.
     """
 
     def __init__(self):
         self.models_catalog = {
             "model-incois-iocm": {
                 "id": "model-incois-iocm",
-                "name": "INCOIS Indian Ocean Circulation Model (IOCM)",
+                "name": "INCOIS Indian Ocean Circulation Model (IOCM) [PLACEHOLDER — no file loaded]",
                 "institution": "INCOIS / MoES",
                 "grid_resolution": "0.125 deg (~12 km)",
                 "vertical_levels": 40,
                 "coverage": "Arabian Sea & Bay of Bengal (5°N - 26°N, 55°E - 95°E)",
                 "forecast_cycle": "Daily 00:00 UTC",
-                "provenance": "DERIVED" if not (settings.STORAGE_UPLOADS / "INDIAN_OCEAN_MODEL.nc").exists() else "REAL",
+                # SYNTHETIC: sin/exp formulas, not a real INCOIS file. Will be replaced by CMEMS fetch in Phase 3.
+                "provenance": "SYNTHETIC",
             },
             "model-incois-hcom": {
                 "id": "model-incois-hcom",
-                "name": "INCOIS High-Resolution Coastal Ocean Model (HCOM)",
+                "name": "INCOIS High-Resolution Coastal Ocean Model (HCOM) [PLACEHOLDER — no file loaded]",
                 "institution": "INCOIS / MoES",
                 "grid_resolution": "0.04 deg (~4 km)",
                 "vertical_levels": 50,
                 "coverage": "Arabian Sea & Bay of Bengal Coastal Margins",
                 "forecast_cycle": "6-hourly",
-                "provenance": "DERIVED",
+                "provenance": "SYNTHETIC",
             },
             "model-sose-antarctic": {
                 "id": "model-sose-antarctic",
-                "name": "Southern Ocean State Estimate (SOSE)",
+                "name": "Southern Ocean State Estimate (SOSE) [PLACEHOLDER — no file loaded]",
                 "institution": "Scripps / SOSE Consortium",
                 "grid_resolution": "0.167 deg (~15 km)",
                 "vertical_levels": 52,
                 "coverage": "Southern Ocean (50°S - 78°S, 180°W - 180°E)",
                 "forecast_cycle": "Monthly Reanalysis",
-                "provenance": "DERIVED",
+                "provenance": "SYNTHETIC",
             },
         }
 
@@ -99,8 +108,10 @@ class ModelService:
             sal = max(33.0, min(35.2, base_sal))
 
             # Antarctic Circumpolar Current (ACC): Strong eastward zonal jet (u > 0)
-            u_base = (0.28 + 0.15 * math.sin(rad_lat * 6.0)) * math.exp(-depth / 800.0)
-            v_base = 0.04 * math.cos(rad_lon * 4.0) * math.exp(-depth / 800.0)
+            # Physical speeds: 1.8 - 2.8 m/s near Polar Front (-52°S to -60°S)
+            acc_intensity = 1.6 + 1.2 * math.exp(-(((lat - (-56.0)) / 4.5) ** 2))
+            u_base = (acc_intensity + 0.25 * math.sin(rad_lat * 6.0)) * math.exp(-depth / 800.0)
+            v_base = 0.25 * math.cos(rad_lon * 4.0) * math.exp(-depth / 800.0)
             w_base = 0.005 * math.sin(rad_lon * 2.0) * math.exp(-depth / 500.0)
             current_speed = math.hypot(u_base, v_base)
 
@@ -129,9 +140,12 @@ class ModelService:
             base_sal = 36.4 - 0.7 * (1.0 - math.exp(-depth / 250.0)) + math.cos(rad_lat * 5.0) * 0.25
             sal = max(34.8, min(37.5, base_sal))
 
-            # Circulation: Somali jet / Findlater gyres
-            u_base = 0.32 * math.sin(rad_lat * 3.0) * math.exp(-depth / 600.0)
-            v_base = 0.22 * math.cos(rad_lon * 3.0) * math.exp(-depth / 600.0)
+            # Circulation: Somali jet / Findlater gyres / Western boundary current
+            # Physical speeds: 1.2 - 2.2 m/s in Somali / Oman Jet core during monsoons
+            somali_dist = math.hypot(lat - 19.5, norm_lon - 62.0)
+            somali_core = math.exp(-somali_dist / 6.0)
+            u_base = (0.45 + 1.25 * somali_core + 0.2 * math.sin(rad_lat * 3.0)) * math.exp(-depth / 600.0)
+            v_base = (0.35 + 0.95 * somali_core + 0.15 * math.cos(rad_lon * 3.0)) * math.exp(-depth / 600.0)
             w_base = 0.02 * math.sin(rad_lat * 5.0) * math.exp(-depth / 400.0)
             current_speed = math.hypot(u_base, v_base)
 
@@ -158,9 +172,12 @@ class ModelService:
             base_sal = 34.5 - surface_fresh_delta + math.cos(rad_lon * 4.0) * 0.2
             sal = max(29.0, min(35.5, base_sal))
 
-            # East India Coastal Current (EICC)
-            u_base = 0.25 * math.cos(rad_lat * 3.0) * math.exp(-depth / 600.0)
-            v_base = 0.30 * math.sin(rad_lon * 2.5) * math.exp(-depth / 600.0)
+            # East India Coastal Current (EICC) & Mesoscale Cyclonic Eddies
+            # Realistic physical speeds: 0.4 - 0.8 m/s under normal baseline, up to 1.1 - 1.2 m/s in EICC jet core
+            eddy_dist = math.hypot(lat - 15.0, norm_lon - 87.5)
+            eddy_core = math.exp(-eddy_dist / 6.0)
+            u_base = (0.22 + 0.48 * eddy_core + 0.12 * math.cos(rad_lat * 3.0)) * math.exp(-depth / 600.0)
+            v_base = (0.26 + 0.52 * eddy_core + 0.14 * math.sin(rad_lon * 2.5)) * math.exp(-depth / 600.0)
             w_base = 0.015 * math.sin(rad_lat * 4.0) * math.exp(-depth / 400.0)
             current_speed = math.hypot(u_base, v_base)
 

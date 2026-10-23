@@ -1,7 +1,12 @@
 from typing import Literal, Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 
-ProvenanceType = Literal["REAL", "DERIVED", "SIMULATED"]
+# Provenance taxonomy:
+# REAL      = directly measured in-situ (Argo, glider, CTD)
+# DERIVED   = computed from REAL data (TEOS-10 SA/CT, gradients, MLD)
+# SIMULATED = output of a named external operational model (e.g. CMEMS forecast)
+# SYNTHETIC = produced by placeholder formulas in this codebase — NOT from any real source
+ProvenanceType = Literal["REAL", "DERIVED", "SIMULATED", "SYNTHETIC"]
 
 
 class SpatialBoundingBox(BaseModel):

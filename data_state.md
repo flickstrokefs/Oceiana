@@ -1,10 +1,18 @@
 # OCEAN-X / ARIEL: End-to-End Data State, Lineage, Pipeline, and System Audit
 
-**Last Updated:** 2026-09-17  
+> **⚠️ CORRECTION NOTICE (2026-10-23):** This document was generated without running
+> code and contains several overstatements. Corrections:
+> - "16,009 raw Argo soundings" — those rows are from a mislabelled Indian Ocean-wide file
+>   that has now been deleted. The correct Bay of Bengal file has **9,124 rows / 51 profiles**.
+> - "100% OPERATIONAL / 57 API endpoints" — not verified by test output; 33 pytest tests pass.
+> - "SIMULATED: INCOIS-IOCM, CMEMS, SOSE" — no real model files exist; those are
+>   placeholder sin/exp formulas, now correctly tagged as SYNTHETIC.
+> See `docs/AUDIT.md` for the verified ground truth.
+
+**Last Updated:** 2026-10-23 (audited)
 **Platform Version:** ARIEL 2.0.0 / OCEAN-X Phase 1  
-**Backend Runtime:** FastAPI 0.115+ (Python 3.13) @ `http://127.0.0.1:8000`  
-**Frontend Runtime:** Vite 8.2 + React 18 + CesiumJS 1.122 @ `http://localhost:3000`  
-**Overall System Health:** **100% OPERATIONAL** (57/57 API Endpoints Passing, 32/32 Pytest Passing, Zero Build Errors)
+**Backend Runtime:** FastAPI (Python 3.13) @ `http://127.0.0.1:8000`  
+**Frontend Runtime:** Vite + React 18 + CesiumJS @ `http://localhost:5173`  
 
 ---
 

@@ -1,0 +1,21 @@
+{
+  "source": "IBTrACS v04 \u2014 NOAA NCEI International Best Track Archive",
+  "doi_or_url": "https://www.ncei.noaa.gov/products/international-best-track-archive",
+  "retrieved_at": "2026-10-22T20:41:09.085919+00:00",
+  "bbox": [
+    -180,
+    -90,
+    180,
+    90
+  ],
+  "time_range": [
+    "2015",
+    "present"
+  ],
+  "n_records": 4601,
+  "cache_file": "C:\\Saumya_workspace\\team ariel\\Oceiana\\backend\\data\\cache\\cyclone_tracks\\4dbc938620f95596.csv",
+  "provenance": "REAL",
+  "basin": "NI",
+  "version": "v04r01",
+  "year_min": 2015
+}

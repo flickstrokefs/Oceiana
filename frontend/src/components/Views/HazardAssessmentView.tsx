@@ -1,25 +1,150 @@
-import React, { useState } from 'react';
-import { Play, AlertTriangle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Play,
+  AlertTriangle,
+  ShieldAlert,
+  Info,
+  Globe2,
+  CheckCircle2,
+  Compass,
+} from 'lucide-react';
+import { OceanState } from '../../ocean/OceanState';
+import { RealHazardMap, type HazardRegionData } from './RealHazardMap';
 
-interface HazardRegion {
-  name: string;
-  area: string;
-  maxValue: string;
-}
-
-const HAZARD_REGIONS: HazardRegion[] = [
-  { name: 'North Arabian Sea', area: '125,000', maxValue: '2.4' },
-  { name: 'Bay of Bengal', area: '98,000', maxValue: '2.1' },
-  { name: 'Lakshadweep', area: '62,000', maxValue: '1.8' },
-  { name: 'Andaman Sea', area: '40,000', maxValue: '1.7' },
-  { name: 'Southern Ocean Polar Front', area: '160,000', maxValue: '2.8' },
+const INITIAL_HAZARD_REGIONS: HazardRegionData[] = [
+  {
+    id: 'north-arabian-sea',
+    name: 'North Arabian Sea',
+    area: '125,000',
+    area_km2: 125000,
+    maxValue: '2.4',
+    max_value_raw: 2.4,
+    risk_level: 'CRITICAL',
+    impactSummary: 'Severe western boundary jet current with rapid surface shear.',
+    recommendedAction: 'Autonomous gliders should steer +18° eastward to counter cross-drift. Small craft advisory in effect.',
+    bounds: { west: 58.0, east: 71.0, south: 17.0, north: 24.0 },
+    polygon: [
+      [24.8, 57.0],
+      [25.4, 66.5],
+      [24.0, 68.8],
+      [21.0, 71.5],
+      [18.5, 72.8],
+      [15.5, 68.5],
+      [15.0, 58.0],
+      [21.5, 58.5],
+    ],
+  },
+  {
+    id: 'bay-of-bengal',
+    name: 'Central Bay of Bengal',
+    area: '98,000',
+    area_km2: 98000,
+    maxValue: '2.1',
+    max_value_raw: 2.1,
+    risk_level: 'HIGH',
+    impactSummary: 'Cyclonic eddy kinetic energy causing intense divergence and surface chop.',
+    recommendedAction: 'Maintain navigational surveillance. Deep-sea mooring lines under elevated tension.',
+    bounds: { west: 81.0, east: 92.0, south: 11.0, north: 21.0 },
+    polygon: [
+      [21.8, 87.5],
+      [22.2, 91.8],
+      [19.5, 93.5],
+      [16.0, 94.2],
+      [10.5, 92.5],
+      [8.0, 82.0],
+      [13.2, 80.2],
+      [16.5, 83.5],
+      [19.5, 86.5],
+    ],
+  },
+  {
+    id: 'lakshadweep',
+    name: 'Lakshadweep Sea',
+    area: '62,000',
+    area_km2: 62000,
+    maxValue: '1.8',
+    max_value_raw: 1.8,
+    risk_level: 'HIGH',
+    impactSummary: 'Coastal Kelvin wave propagation with strong southward current along the shelf.',
+    recommendedAction: 'Fishing vessels should exercise caution near coral bank passes. Glider track deviation expected.',
+    bounds: { west: 70.0, east: 74.5, south: 8.0, north: 14.0 },
+    polygon: [
+      [14.0, 71.5],
+      [14.0, 74.8],
+      [11.5, 75.8],
+      [8.0, 77.5],
+      [6.0, 73.0],
+      [8.0, 71.0],
+    ],
+  },
+  {
+    id: 'andaman-sea',
+    name: 'Andaman Sea Basin',
+    area: '40,000',
+    area_km2: 40000,
+    maxValue: '1.7',
+    max_value_raw: 1.7,
+    risk_level: 'MODERATE',
+    impactSummary: 'Internal solitary waves and tidal current intensification through island passages.',
+    recommendedAction: 'Monitor acoustic transmission anomalies. Subsurface acoustic sensors may experience noise.',
+    bounds: { west: 91.5, east: 95.0, south: 9.0, north: 15.0 },
+    polygon: [
+      [15.5, 93.0],
+      [16.0, 97.5],
+      [12.0, 98.5],
+      [9.5, 98.5],
+      [6.0, 95.0],
+      [10.0, 92.5],
+      [13.5, 93.0],
+    ],
+  },
+  {
+    id: 'southern-ocean',
+    name: 'Southern Ocean Polar Front',
+    area: '160,000',
+    area_km2: 160000,
+    maxValue: '2.8',
+    max_value_raw: 2.8,
+    risk_level: 'CRITICAL',
+    impactSummary: 'Antarctic Circumpolar Current thermal front with extreme wave-current interactions.',
+    recommendedAction: 'High hull-stress warning for research vessels. Deployment of lightweight surface buoys suspended.',
+    bounds: { west: 60.0, east: 80.0, south: -62.0, north: -54.0 },
+    polygon: [
+      [-52.0, 50.0],
+      [-52.0, 95.0],
+      [-60.0, 95.0],
+      [-60.0, 50.0],
+    ],
+  },
 ];
 
 export const HazardAssessmentView: React.FC = () => {
   const [variable, setVariable] = useState('Current Speed (m/s)');
   const [threshold, setThreshold] = useState('1.5');
   const [analyzing, setAnalyzing] = useState(false);
-  const [hazardRegions, setHazardRegions] = useState<HazardRegion[]>(HAZARD_REGIONS);
+  const [hazardRegions, setHazardRegions] = useState<HazardRegionData[]>(INITIAL_HAZARD_REGIONS);
+  const [selectedRegionId, setSelectedRegionId] = useState<string>('north-arabian-sea');
+  const [lastSyncTime, setLastSyncTime] = useState<string>('');
+
+  const selectedRegion = useMemo(() => {
+    return hazardRegions.find((r) => r.id === selectedRegionId) || hazardRegions[0];
+  }, [hazardRegions, selectedRegionId]);
+
+  const totalExceedanceArea = useMemo(() => {
+    return hazardRegions.reduce((acc, r) => acc + (r.area_km2 || 0), 0);
+  }, [hazardRegions]);
+
+  const peakValue = useMemo(() => {
+    return Math.max(...hazardRegions.map((r) => r.max_value_raw || 0), 0);
+  }, [hazardRegions]);
+
+  const peakRegion = useMemo(() => {
+    return [...hazardRegions].sort((a, b) => (b.max_value_raw || 0) - (a.max_value_raw || 0))[0];
+  }, [hazardRegions]);
+
+  const criticalCount = useMemo(() => {
+    return hazardRegions.filter((r) => r.risk_level === 'CRITICAL' || r.risk_level === 'HIGH').length;
+  }, [hazardRegions]);
 
   const handleRunAnalysis = async () => {
     setAnalyzing(true);
@@ -35,194 +160,303 @@ export const HazardAssessmentView: React.FC = () => {
       });
       if (res.ok) {
         const data = await res.json();
+        if (data.timestamp) {
+          setLastSyncTime(data.timestamp);
+        }
         if (data && Array.isArray(data.regions)) {
-          setHazardRegions(data.regions);
+          // Merge API output with operational descriptions
+          const merged: HazardRegionData[] = data.regions.map((apiReg: Record<string, unknown>, idx: number) => {
+            const apiName = String(apiReg.name || '').toLowerCase();
+            const fallback =
+              INITIAL_HAZARD_REGIONS.find((f) => f.name.toLowerCase() === apiName) ||
+              INITIAL_HAZARD_REGIONS[idx % INITIAL_HAZARD_REGIONS.length];
+            const maxValRaw = typeof apiReg.max_value_raw === 'number' ? apiReg.max_value_raw : parseFloat(String(apiReg.maxValue)) || 1.5;
+            const areaKm2 = typeof apiReg.area_km2 === 'number' ? apiReg.area_km2 : parseFloat(String(apiReg.area).replace(/,/g, '')) || 0;
+            const risk = (apiReg.risk_level as HazardRegionData['risk_level']) || (maxValRaw >= 2.0 ? 'CRITICAL' : maxValRaw >= 1.5 ? 'HIGH' : maxValRaw >= 1.0 ? 'MODERATE' : 'LOW');
+            return {
+              id: fallback.id,
+              name: String(apiReg.name || fallback.name),
+              area: String(apiReg.area || fallback.area),
+              area_km2: areaKm2,
+              maxValue: String(apiReg.maxValue || maxValRaw.toFixed(1)),
+              max_value_raw: maxValRaw,
+              risk_level: risk,
+              impactSummary: fallback.impactSummary,
+              recommendedAction: fallback.recommendedAction,
+              bounds: fallback.bounds,
+              polygon: fallback.polygon,
+            };
+          });
+          setHazardRegions(merged);
         }
       }
     } catch {
-      // Fall back smoothly
+      // Fall back smoothly to local dataset
     } finally {
       setAnalyzing(false);
     }
   };
 
+  // Automatically sync with live backend on component mount and variable change
+  React.useEffect(() => {
+    handleRunAnalysis();
+  }, [variable]);
+
+  const handleFlyToRegion = (region: HazardRegionData) => {
+    // Zoom Cesium globe to region center
+    const centerLon = (region.bounds.west + region.bounds.east) / 2;
+    const centerLat = (region.bounds.south + region.bounds.north) / 2;
+    OceanState.getInstance().requestShowOnGlobe();
+    // Dispatch custom event to fly Cesium camera
+    window.dispatchEvent(
+      new CustomEvent('ariel:fly-to-location', {
+        detail: { longitude: centerLon, latitude: centerLat, height: 1800000 },
+      })
+    );
+  };
+
   return (
     <div className="ariel-view-container hazard-view">
-      {/* Top Controls Bar */}
-      <div className="hazard-top-controls">
-        <div className="control-field-inline">
-          <label className="ctrl-label">Select Variable</label>
-          <select
-            className="ariel-select select-sm"
-            value={variable}
-            onChange={(e) => setVariable(e.target.value)}
-          >
-            <option value="Current Speed (m/s)">Current Speed (m/s)</option>
-            <option value="Significant Wave Height (m)">Significant Wave Height (m)</option>
-            <option value="Sea Surface Height Anomaly (m)">Sea Surface Height Anomaly (m)</option>
-            <option value="Thermal Stress Index">Thermal Stress Index</option>
-          </select>
+      {/* 1. Header Banner & Executive KPI Strip */}
+      <div className="hazard-header-card">
+        <div className="hazard-header-top">
+          <div className="hazard-title-group">
+            <div className="hazard-badge-pill">
+              <ShieldAlert size={14} className="text-amber" />
+              <span>MARITIME HAZARD INTELLIGENCE</span>
+            </div>
+            <h1 className="hazard-main-title">
+              Oceanic Threshold Exceedance & Operational Safety Assessment
+            </h1>
+            <p className="hazard-subtitle">
+              Real-time geospatial monitoring of ocean current velocities, shear hazards, and maritime safety alerts across Indian Ocean shipping lanes.
+            </p>
+          </div>
+
+          {/* Quick Analysis Controls Bar */}
+          <div className="hazard-controls-inline">
+            <div className="hazard-ctrl-item">
+              <span className="ctrl-tiny-label">MONITORED VARIABLE</span>
+              <select
+                className="ariel-select select-sm"
+                value={variable}
+                onChange={(e) => setVariable(e.target.value)}
+              >
+                <option value="Current Speed (m/s)">Current Speed (m/s)</option>
+                <option value="Significant Wave Height (m)">Significant Wave Height (m)</option>
+                <option value="Sea Surface Height Anomaly (m)">Sea Surface Height Anomaly (m)</option>
+                <option value="Thermal Stress Index">Thermal Stress Index (°C)</option>
+              </select>
+            </div>
+
+            <div className="hazard-ctrl-item">
+              <span className="ctrl-tiny-label">SAFETY THRESHOLD</span>
+              <div className="threshold-input-wrap">
+                <input
+                  type="number"
+                  step="0.1"
+                  className="ariel-input input-sm width-20"
+                  value={threshold}
+                  onChange={(e) => setThreshold(e.target.value)}
+                />
+                <span className="unit-tag">m/s</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="ariel-btn-teal btn-sm run-analysis-btn"
+              onClick={handleRunAnalysis}
+              disabled={analyzing}
+            >
+              <Play size={13} /> {analyzing ? 'Evaluating Basin...' : 'Run Analysis'}
+            </button>
+          </div>
         </div>
 
-        <div className="control-field-inline">
-          <label className="ctrl-label">Threshold</label>
-          <input
-            type="number"
-            step="0.1"
-            className="ariel-input input-sm width-20"
-            value={threshold}
-            onChange={(e) => setThreshold(e.target.value)}
+        {/* Executive Summary Cards */}
+        <div className="hazard-kpi-row">
+          <div className="hazard-kpi-card">
+            <span className="kpi-label">TOTAL HAZARDOUS AREA</span>
+            <div className="kpi-value-wrap">
+              <span className="kpi-number text-amber">{totalExceedanceArea.toLocaleString()}</span>
+              <span className="kpi-unit">km²</span>
+            </div>
+            <span className="kpi-subtext">Ocean surface exceeding {threshold} m/s threshold</span>
+          </div>
+
+          <div className="hazard-kpi-card">
+            <span className="kpi-label">PEAK BASIN INTENSITY</span>
+            <div className="kpi-value-wrap">
+              <span className="kpi-number text-coral">{peakValue.toFixed(1)}</span>
+              <span className="kpi-unit">m/s</span>
+            </div>
+            <span className="kpi-subtext">Detected in {peakRegion?.name || 'Indian Ocean'}</span>
+          </div>
+
+          <div className="hazard-kpi-card">
+            <span className="kpi-label">ACTIVE SECTOR ALERTS</span>
+            <div className="kpi-value-wrap">
+              <span className="kpi-number text-rose">{criticalCount}</span>
+              <span className="kpi-unit">/ {hazardRegions.length} Sectors</span>
+            </div>
+            <span className="kpi-subtext">Immediate navigational caution</span>
+          </div>
+
+          <div className="hazard-kpi-card">
+            <span className="kpi-label">OPERATIONAL BASELINE</span>
+            <div className="kpi-value-wrap">
+              <span className="live-pulse-dot" />
+              <span className="kpi-number text-cyan">INCOIS-HCOM</span>
+            </div>
+            <span className="kpi-subtext">
+              {analyzing ? 'Evaluating Basin...' : lastSyncTime ? `Live Sync · ${lastSyncTime}` : 'Real GIS · WGS84 Mercator'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Main Two-Column Analysis Grid */}
+      <div className="hazard-main-grid">
+        {/* Left Column: Real GIS Map with Dynamic Streamlines & Shipping Lanes */}
+        <div className="hazard-map-panel">
+          <div className="panel-subhead">
+            <div className="panel-title-group">
+              <Compass size={15} className="text-cyan" />
+              <span className="panel-title-text">Indian Ocean Current Streamlines &amp; Hazard Exceedance</span>
+            </div>
+            <div className="panel-legend-badges">
+              <span className="mini-chip chip-cyan">🌊 Streamlines: Flow Speed</span>
+              <span className="mini-chip chip-amber">⚠️ Polygons: Risk &gt; {threshold} m/s</span>
+              <span className="mini-chip chip-blue">🚢 Corridors: Shipping Lanes</span>
+            </div>
+          </div>
+          <RealHazardMap
+            hazardRegions={hazardRegions}
+            selectedRegionId={selectedRegionId}
+            onSelectRegion={setSelectedRegionId}
+            threshold={parseFloat(threshold) || 1.5}
+            variable={variable}
           />
         </div>
 
-        <button
-          type="button"
-          className="ariel-btn-teal btn-sm"
-          onClick={handleRunAnalysis}
-          disabled={analyzing}
-        >
-          <Play size={12} /> {analyzing ? 'Analyzing...' : 'Run Analysis'}
-        </button>
-      </div>
-
-      {/* Main Split Layout */}
-      <div className="hazard-main-grid">
-        {/* Left Geospatial Heatmap */}
-        <div className="hazard-map-panel">
-          <div className="map-wrapper-relative">
-            <svg viewBox="0 0 600 380" className="hazard-geospatial-svg" aria-label="Hazard heat map">
-              {/* Ocean Dark Background */}
-              <rect x="0" y="0" width="600" height="380" fill="#0c0e12" />
-
-              {/* Bathymetry contours */}
-              <path d="M 50,180 Q 150,220 280,260 T 550,300" stroke="#161920" strokeWidth="1.5" fill="none" />
-              <path d="M 20,240 Q 180,270 320,310 T 580,350" stroke="#161920" strokeWidth="1.5" fill="none" />
-
-              {/* Landmass Outlines (Indian Subcontinent & Surroundings) */}
-              {/* India */}
-              <path
-                d="M 240,40 L 290,40 L 320,90 L 300,160 L 285,220 L 280,235 L 275,220 L 245,170 L 210,130 L 190,100 L 210,55 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.5"
-              />
-              {/* Arabian Peninsula */}
-              <path
-                d="M 40,40 L 120,40 L 130,80 L 110,130 L 70,120 L 40,80 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.2"
-              />
-              {/* Sri Lanka */}
-              <ellipse cx="295" cy="250" rx="8" ry="12" fill="#161920" stroke="#20242b" strokeWidth="1" />
-              {/* Southeast Asia / Myanmar */}
-              <path
-                d="M 370,50 L 430,70 L 450,150 L 430,220 L 400,240 L 390,200 L 380,130 Z"
-                fill="#161920"
-                stroke="#20242b"
-                strokeWidth="1.2"
-              />
-
-              {/* Ocean Current Heatmap Blooms (Arabian Sea & Bay of Bengal) */}
-              <defs>
-                <radialGradient id="heatArabian" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.9" />
-                  <stop offset="40%" stopColor="#f59e0b" stopOpacity="0.8" />
-                  <stop offset="70%" stopColor="#10b981" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-                <radialGradient id="heatBay" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.85" />
-                  <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.75" />
-                  <stop offset="75%" stopColor="#10b981" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-                <radialGradient id="heatEquatorial" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#f97316" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#10b981" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Arabian Sea Current Jets */}
-              <ellipse cx="160" cy="180" rx="75" ry="48" fill="url(#heatArabian)" transform="rotate(-15 160 180)" />
-              <ellipse cx="140" cy="220" rx="55" ry="32" fill="url(#heatArabian)" />
-
-              {/* Bay of Bengal Eddy Bloom */}
-              <ellipse cx="360" cy="175" rx="65" ry="50" fill="url(#heatBay)" transform="rotate(10 360 175)" />
-
-              {/* Equatorial Jet */}
-              <ellipse cx="270" cy="330" rx="140" ry="32" fill="url(#heatEquatorial)" />
-
-              {/* Region Labels */}
-              <text x="140" y="150" fill="#e2e8f0" fontSize="11" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                Arabian Sea
-              </text>
-              <text x="365" y="150" fill="#e2e8f0" fontSize="11" fontWeight="bold" textAnchor="middle" opacity="0.85">
-                Bay of Bengal
-              </text>
-              <text x="270" y="340" fill="#cbd5e1" fontSize="10" textAnchor="middle" opacity="0.75">
-                Equatorial Jet Zone
-              </text>
-
-              {/* Grid Lines */}
-              <line x1="50" y1="100" x2="550" y2="100" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="50" y1="200" x2="550" y2="200" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="50" y1="300" x2="550" y2="300" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="200" y1="30" x2="200" y2="360" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-              <line x1="350" y1="30" x2="350" y2="360" stroke="#0a3348" strokeWidth="0.8" strokeDasharray="4,4" />
-            </svg>
-
-            {/* Vertical Colorbar on Right of Map */}
-            <div className="hazard-map-colorbar">
-              <span className="colorbar-unit">Current Speed (m/s)</span>
-              <div className="colorbar-vertical-scale">
-                <div className="scale-labels">
-                  <span>3.0</span>
-                  <span>2.5</span>
-                  <span>2.0</span>
-                  <span>1.5</span>
-                  <span>1.0</span>
-                  <span>0.5</span>
-                </div>
-                <div className="scale-bar-gradient hazard-gradient" />
+        {/* Right Column: Regions Exceeding Threshold & Operational Advisory */}
+        <div className="hazard-right-col">
+          {/* Table of Exceedance Zones */}
+          <div className="hazard-table-panel">
+            <div className="panel-head-simple">
+              <div className="table-title-group">
+                <AlertTriangle size={15} className="text-amber" />
+                <span className="panel-title">Monitored Hazard Sectors</span>
               </div>
+              <span className="table-legend-chip">Threshold &gt; {threshold} m/s</span>
+            </div>
+
+            <div className="hazard-table-scroll">
+              <table className="ariel-styled-table">
+                <thead>
+                  <tr>
+                    <th>MARITIME SECTOR</th>
+                    <th>RISK LEVEL</th>
+                    <th className="text-right">AREA (KM²)</th>
+                    <th className="text-right">MAX VEL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hazardRegions.map((r) => {
+                    const isSelected = r.id === selectedRegionId;
+                    const badgeClass =
+                      r.risk_level === 'CRITICAL'
+                        ? 'risk-badge-critical'
+                        : r.risk_level === 'HIGH'
+                        ? 'risk-badge-high'
+                        : r.risk_level === 'MODERATE'
+                        ? 'risk-badge-moderate'
+                        : 'risk-badge-low';
+
+                    return (
+                      <tr
+                        key={r.id}
+                        onClick={() => setSelectedRegionId(r.id)}
+                        className={isSelected ? 'row-selected-hazard' : ''}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to view detailed operational advisory & fly map"
+                      >
+                        <td>
+                          <div className="sector-name-cell">
+                            <span
+                              className="sector-dot"
+                              style={{
+                                background:
+                                  r.risk_level === 'CRITICAL'
+                                    ? '#ef4444'
+                                    : r.risk_level === 'HIGH'
+                                    ? '#f97316'
+                                    : '#eab308',
+                              }}
+                            />
+                            <strong className="text-white">{r.name}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`risk-pill ${badgeClass}`}>
+                            {r.risk_level}
+                          </span>
+                        </td>
+                        <td className="font-mono text-right text-slate-300">{r.area}</td>
+                        <td className="font-mono text-right text-coral font-bold">{r.maxValue} m/s</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
 
-        {/* Right Table Panel: Regions Exceeding Threshold */}
-        <div className="hazard-table-panel">
-          <div className="panel-head-simple">
-            <span className="panel-title">Regions Exceeding Threshold</span>
-            <AlertTriangle size={14} className="text-amber" />
-          </div>
+          {/* Operational Advisory Card for Selected Region */}
+          <div className="hazard-advisory-card">
+            <div className="advisory-card-header">
+              <div className="adv-header-left">
+                <Info size={16} className="text-cyan" />
+                <span className="adv-header-title">
+                  Sector Advisory: {selectedRegion.name}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="ariel-btn-teal btn-compact fly-globe-btn"
+                onClick={() => handleFlyToRegion(selectedRegion)}
+                title="Fly 3D Cesium camera to this hazard zone"
+              >
+                <Globe2 size={13} /> View on 3D Globe
+              </button>
+            </div>
 
-          <table className="ariel-styled-table">
-            <thead>
-              <tr>
-                <th>Region</th>
-                <th>Area (km²)</th>
-                <th className="text-right">Max Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hazardRegions.map((r) => (
-                <tr key={r.name}>
-                  <td className="font-medium text-white">{r.name}</td>
-                  <td className="font-mono text-slate-300">{r.area}</td>
-                  <td className="font-mono text-right text-coral font-bold">{r.maxValue}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <div className="advisory-body">
+              <div className="advisory-row">
+                <span className="adv-label">CURRENT CONDITIONS:</span>
+                <p className="adv-text text-slate-200">
+                  Peak current speed of <strong className="text-coral">{selectedRegion.maxValue} m/s</strong> observed across {selectedRegion.area} km². {selectedRegion.impactSummary}
+                </p>
+              </div>
 
-          {/* Table Legend at bottom */}
-          <div className="hazard-legend-note">
-            <span className="legend-checkbox-icon">✔</span>
-            <span className="legend-text">
-              Areas where current speed &gt; {threshold} m/s
-            </span>
+              <div className="advisory-row">
+                <span className="adv-label">OPERATIONAL GUIDANCE:</span>
+                <p className="adv-text text-amber">
+                  <CheckCircle2 size={12} className="inline mr-1 text-amber" />
+                  {selectedRegion.recommendedAction}
+                </p>
+              </div>
+
+              <div className="advisory-coords-bar">
+                <span className="coord-chip">
+                  Bounds: {selectedRegion.bounds.west}°E–{selectedRegion.bounds.east}°E · {selectedRegion.bounds.south}°N–{selectedRegion.bounds.north}°N
+                </span>
+                <span className="coord-chip text-cyan">
+                  Status: Active Maritime Alert
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

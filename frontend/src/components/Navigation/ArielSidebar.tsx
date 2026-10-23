@@ -11,6 +11,7 @@ import {
   HelpCircle,
   ChevronLeft,
   ChevronRight,
+  FileText,
 } from 'lucide-react';
 import { OceanState } from '../../ocean/OceanState';
 import type { ArielPage } from '../../types/ocean';
@@ -29,6 +30,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: '3d-ocean', label: '3D Ocean', icon: Compass },
+  { id: 'reports', label: 'Reports', icon: FileText },
   { id: 'obs-profile', label: 'Observation Profile', icon: Activity },
   { id: 'data-manager', label: 'Data Manager', icon: Database },
   { id: 'search', label: 'Search & Resources', icon: Search, restricted: true },

@@ -17,3 +17,4 @@ copernicusmarine>=1.0.0
 argopy>=1.0.0
 erddapy>=2.0.0
 pytest>=8.0.0
+matplotlib>=3.8.0

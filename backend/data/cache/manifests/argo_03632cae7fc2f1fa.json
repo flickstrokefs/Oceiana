@@ -1,0 +1,28 @@
+{
+  "source": "Ifremer ERDDAP Argo GDAC",
+  "doi_or_url": "https://doi.org/10.17882/42182",
+  "retrieved_at": "2026-10-22T20:41:00.973447+00:00",
+  "bbox": [
+    80.0,
+    5.0,
+    100.0,
+    23.0
+  ],
+  "time_range": [
+    "2020-01-01",
+    "2020-02-01"
+  ],
+  "n_records": 17136,
+  "cache_file": "C:\\Saumya_workspace\\team ariel\\Oceiana\\backend\\data\\cache\\argo\\03632cae7fc2f1fa.nc",
+  "provenance": "REAL",
+  "qc_flags_accepted": [
+    1
+  ],
+  "variables": [
+    "PRES",
+    "TEMP",
+    "PSAL",
+    "SA",
+    "CT"
+  ]
+}

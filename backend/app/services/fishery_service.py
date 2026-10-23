@@ -82,7 +82,7 @@ class FisheryService:
                 current_state="Moderate (0.4 – 0.8 m/s)",
             ),
             recommended_zones=zones,
-            provenance="REAL",
+            provenance="SYNTHETIC",  # Hard-coded placeholder zones — NOT real SST/chl data
         )
 
     def get_pfz_coordinates(self, region: str = "Indian Ocean") -> PFZResponse:
@@ -152,7 +152,7 @@ class FisheryService:
             timestamp=datetime.now(timezone.utc).isoformat(),
             count=len(points),
             points=points,
-            provenance="REAL",
+            provenance="SYNTHETIC",  # Hard-coded placeholder coordinates — NOT real PFZ data
         )
 
 

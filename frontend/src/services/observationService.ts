@@ -209,16 +209,16 @@ function composeLocalProfile(
 
   const modelCard: ObservationSourceCard = {
     id: 'model-incois-io',
-    label: 'INCOIS Regional Ocean Model',
+    label: 'SIMULATED (DEMO / SYNTHETIC)',
     sourceType: 'model',
     latitude: lat,
     longitude: lon,
     timestamp,
     depth: STANDARD_DEPTHS[STANDARD_DEPTHS.length - 1],
-    status: 'Operational',
+    status: 'DEMO / SYNTHETIC — No CMEMS Model Loaded',
     metadata: {
-      model: 'IO-ROMS / mock field',
-      grid: 'Regional Indian Ocean',
+      model: 'Placeholder / Synthetic Field (CMEMS offline)',
+      grid: 'Regional Indian Ocean (DEMO)',
     },
     surfaceValues: {
       temperature: modelSurface?.temperature ?? null,

@@ -7,13 +7,24 @@ import {
   MapPin,
   ChevronDown,
   Activity,
+  Box,
+  BarChart2,
+  Columns,
 } from 'lucide-react';
 import { OceanState } from '../../ocean/OceanState';
 import { fetchObservationProfile } from '../../services/observationService';
-import type {
-  ObservationProfilePayload,
-  ProfileVariable,
-  SelectedObservation,
+import { DepthProfileChart, type DepthProfileSeries } from './DepthProfileChart';
+import { RegionalDepthVisualizer } from './RegionalDepthVisualizer';
+import {
+  getOceanRegionConfig,
+  type OceanRegionConfig,
+  type UnderwaterRegionId,
+  type ObservationProfilePayload,
+  type ProfileVariable,
+  type SelectedObservation,
+  type GliderTrajectory,
+  type ArgoProfile,
+  type ProfileDepthSample,
 } from '../../types/ocean';
 
 interface ObservationProfileModalProps {
@@ -161,7 +172,23 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
   const [error, setError] = useState<string | null>(null);
   const [selectedVar, setSelectedVar] = useState<ProfileVariable>('temperature');
   const [region, setRegion] = useState('Arabian Sea');
+  const [currentDepth, setCurrentDepth] = useState<number>(100);
+  const [viewTab, setViewTab] = useState<'3d-volume' | '2d-profile' | 'side-by-side'>('3d-volume');
+  const [showComparisonTable, setShowComparisonTable] = useState(false);
   const [loadToken, setLoadToken] = useState(0);
+
+  const getRegionIdFromName = (regionName: string): UnderwaterRegionId => {
+    const norm = regionName.toLowerCase();
+    if (norm.includes('bengal')) return 'bay-of-bengal';
+    if (norm.includes('southern') || norm.includes('antarct')) return 'southern-ocean';
+    if (norm.includes('laccadive')) return 'laccadive-sea';
+    if (norm.includes('andaman')) return 'andaman-sea';
+    return 'arabian-sea';
+  };
+
+  const activeRegionConfig: OceanRegionConfig = useMemo(() => {
+    return getOceanRegionConfig(getRegionIdFromName(region));
+  }, [region]);
 
   useEffect(() => {
     const unsub = OceanState.getInstance().subscribe((snapshot) => {
@@ -173,6 +200,24 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
 
   const activeObs = propObs !== undefined ? propObs : internalObs;
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+
+  // Detect and sync region to observation location
+  const detectedRegion = useMemo(() => {
+    if (!activeObs) return 'Arabian Sea';
+    const lat = (activeObs.type === 'glider'
+      ? (activeObs.data as GliderTrajectory).waypoints?.[0]?.latitude
+      : (activeObs.data as ArgoProfile).latitude) ?? 15;
+    if (lat < -30) return 'Southern Ocean';
+    const lon = (activeObs.type === 'glider'
+      ? (activeObs.data as GliderTrajectory).waypoints?.[0]?.longitude
+      : (activeObs.data as ArgoProfile).longitude) ?? 72;
+    if (lon > 78 && lat > 0) return 'Bay of Bengal';
+    return 'Arabian Sea';
+  }, [activeObs]);
+
+  useEffect(() => {
+    setRegion(detectedRegion);
+  }, [detectedRegion]);
 
   const handleClose = useCallback(() => {
     if (propOnClose) {
@@ -198,6 +243,41 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
     }
   }, []);
 
+  const handleRegionChange = (newRegion: string) => {
+    setRegion(newRegion);
+    const realGliders = OceanState.getInstance().getGliders();
+    const realArgo = OceanState.getInstance().getArgoProfiles();
+
+    let matchedObs: SelectedObservation | null = null;
+    if (newRegion === 'Arabian Sea') {
+      const g = realGliders.find(
+        (item) => item.region === 'arabian_sea' || ((item.waypoints?.[0]?.latitude ?? 0) > 8 && (item.waypoints?.[0]?.longitude ?? 0) < 78)
+      );
+      if (g) matchedObs = { type: 'glider', data: g };
+      else {
+        const a = realArgo.find((item) => item.latitude > 8 && item.longitude < 78);
+        if (a) matchedObs = { type: 'argo', data: a };
+      }
+    } else if (newRegion === 'Bay of Bengal') {
+      const g = realGliders.find(
+        (item) => item.region === 'bay_of_bengal' || ((item.waypoints?.[0]?.latitude ?? 0) > 0 && (item.waypoints?.[0]?.longitude ?? 0) >= 78)
+      );
+      if (g) matchedObs = { type: 'glider', data: g };
+      else {
+        const a = realArgo.find((item) => item.latitude > 0 && item.longitude >= 78);
+        if (a) matchedObs = { type: 'argo', data: a };
+      }
+    } else if (newRegion === 'Southern Ocean') {
+      const g = realGliders.find((item) => (item.waypoints?.[0]?.latitude ?? 0) < -30);
+      if (g) matchedObs = { type: 'glider', data: g };
+    }
+
+    if (matchedObs) {
+      OceanState.getInstance().selectObservation(matchedObs);
+      void loadData(matchedObs);
+    }
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -207,7 +287,9 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
       } else {
         // Fallback default observation from real loaded gliders
         const realGliders = OceanState.getInstance().getGliders();
-        const fallbackGlider = realGliders[0];
+        const fallbackGlider = realGliders.find(
+          (g) => g.region === 'arabian_sea' || g.region === 'bay_of_bengal' || g.name.includes('Bengal') || g.name.includes('Arabian') || (g.waypoints[0]?.latitude ?? 0) > 0
+        ) || realGliders[0];
         const fallback: SelectedObservation = fallbackGlider
           ? { type: 'glider', data: fallbackGlider }
           : {
@@ -282,7 +364,9 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
     },
   ];
 
-  // Standard Profile table data matching reference
+  // Profile table: populated from real Argo/glider soundings fetched from backend.
+  // Returns empty array when no data is available — the UI shows "No data available".
+  // Do NOT substitute synthetic placeholder values here.
   const profileTableData = useMemo(() => {
     if (payload?.profile?.depths?.length) {
       return payload.profile.depths.map((depth, idx) => ({
@@ -292,19 +376,38 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
         argo: payload.profile.argo[idx]?.[selectedVar] ?? null,
       }));
     }
-    // Static fallback matching reference image exactly if payload is empty
-    return [
-      { depth: 0, model: 28.1, glider: 28.4, argo: 28.0 },
-      { depth: 50, model: 26.4, glider: 26.1, argo: 26.3 },
-      { depth: 100, model: 22.8, glider: 21.9, argo: 22.0 },
-      { depth: 250, model: 18.2, glider: 18.4, argo: 18.1 },
-      { depth: 500, model: 14.1, glider: 14.8, argo: 13.6 },
-      { depth: 750, model: 10.5, glider: 10.2, argo: 10.1 },
-      { depth: 1000, model: 6.0, glider: 6.1, argo: 5.9 },
-      { depth: 1500, model: 4.2, glider: 3.9, argo: 4.0 },
-      { depth: 2000, model: 3.1, glider: 3.2, argo: 3.5 },
-    ];
+    return [];
   }, [payload, selectedVar]);
+
+  const chartSeries: DepthProfileSeries[] = useMemo(() => {
+    if (!payload?.profile) return [];
+    const series: DepthProfileSeries[] = [];
+    if (payload.profile.model?.length) {
+      series.push({
+        key: 'model',
+        label: 'Model (IOCM)',
+        color: '#38bdf8',
+        samples: payload.profile.model,
+      });
+    }
+    if (payload.profile.glider?.length) {
+      series.push({
+        key: 'glider',
+        label: 'Glider',
+        color: '#facc15',
+        samples: payload.profile.glider,
+      });
+    }
+    if (payload.profile.argo?.length) {
+      series.push({
+        key: 'argo',
+        label: 'Argo Float',
+        color: '#f87171',
+        samples: payload.profile.argo,
+      });
+    }
+    return series;
+  }, [payload]);
 
   if (!isOpen) return null;
 
@@ -346,7 +449,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
               <select
                 className="ariel-select select-xs"
                 value={region}
-                onChange={(e) => setRegion(e.target.value)}
+                onChange={(e) => handleRegionChange(e.target.value)}
               >
                 <option value="Arabian Sea">Arabian Sea</option>
                 <option value="Bay of Bengal">Bay of Bengal</option>
@@ -354,17 +457,13 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
               </select>
             </div>
 
-            <button
-              type="button"
-              className="ariel-btn-outline-teal btn-xs"
-              onClick={() => alert('Selecting location on map...')}
-            >
-              Select Location <ChevronDown size={12} />
-            </button>
-
             <div className="obs-coord-tag">
               <MapPin size={12} />
-              <span>15.4° N, 72.2° E</span>
+              <span>
+                {payload?.model?.latitude !== undefined
+                  ? `${Math.abs(payload.model.latitude).toFixed(2)}° ${payload.model.latitude >= 0 ? 'N' : 'S'}, ${Math.abs(payload.model.longitude).toFixed(2)}° ${payload.model.longitude >= 0 ? 'E' : 'W'}`
+                  : '15.40° N, 72.20° E'}
+              </span>
             </div>
           </div>
 
@@ -426,7 +525,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                     <div className="card-telemetry-block">
                       <div className="telemetry-item">
                         <span className="t-label">Model:</span>
-                        <span className="t-val">INCOIS-IOCM</span>
+                        <span className="t-val">{(payload?.model?.metadata?.model as string) || 'INCOIS-IOCM'}</span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Time:</span>
@@ -434,15 +533,23 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lat:</span>
-                        <span className="t-val">15.40° N</span>
+                        <span className="t-val">
+                          {payload?.model?.latitude !== undefined
+                            ? `${Math.abs(payload.model.latitude).toFixed(2)}° ${payload.model.latitude >= 0 ? 'N' : 'S'}`
+                            : '15.40° N'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lon:</span>
-                        <span className="t-val">72.20° E</span>
+                        <span className="t-val">
+                          {payload?.model?.longitude !== undefined
+                            ? `${Math.abs(payload.model.longitude).toFixed(2)}° ${payload.model.longitude >= 0 ? 'E' : 'W'}`
+                            : '72.20° E'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Depth:</span>
-                        <span className="t-val">500 m</span>
+                        <span className="t-val">{payload?.model?.depth ?? 500} m</span>
                       </div>
                     </div>
                   </div>
@@ -450,19 +557,35 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                   <div className="card-metrics-grid">
                     <div className="metric-cell">
                       <span className="m-label">Temperature</span>
-                      <strong className="m-val">18.2 °C</strong>
+                      <strong className="m-val text-cyan">
+                        {typeof payload?.model?.surfaceValues?.temperature === 'number'
+                          ? `${payload.model.surfaceValues.temperature.toFixed(1)} °C`
+                          : '18.2 °C'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Salinity</span>
-                      <strong className="m-val">35.0 PSU</strong>
+                      <strong className="m-val text-cyan">
+                        {typeof payload?.model?.surfaceValues?.salinity === 'number'
+                          ? `${payload.model.surfaceValues.salinity.toFixed(1)} PSU`
+                          : '35.0 PSU'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Current Speed</span>
-                      <strong className="m-val">0.6 m/s</strong>
+                      <strong className="m-val text-cyan">
+                        {typeof payload?.model?.surfaceValues?.currentSpeed === 'number'
+                          ? `${payload.model.surfaceValues.currentSpeed.toFixed(1)} m/s`
+                          : '0.6 m/s'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Chlorophyll</span>
-                      <strong className="m-val">0.4 mg/m³</strong>
+                      <strong className="m-val text-cyan">
+                        {typeof payload?.model?.surfaceValues?.chlorophyll === 'number'
+                          ? `${payload.model.surfaceValues.chlorophyll.toFixed(2)} mg/m³`
+                          : '0.40 mg/m³'}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -482,7 +605,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <div className="telemetry-item">
                         <span className="t-label">Glider ID:</span>
                         <span className="t-val highlight-amber">
-                          {activeObs?.type === 'glider' ? activeObs.data.name || activeObs.data.id : 'G102'}
+                          {payload?.glider?.label ?? (activeObs?.type === 'glider' ? activeObs.data.name || activeObs.data.id : 'RU29')}
                         </span>
                       </div>
                       <div className="telemetry-item">
@@ -491,15 +614,23 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lat:</span>
-                        <span className="t-val">15.42° N</span>
+                        <span className="t-val">
+                          {payload?.glider?.latitude !== undefined
+                            ? `${Math.abs(payload.glider.latitude).toFixed(2)}° ${payload.glider.latitude >= 0 ? 'N' : 'S'}`
+                            : '15.42° N'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lon:</span>
-                        <span className="t-val">72.18° E</span>
+                        <span className="t-val">
+                          {payload?.glider?.longitude !== undefined
+                            ? `${Math.abs(payload.glider.longitude).toFixed(2)}° ${payload.glider.longitude >= 0 ? 'E' : 'W'}`
+                            : '72.18° E'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Depth:</span>
-                        <span className="t-val">505 m</span>
+                        <span className="t-val">{payload?.glider?.depth ?? 505} m</span>
                       </div>
                     </div>
                   </div>
@@ -507,19 +638,35 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                   <div className="card-metrics-grid">
                     <div className="metric-cell">
                       <span className="m-label">Temperature</span>
-                      <strong className="m-val text-amber">18.4 °C</strong>
+                      <strong className="m-val text-amber">
+                        {typeof payload?.glider?.surfaceValues?.temperature === 'number'
+                          ? `${payload.glider.surfaceValues.temperature.toFixed(1)} °C`
+                          : '18.4 °C'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Salinity</span>
-                      <strong className="m-val text-amber">35.1 PSU</strong>
+                      <strong className="m-val text-amber">
+                        {typeof payload?.glider?.surfaceValues?.salinity === 'number'
+                          ? `${payload.glider.surfaceValues.salinity.toFixed(1)} PSU`
+                          : '35.1 PSU'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Current Speed</span>
-                      <strong className="m-val text-amber">0.6 m/s</strong>
+                      <strong className="m-val text-amber">
+                        {typeof payload?.glider?.surfaceValues?.currentSpeed === 'number'
+                          ? `${payload.glider.surfaceValues.currentSpeed.toFixed(1)} m/s`
+                          : '0.6 m/s'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Chlorophyll</span>
-                      <strong className="m-val text-amber">0.6 mg/m³</strong>
+                      <strong className="m-val text-amber">
+                        {typeof payload?.glider?.surfaceValues?.chlorophyll === 'number'
+                          ? `${payload.glider.surfaceValues.chlorophyll.toFixed(2)} mg/m³`
+                          : '0.60 mg/m³'}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -539,7 +686,7 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       <div className="telemetry-item">
                         <span className="t-label">Argo ID:</span>
                         <span className="t-val highlight-coral">
-                          {activeObs?.type === 'argo' ? activeObs.data.name || `#${activeObs.data.id}` : '#4587'}
+                          {payload?.argo?.label ?? (activeObs?.type === 'argo' ? activeObs.data.name || `#${activeObs.data.id}` : '#2901857')}
                         </span>
                       </div>
                       <div className="telemetry-item">
@@ -548,15 +695,23 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lat:</span>
-                        <span className="t-val">15.39° N</span>
+                        <span className="t-val">
+                          {payload?.argo?.latitude !== undefined
+                            ? `${Math.abs(payload.argo.latitude).toFixed(2)}° ${payload.argo.latitude >= 0 ? 'N' : 'S'}`
+                            : '15.39° N'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Lon:</span>
-                        <span className="t-val">72.25° E</span>
+                        <span className="t-val">
+                          {payload?.argo?.longitude !== undefined
+                            ? `${Math.abs(payload.argo.longitude).toFixed(2)}° ${payload.argo.longitude >= 0 ? 'E' : 'W'}`
+                            : '72.25° E'}
+                        </span>
                       </div>
                       <div className="telemetry-item">
                         <span className="t-label">Depth:</span>
-                        <span className="t-val">498 m</span>
+                        <span className="t-val">{payload?.argo?.depth ?? 498} m</span>
                       </div>
                     </div>
                   </div>
@@ -564,55 +719,85 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                   <div className="card-metrics-grid">
                     <div className="metric-cell">
                       <span className="m-label">Temperature</span>
-                      <strong className="m-val text-coral">18.1 °C</strong>
+                      <strong className="m-val text-coral">
+                        {typeof payload?.argo?.surfaceValues?.temperature === 'number'
+                          ? `${payload.argo.surfaceValues.temperature.toFixed(1)} °C`
+                          : '18.1 °C'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Salinity</span>
-                      <strong className="m-val text-coral">35.1 PSU</strong>
+                      <strong className="m-val text-coral">
+                        {typeof payload?.argo?.surfaceValues?.salinity === 'number'
+                          ? `${payload.argo.surfaceValues.salinity.toFixed(1)} PSU`
+                          : '35.1 PSU'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Current Speed</span>
-                      <strong className="m-val text-coral">0.6 m/s</strong>
+                      <strong className="m-val text-coral">
+                        {typeof payload?.argo?.surfaceValues?.currentSpeed === 'number'
+                          ? `${payload.argo.surfaceValues.currentSpeed.toFixed(1)} m/s`
+                          : '0.6 m/s'}
+                      </strong>
                     </div>
                     <div className="metric-cell">
                       <span className="m-label">Chlorophyll</span>
-                      <strong className="m-val text-coral">0.8 mg/m³</strong>
+                      <strong className="m-val text-coral">
+                        {typeof payload?.argo?.surfaceValues?.chlorophyll === 'number'
+                          ? `${payload.argo.surfaceValues.chlorophyll.toFixed(2)} mg/m³`
+                          : '0.80 mg/m³'}
+                      </strong>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Surface Comparison Table */}
-              <div className="obs-surface-comparison-wrap">
-                <table className="ariel-compare-table">
-                  <thead>
-                    <tr>
-                      <th>VARIABLE</th>
-                      <th>MODEL DATA</th>
-                      <th>GLIDER DATA</th>
-                      <th>ARGO DATA</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map((row) => (
-                      <tr key={row.variable}>
-                        <td>{row.variable}</td>
-                        <td className="text-cyan">{typeof row.model === 'number' ? row.model.toFixed(1) : row.model}</td>
-                        <td className="text-amber">{typeof row.glider === 'number' ? row.glider.toFixed(1) : row.glider}</td>
-                        <td className="text-coral">{typeof row.argo === 'number' ? row.argo.toFixed(1) : row.argo}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {/* Surface Comparison Table with Sleek Toggle Bar */}
+              <div className="obs-comparison-toggle-bar">
+                <button
+                  type="button"
+                  className="obs-toggle-link-btn"
+                  onClick={() => setShowComparisonTable((v) => !v)}
+                >
+                  {showComparisonTable
+                    ? '▲ Hide Surface Intercomparison Table'
+                    : '▼ View Surface Intercomparison Table (Model · Glider · Argo)'}
+                </button>
               </div>
 
-              {/* BOTTOM SECTION: Variable Selector + Graph (Left) & Profile Table (Right) */}
+              {showComparisonTable && (
+                <div className="obs-surface-comparison-wrap">
+                  <table className="ariel-compare-table">
+                    <thead>
+                      <tr>
+                        <th>VARIABLE</th>
+                        <th>MODEL DATA</th>
+                        <th>GLIDER DATA</th>
+                        <th>ARGO DATA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonRows.map((row) => (
+                        <tr key={row.variable}>
+                          <td>{row.variable}</td>
+                          <td className="text-cyan">{typeof row.model === 'number' ? row.model.toFixed(1) : row.model}</td>
+                          <td className="text-amber">{typeof row.glider === 'number' ? row.glider.toFixed(1) : row.glider}</td>
+                          <td className="text-coral">{typeof row.argo === 'number' ? row.argo.toFixed(1) : row.argo}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* HERO SECTION: Variable Selector + 3D Water Column / 2D Curves (Left) & Profile Table (Right) */}
               <div className="obs-profile-analysis-row">
-                {/* Left Graph Panel */}
+                {/* Left Graph & 3D Volumetric Panel */}
                 <div className="obs-graph-panel">
                   <div className="graph-panel-header">
                     <div className="var-select-combo">
-                      <span className="var-label">Variable</span>
+                      <span className="var-label">Variable:</span>
                       <select
                         className="ariel-select select-sm"
                         value={selectedVar}
@@ -626,120 +811,137 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                       </select>
                     </div>
 
-                    <span className="graph-title-badge">
-                      {VARIABLE_OPTIONS.find((v) => v.id === selectedVar)?.label.split(' ')[0]} vs Depth
-                    </span>
+                    {/* View Mode Toggle: 3D Water Column vs 2D CTD Curves vs Split View */}
+                    <div className="obs-view-mode-tabs" role="tablist">
+                      <button
+                        type="button"
+                        className={`obs-tab-btn ${viewTab === '3d-volume' ? 'tab-active' : ''}`}
+                        onClick={() => setViewTab('3d-volume')}
+                        title="3D Perspective Volumetric Water Column with Depth Slicing"
+                      >
+                        <Box size={14} /> 3D Water Column
+                      </button>
+                      <button
+                        type="button"
+                        className={`obs-tab-btn ${viewTab === '2d-profile' ? 'tab-active' : ''}`}
+                        onClick={() => setViewTab('2d-profile')}
+                        title="2D CTD Depth Profile Curves"
+                      >
+                        <BarChart2 size={14} /> 2D Curves
+                      </button>
+                      <button
+                        type="button"
+                        className={`obs-tab-btn ${viewTab === 'side-by-side' ? 'tab-active' : ''}`}
+                        onClick={() => setViewTab('side-by-side')}
+                        title="Show both 3D Slices and 2D Curves"
+                      >
+                        <Columns size={14} /> Split View
+                      </button>
+                    </div>
                   </div>
 
-                  {/* SVG Depth vs Variable Chart */}
-                  <div className="chart-render-wrapper">
-                    <svg
-                      viewBox="0 0 540 260"
-                      className="depth-chart-svg"
-                      aria-label="Depth profile curve comparison"
-                    >
-                      {/* Background grid */}
-                      <rect x="0" y="0" width="540" height="260" fill="#111418" rx="4" />
-
-                      {/* Depth grid lines (horizontal) */}
-                      {[0, 500, 1000, 1500, 2000].map((depth) => {
-                        const y = 30 + (depth / 2000) * 190;
-                        return (
-                          <g key={depth}>
-                            <line x1="55" y1={y} x2="450" y2={y} stroke="#20242b" strokeWidth="1" strokeDasharray="3,3" />
-                            <text x="45" y={y + 3} fill="#88909e" fontSize="10" textAnchor="end" fontFamily="monospace">
-                              {depth}
-                            </text>
-                          </g>
-                        );
-                      })}
-
-                      {/* X-axis ticks (variable) */}
-                      {[0, 5, 10, 15, 20, 25, 30].map((val) => {
-                        const x = 55 + (val / 30) * 395;
-                        return (
-                          <g key={val}>
-                            <line x1={x} y1="30" x2={x} y2="220" stroke="#20242b" strokeWidth="1" strokeDasharray="3,3" />
-                            <text x={x} y="235" fill="#88909e" fontSize="10" textAnchor="middle" fontFamily="monospace">
-                              {val}
-                            </text>
-                          </g>
-                        );
-                      })}
-
-                      {/* Axes Lines */}
-                      <line x1="55" y1="30" x2="55" y2="220" stroke="#2c323e" strokeWidth="1.5" />
-                      <line x1="55" y1="220" x2="450" y2="220" stroke="#2c323e" strokeWidth="1.5" />
-
-                      {/* Axis Labels */}
-                      <text x="18" y="125" fill="#88909e" fontSize="10" fontWeight="bold" textAnchor="middle" transform="rotate(-90 18 125)">
-                        Depth (m)
-                      </text>
-                      <text x="250" y="252" fill="#88909e" fontSize="10" fontWeight="bold" textAnchor="middle">
-                        {VARIABLE_OPTIONS.find((v) => v.id === selectedVar)?.label}
-                      </text>
-
-                      {/* Model Curve (Slate Blue) */}
-                      <path
-                        d="M 425,30 Q 340,54 295,78 T 240,110 T 190,140 T 135,175 T 98,220"
-                        fill="none"
-                        stroke="#2d5e94"
-                        strokeWidth="2.2"
+                  {/* Slicing Controls Bar */}
+                  <div className="depth-slicing-control-bar">
+                    <div className="depth-slider-group">
+                      <span className="depth-slider-label">Scanning Layer:</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max={Math.min(2500, activeRegionConfig.grid.maxDepthM || 2000)}
+                        step="25"
+                        value={currentDepth}
+                        onChange={(e) => setCurrentDepth(parseInt(e.target.value, 10))}
+                        className="depth-slider-input"
+                        title="Scroll wheel on 3D view or drag slider to change depth slice"
                       />
-                      {/* Model Points */}
-                      <circle cx="425" cy="30" r="3" fill="#2d5e94" />
-                      <circle cx="295" cy="78" r="3" fill="#2d5e94" />
-                      <circle cx="240" cy="110" r="3" fill="#2d5e94" />
-                      <circle cx="190" cy="140" r="3" fill="#2d5e94" />
-                      <circle cx="135" cy="175" r="3" fill="#2d5e94" />
-                      <circle cx="98" cy="220" r="3" fill="#2d5e94" />
+                      <span className="depth-current-tag">-{currentDepth}m</span>
+                    </div>
 
-                      {/* Glider Curve (Yellow/Amber) */}
-                      <path
-                        d="M 430,30 Q 338,55 285,82 T 248,110 T 195,142 T 136,178 T 99,220"
-                        fill="none"
-                        stroke="#facc15"
-                        strokeWidth="2.2"
-                      />
-                      {/* Glider Points */}
-                      <circle cx="430" cy="30" r="3" fill="#facc15" />
-                      <circle cx="285" cy="82" r="3" fill="#facc15" />
-                      <circle cx="248" cy="110" r="3" fill="#facc15" />
-                      <circle cx="195" cy="142" r="3" fill="#facc15" />
-                      <circle cx="136" cy="178" r="3" fill="#facc15" />
-                      <circle cx="99" cy="220" r="3" fill="#facc15" />
-
-                      {/* Argo Curve (Salmon/Red) */}
-                      <path
-                        d="M 423,30 Q 342,52 288,80 T 235,110 T 188,138 T 133,172 T 102,220"
-                        fill="none"
-                        stroke="#f87171"
-                        strokeWidth="2.2"
-                      />
-                      {/* Argo Points */}
-                      <circle cx="423" cy="30" r="3" fill="#f87171" />
-                      <circle cx="288" cy="80" r="3" fill="#f87171" />
-                      <circle cx="235" cy="110" r="3" fill="#f87171" />
-                      <circle cx="188" cy="138" r="3" fill="#f87171" />
-                      <circle cx="133" cy="172" r="3" fill="#f87171" />
-                      <circle cx="102" cy="220" r="3" fill="#f87171" />
-
-                      {/* Chart Legend on Right */}
-                      <g transform="translate(465, 45)">
-                        <line x1="0" y1="0" x2="14" y2="0" stroke="#2d5e94" strokeWidth="2.5" />
-                        <circle cx="7" cy="0" r="2.5" fill="#2d5e94" />
-                        <text x="20" y="3" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Model</text>
-
-                        <line x1="0" y1="22" x2="14" y2="22" stroke="#facc15" strokeWidth="2.5" />
-                        <circle cx="7" cy="22" r="2.5" fill="#facc15" />
-                        <text x="20" y="25" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Glider</text>
-
-                        <line x1="0" y1="44" x2="14" y2="44" stroke="#f87171" strokeWidth="2.5" />
-                        <circle cx="7" cy="44" r="2.5" fill="#f87171" />
-                        <text x="20" y="47" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Argo</text>
-                      </g>
-                    </svg>
+                    <div className="depth-presets-pills">
+                      {[0, 50, 100, 200, 500, 1000, 2000].map((dp) => (
+                        <button
+                          key={dp}
+                          type="button"
+                          className={`depth-pill-btn ${currentDepth === dp ? 'pill-active' : ''}`}
+                          onClick={() => setCurrentDepth(dp)}
+                        >
+                          {dp}m
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Visualizer Display Area */}
+                  {viewTab === '3d-volume' && (
+                    <div className="visualizer-canvas-frame">
+                      <RegionalDepthVisualizer
+                        regionConfig={activeRegionConfig}
+                        currentDepth={currentDepth}
+                        variable={selectedVar}
+                        observation={activeObs}
+                        payload={payload}
+                        onDepthChange={setCurrentDepth}
+                      />
+                      <div className="canvas-scroll-hint">
+                        <span className="scroll-arrow">▲</span>
+                        <span>Scroll Up = Shallower</span>
+                        <span className="hint-divider">·</span>
+                        <span className="scroll-arrow">▼</span>
+                        <span>Scroll Down = Deeper</span>
+                        <span className="hint-divider">·</span>
+                        <span>Drag to Rotate 3D Column</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {viewTab === '2d-profile' && (
+                    <div className="chart-render-wrapper">
+                      {chartSeries.length > 0 ? (
+                        <DepthProfileChart
+                          variable={selectedVar}
+                          series={chartSeries}
+                          width={960}
+                          height={500}
+                        />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '480px', color: '#94a3b8', fontSize: '13px' }}>
+                          No sounding series available for this platform.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {viewTab === 'side-by-side' && (
+                    <div className="obs-split-view-grid">
+                      <div className="visualizer-canvas-frame">
+                        <RegionalDepthVisualizer
+                          regionConfig={activeRegionConfig}
+                          currentDepth={currentDepth}
+                          variable={selectedVar}
+                          observation={activeObs}
+                          payload={payload}
+                          onDepthChange={setCurrentDepth}
+                        />
+                        <div className="canvas-scroll-hint">
+                          <span className="scroll-arrow">▲</span>
+                          <span>Scroll Up = Shallower</span>
+                          <span className="hint-divider">·</span>
+                          <span className="scroll-arrow">▼</span>
+                          <span>Scroll Down = Deeper</span>
+                        </div>
+                      </div>
+                      <div className="chart-render-wrapper">
+                        {chartSeries.length > 0 ? (
+                          <DepthProfileChart
+                            variable={selectedVar}
+                            series={chartSeries}
+                            width={520}
+                            height={480}
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Profile Data Table */}
@@ -762,20 +964,29 @@ export const ObservationProfileModal: React.FC<ObservationProfileModalProps> = (
                         </tr>
                       </thead>
                       <tbody>
-                        {profileTableData.map((row) => (
-                          <tr key={row.depth}>
-                            <td className="cell-depth">{row.depth}</td>
-                            <td className="cell-model text-cyan">
-                              {typeof row.model === 'number' ? row.model.toFixed(1) : '—'}
-                            </td>
-                            <td className="cell-glider text-amber">
-                              {typeof row.glider === 'number' ? row.glider.toFixed(1) : '—'}
-                            </td>
-                            <td className="cell-argo text-coral">
-                              {typeof row.argo === 'number' ? row.argo.toFixed(1) : '—'}
-                            </td>
-                          </tr>
-                        ))}
+                        {profileTableData.map((row) => {
+                          const isRowActive = Math.abs(row.depth - currentDepth) < 25;
+                          return (
+                            <tr
+                              key={row.depth}
+                              className={isRowActive ? 'row-depth-active' : ''}
+                              onClick={() => setCurrentDepth(row.depth)}
+                              style={{ cursor: 'pointer' }}
+                              title="Click to slice 3D column at this depth"
+                            >
+                              <td className="cell-depth">{row.depth}</td>
+                              <td className="cell-model text-cyan">
+                                {typeof row.model === 'number' ? row.model.toFixed(1) : '—'}
+                              </td>
+                              <td className="cell-glider text-amber">
+                                {typeof row.glider === 'number' ? row.glider.toFixed(1) : '—'}
+                              </td>
+                              <td className="cell-argo text-coral">
+                                {typeof row.argo === 'number' ? row.argo.toFixed(1) : '—'}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

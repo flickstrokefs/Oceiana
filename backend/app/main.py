@@ -15,6 +15,8 @@ from app.api.datasets import router as datasets_router
 from app.api.hazard import router as hazard_router
 from app.api.fishery import router as fishery_router
 from app.api.search import router as search_router
+from app.api.science import router as science_router
+from app.api.reports import router as reports_router
 
 # Initialize structured logging
 setup_logging()
@@ -22,10 +24,12 @@ setup_logging()
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
-        "Production backend for OCEAN-X / ARIEL. "
-        "Integrates numerical ocean model outputs and in-situ observations (Argo floats, gliders, CTD), "
-        "standardized TEOS-10 derived products, vertical gradients, depth slicing, "
-        "marine hazard assessment, and potential fishing zone advisories."
+        "Oceiana backend — honest, real-data ocean reporting for the Bay of Bengal. "
+        "Serves real Argo float profiles (Ifremer ERDDAP), IFREMER glider tracks, "
+        "IBTrACS cyclone records, and scientific products (MLD, TCHP, D26, thermocline) "
+        "derived from REAL measurements via TEOS-10. "
+        "CMEMS forecast fields require credentials (set in .env). "
+        "All responses carry provenance: REAL | DERIVED | SIMULATED | SYNTHETIC."
     ),
     version=settings.APP_VERSION,
     docs_url="/api/docs",
@@ -62,9 +66,10 @@ def root():
         "version": settings.APP_VERSION,
         "docs": "/api/docs",
         "provenance_standards": {
-            "REAL": "Direct in-situ instrument or recorded NetCDF measurement",
-            "DERIVED": "Thermodynamically computed via TEOS-10 / scientific equations",
-            "SIMULATED": "Numerical model prediction",
+            "REAL": "Direct in-situ measurement (Argo, glider, CTD)",
+            "DERIVED": "Computed from REAL data (TEOS-10, MLD, TCHP, gradients)",
+            "SIMULATED": "Output of a named external operational model (e.g. CMEMS GLORYS12)",
+            "SYNTHETIC": "Placeholder formulas — must never appear in user-facing numbers",
         },
         "endpoints": [
             "/api/health",
@@ -86,6 +91,8 @@ def root():
             "/api/fishery/advisory",
             "/api/fishery/pfz",
             "/api/search",
+            "/api/science/products",
+            "/api/reports",
         ],
     }
 
@@ -100,5 +107,7 @@ app.include_router(datasets_router, prefix=settings.API_BASE_PATH)
 app.include_router(hazard_router, prefix=settings.API_BASE_PATH)
 app.include_router(fishery_router, prefix=settings.API_BASE_PATH)
 app.include_router(search_router, prefix=settings.API_BASE_PATH)
+app.include_router(science_router)  # already has /api/science prefix
+app.include_router(reports_router)  # already has /api/reports prefix
 
 logger.info(f"OCEAN-X {settings.APP_NAME} initialized successfully.")

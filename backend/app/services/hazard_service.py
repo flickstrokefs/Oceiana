@@ -107,15 +107,19 @@ class HazardService:
             exceeding = float(np.sum(arr >= req.threshold))
             fraction = exceeding / len(arr) if len(arr) > 0 else 0.0
 
-            calc_area = round(r["nominal_area"] * max(0.2, fraction), -2)
-            total_area += calc_area
-            global_max = max(global_max, max_val)
-
-            risk: str = "LOW"
-            if max_val >= req.threshold * 1.4:
-                risk = "HIGH"
-            elif max_val >= req.threshold:
-                risk = "MODERATE"
+            if exceeding == 0:
+                calc_area = 0.0
+                risk = "LOW"
+            else:
+                calc_area = round(r["nominal_area"] * fraction, -2)
+                if max_val >= req.threshold * 1.5:
+                    risk = "CRITICAL"
+                elif max_val >= req.threshold * 1.2:
+                    risk = "HIGH"
+                elif max_val >= req.threshold:
+                    risk = "MODERATE"
+                else:
+                    risk = "LOW"
 
             results.append(
                 HazardRegionResult(
@@ -127,6 +131,8 @@ class HazardService:
                     risk_level=risk,  # type: ignore
                 )
             )
+            total_area += calc_area
+            global_max = max(global_max, max_val)
 
         unit = "m/s" if "current" in req.variable.lower() else "m"
         return HazardAnalysisResponse(
@@ -137,7 +143,7 @@ class HazardService:
             max_value=round(global_max, 2),
             timestamp=datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC"),
             regions=results,
-            provenance="REAL",
+            provenance="SYNTHETIC",  # Derived from placeholder model formulas — NOT real observations
         )
 
 
