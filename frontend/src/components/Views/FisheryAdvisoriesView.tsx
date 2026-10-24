@@ -11,6 +11,7 @@ import { RealFisheryMap, type FisheryZoneData } from './RealFisheryMap';
 export const FisheryAdvisoriesView: React.FC = () => {
   const [variable, setVariable] = useState<string>('Chlorophyll (mg/m³)');
   const [region, setRegion] = useState<string>('All Regions');
+  const [timeRange, setTimeRange] = useState<string>('Next 7 days');
   const [minChlThreshold, setMinChlThreshold] = useState<number>(1.2);
   const [generating, setGenerating] = useState<boolean>(false);
   const [advisoryDate, setAdvisoryDate] = useState<string>('Live Broadcast · Current Sync');
@@ -241,6 +242,19 @@ export const FisheryAdvisoriesView: React.FC = () => {
                 <option value="All Regions">All Basins (Multi-Region)</option>
                 <option value="Bay of Bengal">Bay of Bengal (BoB)</option>
                 <option value="Arabian Sea">Arabian Sea (AS)</option>
+              </select>
+            </div>
+
+            <div className="hazard-ctrl-item">
+              <span className="ctrl-tiny-label">HORIZON</span>
+              <select
+                className="ariel-select select-sm"
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+              >
+                <option value="Next 24 hours">24h Forecast</option>
+                <option value="Next 48 hours">48h Forecast</option>
+                <option value="Next 7 days">7-Day Outlook</option>
               </select>
             </div>
 
