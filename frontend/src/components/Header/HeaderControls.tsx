@@ -9,7 +9,7 @@ interface HeaderControlsProps {
 
 export const HeaderControls: React.FC<HeaderControlsProps> = ({
   onToggleSidebar,
-  onResetView,
+  onResetView: _onResetView,
 }) => {
   const [viewMode, setViewMode] = useState<
     '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'

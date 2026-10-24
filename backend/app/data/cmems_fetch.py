@@ -57,6 +57,8 @@ SOURCE_URL = "https://marine.copernicus.eu"
 PRODUCT_PHY = "GLOBAL_ANALYSISFORECAST_PHY_001_024"
 DATASET_PHY_ANFC = "cmems_mod_glo_phy_anfc_0.083deg_P1D-m"   # near-real-time
 DATASET_PHY_MY   = "cmems_mod_glo_phy_my_0.083deg_P1D-m"     # multi-year reanalysis
+DATASET_CUR_ANFC = "cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m"
+DATASET_CUR_MY = "cmems_mod_glo_phy-cur_my_0.083deg_P1D-m"
 # Legacy alias kept for backward-compat (was removed from catalogue)
 DATASET_PHY = DATASET_PHY_ANFC
 
@@ -82,6 +84,11 @@ class DataNotAvailableError(RuntimeError):
 
 
 def _get_credentials() -> tuple[str, str]:
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parents[3] / ".env")
+    except ImportError:
+        pass
     username = os.environ.get("CMEMS_USERNAME", "")
     password = os.environ.get("CMEMS_PASSWORD", "")
     if not username or not password:
@@ -90,6 +97,28 @@ def _get_credentials() -> tuple[str, str]:
             "in your .env file. Free registration at https://marine.copernicus.eu"
         )
     return username, password
+
+
+def fetch_cmems_surface_currents(start: str, end: str, bbox: list[float]) -> "xr.Dataset":  # type: ignore[name-defined]
+    """Fetch operational CMEMS surface currents; never substitute formulas."""
+    import datetime as _dt
+    import copernicusmarine as cm
+
+    username, password = _get_credentials()
+    start_date = _dt.date.fromisoformat(start[:10])
+    dataset_id = DATASET_CUR_MY if start_date < _MY_CUTOFF else DATASET_CUR_ANFC
+    try:
+        return cm.open_dataset(
+            dataset_id=dataset_id,
+            variables=["uo", "vo"],
+            minimum_longitude=bbox[0], maximum_longitude=bbox[2],
+            minimum_latitude=bbox[1], maximum_latitude=bbox[3],
+            start_datetime=start, end_datetime=end,
+            minimum_depth=0.0, maximum_depth=1.0,
+            username=username, password=password,
+        )
+    except Exception as exc:
+        raise DataNotAvailableError(f"CMEMS current fields unavailable: {exc}") from exc
 
 
 def _cache_key(product: str, start: str, end: str, bbox: list[float], variables: list[str]) -> str:

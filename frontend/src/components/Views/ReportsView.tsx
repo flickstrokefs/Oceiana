@@ -42,8 +42,12 @@ const REPORT_TYPES: ReportMeta[] = [
   },
 ];
 
-export const ReportsView: React.FC = () => {
-  const [reportType, setReportType] = useState<string>('thermal');
+interface ReportsViewProps {
+  initialReportType?: string;
+}
+
+export const ReportsView: React.FC<ReportsViewProps> = ({ initialReportType = 'thermal' }) => {
+  const [reportType, setReportType] = useState<string>(initialReportType);
   const [startDate, setStartDate] = useState<string>('2020-01-01');
   const [endDate, setEndDate] = useState<string>('2020-02-01');
   const [region, setRegion] = useState<string>('Bay of Bengal (5–23°N, 80–100°E)');

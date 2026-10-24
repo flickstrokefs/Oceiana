@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OceanState } from '../../ocean/OceanState';
 import type { OceanVariable } from '../../types/ocean';
-import { Plus, Sliders, ChevronDown } from 'lucide-react';
+import { Sliders, ChevronDown } from 'lucide-react';
 
 export const VisualizationControlsPanel: React.FC = () => {
   const [variable, setVariable] = useState<OceanVariable>('temperature');

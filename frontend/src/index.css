@@ -5407,10 +5407,10 @@ body, html, #root {
 /* Main Analysis Grid */
 .hazard-main-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.9fr) minmax(360px, .8fr);
   gap: 14px;
   flex: 1;
-  min-height: 480px;
+  min-height: 620px;
 }
 
 .hazard-map-panel {
@@ -5487,7 +5487,7 @@ body, html, #root {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 480px;
+  min-height: 620px;
   display: flex;
   flex-direction: column;
   background: #020617;
@@ -5731,6 +5731,26 @@ body, html, #root {
   border-radius: 2px;
 }
 
+.scale-bar-gradient.cyclone-gradient {
+  width: 10px;
+  height: 110px;
+  background: linear-gradient(to bottom, #ec4899, #ef4444, #f97316, #f59e0b, #38bdf8, #06b6d4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.cyclone-eye-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
 /* Leaflet hazard tooltip styling */
 .leaflet-hazard-tooltip {
   background: rgba(15, 23, 42, 0.95) !important;
@@ -5854,6 +5874,223 @@ body, html, #root {
 .nautical-sector-badge.critical .badge-risk { color: #f87171; }
 .nautical-sector-badge.high .badge-risk { color: #fb923c; }
 .nautical-sector-badge.moderate .badge-risk { color: #facc15; }
+
+/* Dynamic Wind Flow & Cyclone Regional Badges */
+.cyclone-regional-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  box-shadow: none;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.cyclone-regional-badge:hover,
+.cyclone-regional-badge.badge-focused {
+  transform: scale(1.04);
+  box-shadow: none;
+}
+
+.eye-radar-pulse {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  width: 32px;
+  height: 32px;
+  margin-top: -16px;
+  margin-left: -16px;
+  border-radius: 50%;
+  border: 2px solid #f43f5e;
+  animation: radarPing 2.0s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes radarPing {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  80%, 100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.eye-core-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f43f5e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.8);
+  animation: spinSlow 6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.eye-meta-tag {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.eye-meta-tag .storm-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.4px;
+}
+
+.eye-meta-tag .storm-wind {
+  font-size: 9.5px;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+}
+
+/* Feature Toggle Pills (Wind Flows, Speed, Wind Radii) */
+.map-feature-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(6px);
+}
+
+.map-feature-pill-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.map-feature-pill-btn.active-teal {
+  background: rgba(13, 148, 136, 0.25);
+  border-color: #14b8a6;
+  color: #2dd4bf;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+}
+
+.map-feature-pill-btn.active-amber {
+  background: rgba(217, 119, 6, 0.25);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.hazard-detection-card {
+  padding: 13px;
+  border: 1px solid rgba(245, 158, 11, .34);
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(67, 35, 5, .28), rgba(15, 23, 42, .88));
+}
+
+.detection-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #f8fafc; font-size: 13px; font-weight: 700; }
+.detection-head > div { display: flex; align-items: center; gap: 7px; }
+.hazard-detection-card > p { margin: 7px 0 11px; color: #94a3b8; font-size: 10px; }
+.detection-status { padding: 3px 6px; border-radius: 3px; font-size: 9px; letter-spacing: .05em; }
+.detection-status.detected { color: #fecaca; border: 1px solid rgba(239, 68, 68, .5); background: rgba(127, 29, 29, .3); }
+.detection-status.clear { color: #bbf7d0; border: 1px solid rgba(34, 197, 94, .45); background: rgba(20, 83, 45, .25); }
+.detection-evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; }
+.detection-evidence-grid span { display: block; margin-bottom: 2px; color: #94a3b8; font-size: 9px; font-weight: 700; letter-spacing: .05em; }
+.detection-evidence-grid strong { color: #e2e8f0; font-family: var(--font-mono); font-size: 11px; }
+
+.cyclone-hazard-raster {
+  position: absolute;
+  inset: 0;
+  z-index: 410;
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+.map-data-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.cyclone-reading-guide {
+  position: absolute;
+  left: 14px;
+  bottom: 40px;
+  z-index: 430;
+  width: min(310px, calc(100% - 28px));
+  padding: 12px 14px;
+  border: 1px solid rgba(56, 189, 248, .42);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(8, 20, 39, .94), rgba(18, 28, 53, .88));
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .4);
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 1.42;
+  backdrop-filter: blur(10px);
+}
+
+.reading-guide-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 7px;
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cyclone-reading-guide p { margin: 4px 0; }
+.cyclone-reading-guide strong { color: #e2e8f0; }
+.reading-guide-risk { margin-top: 8px !important; padding-top: 8px; border-top: 1px solid rgba(148, 163, 184, .2); color: #fde68a; }
+
+@media (max-width: 720px) {
+  .cyclone-reading-guide { bottom: 30px; font-size: 10px; }
+}
+
+.active-glow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2dd4bf;
+  box-shadow: 0 0 6px #2dd4bf;
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.mini-chip.chip-teal {
+  background: rgba(13, 148, 136, 0.2);
+  border: 1px solid rgba(20, 184, 166, 0.4);
+  color: #2dd4bf;
+}
 
 /* Fleet Operational Assets Marker */
 .fleet-icon-wrapper {
@@ -6608,4 +6845,633 @@ body, html, #root {
 @media (max-height: 760px) {
   .underwater-legend-panel.legend-panel-expanded { max-height: calc(100vh - 88px); }
   .editor-ranges-list { max-height: 160px; }
+}
+
+/* ============================================================
+   FISHERY ADVISORIES VIEW & 3D DEPTH LAYER GIS MAP
+   ============================================================ */
+
+.real-fishery-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 3D Depth Layer Toggle in Map Topbar */
+.depth-layer-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #f1f5f9;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(8px);
+}
+
+.depth-layer-toggle-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.depth-layer-toggle-btn.active {
+  background: rgba(2, 132, 199, 0.28);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+}
+
+.depth-indicator-pill {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  background: #0284c7;
+  color: #ffffff;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
+}
+
+/* 3D Depth Layer Floating Strata Overlay Container */
+.depth-strata-overlay-container {
+  position: absolute;
+  left: 12px;
+  right: 110px;
+  max-width: 760px;
+  bottom: 28px;
+  background: rgba(10, 20, 35, 0.95);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 410;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.depth-strata-overlay-container.minimized {
+  bottom: 28px;
+}
+
+.depth-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  background: rgba(15, 28, 48, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.d-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.d-hdr-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 0.3px;
+}
+
+.d-depth-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.d-hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.depth-dive-globe-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(6, 182, 212, 0.45);
+  color: #38bdf8;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.depth-dive-globe-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.depth-min-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.depth-min-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.depth-overlay-body {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Preset Depth Buttons */
+.depth-preset-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.preset-pill-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.7);
+  color: #cbd5e1;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.preset-pill-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.preset-pill-btn.active {
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+.preset-tiny-species {
+  font-size: 8.5px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* Depth Range Slider */
+.depth-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-label {
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.depth-range-slider {
+  flex: 1;
+  accent-color: #06b6d4;
+  height: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* 3D Prism + Stratum Details Split */
+.depth-interactive-split {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 12px;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.depth-3d-prism-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(5, 12, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.water-prism-svg {
+  width: 100%;
+  height: 125px;
+  display: block;
+}
+
+.prism-subcaption {
+  font-size: 8.5px;
+  font-family: var(--font-mono);
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Stratum Details */
+.depth-stratum-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stratum-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stratum-title-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.stratum-range-tag {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.stratum-role-desc {
+  font-size: 10.5px;
+  color: #cbd5e1;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.stratum-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.s-metric-box {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  padding: 3px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.s-met-lbl {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+.s-met-val {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.stratum-target-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.target-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.4px;
+}
+
+.target-tags-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.species-pill {
+  font-size: 9.5px;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #7dd3fc;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.stratum-gear-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.gear-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.gear-val {
+  font-weight: 600;
+}
+
+/* Potential Fishing Zone (PFZ) Nautical Map Badges */
+.pfz-badge-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.pfz-nautical-badge {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.pfz-nautical-badge:hover,
+.pfz-nautical-badge.badge-selected {
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+}
+
+.pfz-nautical-badge.favourable {
+  border-color: #10b981;
+  background: rgba(10, 30, 22, 0.94);
+}
+.pfz-nautical-badge.favourable.badge-selected {
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.55);
+}
+
+.pfz-nautical-badge.good {
+  border-color: #06b6d4;
+  background: rgba(10, 26, 35, 0.94);
+}
+.pfz-nautical-badge.good.badge-selected {
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.55);
+}
+
+.pfz-nautical-badge.moderate {
+  border-color: #f59e0b;
+  background: rgba(30, 24, 10, 0.94);
+}
+
+.pfz-nautical-badge.depth-stratum-match {
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
+  border-color: #38bdf8 !important;
+}
+
+.badge-fish-icon {
+  font-size: 11px;
+}
+
+.badge-depth-tag {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.badge-chl {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.badge-species {
+  color: #cbd5e1;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pfz-nautical-badge.badge-compact {
+  padding: 2px 7px;
+  gap: 0;
+}
+
+.pfz-nautical-badge.badge-compact .badge-title {
+  max-width: 82px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9.5px;
+}
+
+.pfz-nautical-badge.badge-compact .badge-depth-tag {
+  font-size: 9px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  padding: 0 4px;
+  border-radius: 2px;
+  margin-left: 5px;
+}
+
+.pfz-nautical-badge.badge-expanded .badge-title {
+  font-size: 11px;
+}
+
+/* Fishing Port Marker */
+.fishing-port-marker-wrap {
+  background: transparent !important;
+  border: none !important;
+}
+
+.fishing-port-pin {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 3px;
+  padding: 1px 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.port-mini-label {
+  max-width: 58px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.port-anchor {
+  font-size: 9px;
+}
+
+/* Scientific Colorbars */
+.scale-bar-gradient.depth-strata-gradient {
+  width: 10px;
+  height: 110px;
+  background: linear-gradient(to bottom, #38bdf8, #10b981, #fbbf24, #a855f7, #020617);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.scale-bar-gradient.chl-gradient {
+  width: 10px;
+  height: 110px;
+  background: linear-gradient(to bottom, #ef4444, #f59e0b, #10b981, #06b6d4, #082538);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.scale-bar-gradient.sst-gradient {
+  width: 10px;
+  height: 110px;
+  background: linear-gradient(to bottom, #f43f5e, #f97316, #eab308, #06b6d4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   DUAL-PANE TACTICAL DASHBOARD STYLES (Hazard & Fishery Views)
+   ============================================================ */
+
+/* Dual-Pane Tactical Range Slider */
+.ariel-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ariel-range-slider:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ariel-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: currentColor;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 6px currentColor;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ariel-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.ariel-range-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: currentColor;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 6px currentColor;
+  cursor: pointer;
+}
+
+/* Table Selectable Rows */
+.table-row-selectable {
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.table-row-selectable:hover {
+  background-color: rgba(56, 189, 248, 0.08) !important;
+}
+
+.table-row-selectable.row-selected {
+  background-color: rgba(56, 189, 248, 0.16) !important;
+  border-left: 3px solid #38bdf8;
+}
+
+/* Tactical Fly Globe Button */
+.fly-globe-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fly-globe-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
 }

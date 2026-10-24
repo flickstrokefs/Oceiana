@@ -207,15 +207,6 @@ return {
     }
   }
 
-  public getCesiumColorForVariable(variable: OceanVariable, value: number, alpha = 1): Cesium.Color {
-    const ranges = this.colorRanges[variable] || DEFAULT_COLOR_RANGES[variable] || [];
-    return cesiumColorFromHex(getColorForValue(value, ranges), alpha);
-  }
-
-  public getCesiumColorForActiveVariable(value: number, alpha = 1): Cesium.Color {
-    return this.getCesiumColorForVariable(this.activeVariable, value, alpha);
-  }
-
   public setUnderwaterRegion(
   region: UnderwaterRegionId | null,
 ): void {

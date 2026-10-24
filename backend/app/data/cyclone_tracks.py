@@ -149,10 +149,20 @@ def get_storm_track(
 
     Returns sorted DataFrame for the storm, or empty if not found.
     """
-    mask = df["NAME"].str.upper().str.strip() == storm_name.upper().strip()
+    clean_name = storm_name.upper().strip()
+    mask = (
+        (df["NAME"].str.upper().str.strip() == clean_name) |
+        (df["NAME"].str.upper().apply(lambda x: clean_name in str(x).split(":")))
+    )
     if season:
         mask &= df["SEASON"].astype(str) == str(season)
     track = df[mask].copy()
+    if track.empty:
+        # Fallback to substring match
+        mask = df["NAME"].str.upper().str.contains(clean_name, na=False)
+        if season:
+            mask &= df["SEASON"].astype(str) == str(season)
+        track = df[mask].copy()
     if track.empty:
         logger.warning(f"Storm '{storm_name}' not found in IBTrACS dataset.")
         return track
@@ -182,6 +192,19 @@ def load_ibtracs_cache(year_min: int = 2015) -> pd.DataFrame:
     if csv_path.exists():
         logger.info(f"Loading IBTrACS from cache (offline): {csv_path.name}")
         return pd.read_csv(csv_path, low_memory=False)
+    
+    # Check directory for any available cached CSV
+    parent_dir = csv_path.parent
+    if parent_dir.exists():
+        csv_files = list(parent_dir.glob("*.csv"))
+        if csv_files:
+            logger.info(f"Loading IBTrACS from available cache: {csv_files[0].name}")
+            df = pd.read_csv(csv_files[0], low_memory=False)
+            if "ISO_TIME" in df.columns:
+                df["ISO_TIME"] = pd.to_datetime(df["ISO_TIME"], errors="coerce", utc=True)
+                df = df[df["ISO_TIME"].dt.year >= year_min].reset_index(drop=True)
+            return df
+
     raise DataNotAvailableError(
         "No IBTrACS cache found. Run `python -m app.data.refresh --region bob` with network."
     )

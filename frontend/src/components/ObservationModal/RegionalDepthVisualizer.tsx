@@ -7,6 +7,8 @@ import {
   type ProfileVariable,
   type SelectedObservation,
   type ObservationProfilePayload,
+  type ArgoProfile,
+  type GliderTrajectory,
 } from '../../types/ocean';
 
 interface RegionalDepthVisualizerProps {
@@ -231,12 +233,12 @@ export const RegionalDepthVisualizer: React.FC<RegionalDepthVisualizerProps> = (
 
     if (observation) {
       if (observation.type === 'argo') {
-        const argo = observation.data;
+        const argo = observation.data as ArgoProfile;
         obsLon = argo.longitude;
         obsLat = argo.latitude;
       } else {
-        const glider = observation.data;
-        const lastWp = glider.waypoints[glider.waypoints.length - 1];
+        const glider = observation.data as GliderTrajectory;
+        const lastWp = glider.waypoints?.[glider.waypoints.length - 1];
         if (lastWp) {
           obsLon = lastWp.longitude;
           obsLat = lastWp.latitude;

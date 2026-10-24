@@ -5,7 +5,6 @@ import {
   RefreshCw,
   Layers,
   MapPin,
-  ChevronDown,
   Activity,
   Box,
   BarChart2,
@@ -24,7 +23,6 @@ import {
   type SelectedObservation,
   type GliderTrajectory,
   type ArgoProfile,
-  type ProfileDepthSample,
 } from '../../types/ocean';
 
 interface ObservationProfileModalProps {

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import List
-from pydantic import Field
+from pydantic import Field, field_validator
 
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -23,6 +23,15 @@ class Settings(BaseSettings):
     APP_VERSION: str = "2.0.0"
     ENVIRONMENT: str = "production"
     DEBUG: bool = False
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def parse_debug(cls, value):
+        # Deployment environments sometimes use labels such as "release".
+        # Treat only explicit development values as enabled debugging.
+        if isinstance(value, str) and value.lower() in {"release", "production", "prod"}:
+            return False
+        return value
 
     # Network / Server
     API_HOST: str = "0.0.0.0"
