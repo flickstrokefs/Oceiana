@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OceanState } from '../../ocean/OceanState';
 import type { OceanVariable } from '../../types/ocean';
-import { Plus, Sliders, ChevronDown } from 'lucide-react';
+import { Sliders, ChevronDown } from 'lucide-react';
 
 export const VisualizationControlsPanel: React.FC = () => {
   const [variable, setVariable] = useState<OceanVariable>('temperature');
@@ -62,10 +62,11 @@ export const VisualizationControlsPanel: React.FC = () => {
 
           {variableOpen && (
             <div className="viz-section-content">
-              <div className="viz-var-row">
+              <div className="viz-var-row" style={{ width: '100%' }}>
                 <select
                   id="viz-var-select"
                   className="ariel-select select-flex"
+                  style={{ width: '100%' }}
                   value={variable}
                   onChange={(e) => handleVarChange(e.target.value as OceanVariable)}
                 >
@@ -74,13 +75,6 @@ export const VisualizationControlsPanel: React.FC = () => {
                   <option value="current">Current Speed (m/s)</option>
                   <option value="chlorophyll">Chlorophyll (mg/m³)</option>
                 </select>
-                <button
-                  type="button"
-                  className="ariel-btn-outline btn-compact"
-                  onClick={() => alert('Variable added to visualization stack.')}
-                >
-                  <Plus size={11} /> Add variable
-                </button>
               </div>
             </div>
           )}

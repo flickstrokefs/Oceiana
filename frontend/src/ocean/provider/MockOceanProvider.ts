@@ -6,12 +6,28 @@ import type {
   GliderTrajectory,
 } from '../../types/ocean';
 
+/**
+ * ⚠️  SYNTHETIC DATA — NOT FOR USER-FACING NUMBERS
+ *
+ * MockOceanProvider uses trigonometric formulas (sin/cos/exp) to produce
+ * plausible-looking temperature, salinity, and current fields.
+ * These are NOT measurements and NOT from any model (ROMS/CMEMS/INCOIS).
+ *
+ * Permitted uses:
+ *   - 3D visual mesh color gradients when no real field data is loaded
+ *     (the mesh shows "DEMO — no real field data" badge in the UI)
+ *
+ * Forbidden uses:
+ *   - Any panel, table, or chart that shows numbers to a user
+ *   - Any API response with provenance != "SYNTHETIC"
+ *   - Comparison against real Argo/glider observations
+ */
 export class MockOceanProvider implements OceanDataProvider {
   private argoProfiles: ArgoProfile[];
   private gliderTrajectories: GliderTrajectory[];
 
   constructor() {
-    this.argoProfiles = this.generateMockArgoProfiles();
+    this.argoProfiles = [];
     this.gliderTrajectories = [];
   }
 
@@ -102,61 +118,5 @@ export class MockOceanProvider implements OceanDataProvider {
 
   public getGliderTrajectories(): GliderTrajectory[] {
     return this.gliderTrajectories;
-  }
-
-  private generateMockArgoProfiles(): ArgoProfile[] {
-    return [
-      {
-        id: 'argo-2901633',
-        name: 'Argo Float #2901633',
-        stationCode: 'IND-AS-01',
-        latitude: 14.5,
-        longitude: 64.2,
-        timestamp: new Date().toISOString(),
-        nodes: [
-          { depth: 0, temperature: 28.4, salinity: 36.2 },
-          { depth: 50, temperature: 27.8, salinity: 36.4 },
-          { depth: 100, temperature: 24.1, salinity: 36.1 },
-          { depth: 200, temperature: 18.5, salinity: 35.7 },
-          { depth: 500, temperature: 11.2, salinity: 35.2 },
-          { depth: 1000, temperature: 6.8, salinity: 34.9 },
-          { depth: 2000, temperature: 3.1, salinity: 34.7 },
-        ],
-      },
-      {
-        id: 'argo-2902844',
-        name: 'Argo Float #2902844',
-        stationCode: 'IND-BOB-04',
-        latitude: 12.8,
-        longitude: 85.6,
-        timestamp: new Date().toISOString(),
-        nodes: [
-          { depth: 0, temperature: 29.1, salinity: 32.8 },
-          { depth: 50, temperature: 28.2, salinity: 33.4 },
-          { depth: 100, temperature: 23.5, salinity: 34.6 },
-          { depth: 200, temperature: 17.2, salinity: 35.1 },
-          { depth: 500, temperature: 10.4, salinity: 35.0 },
-          { depth: 1000, temperature: 6.1, salinity: 34.8 },
-          { depth: 2000, temperature: 2.9, salinity: 34.7 },
-        ],
-      },
-      {
-        id: 'argo-5903912',
-        name: 'Argo Float #5903912',
-        stationCode: 'IND-EQ-09',
-        latitude: -2.4,
-        longitude: 73.1,
-        timestamp: new Date().toISOString(),
-        nodes: [
-          { depth: 0, temperature: 27.9, salinity: 35.1 },
-          { depth: 50, temperature: 27.4, salinity: 35.2 },
-          { depth: 100, temperature: 22.0, salinity: 35.4 },
-          { depth: 200, temperature: 16.1, salinity: 35.3 },
-          { depth: 500, temperature: 9.8, salinity: 34.9 },
-          { depth: 1000, temperature: 5.4, salinity: 34.8 },
-          { depth: 2000, temperature: 2.6, salinity: 34.7 },
-        ],
-      },
-    ];
   }
 }

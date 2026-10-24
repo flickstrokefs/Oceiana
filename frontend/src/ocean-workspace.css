@@ -1,0 +1,22 @@
+﻿/* Refine the existing 3D workspace without replacing its layers or depth graphs. */
+.ariel-app-shell .ariel-sidebar{background:linear-gradient(180deg,#0c202b,#09151e);border-right:1px solid #21404c}
+.ariel-app-shell .sidebar-brand{border-bottom:1px solid #21404c}
+.ariel-app-shell .brand-org{color:#73c8c5;letter-spacing:1.6px}
+.ariel-app-shell .brand-name{letter-spacing:2px;color:#e0f2ee}
+.ariel-app-shell .brand-subline{color:#8eaeb9}
+.ariel-app-shell .sidebar-nav-btn{border-radius:6px;margin:3px 8px;transition:background .15s ease}
+.ariel-app-shell .sidebar-nav-btn.nav-active{background:#123e49;color:#a9e9db;border-color:#35776e}
+.study-guide{padding:17px 16px;margin:12px;border:1px solid #264451;border-radius:8px;background:#102832;font-size:11px;line-height:1.7;color:#91aeb8}
+.study-guide strong{display:block;color:#d5ebe8;font-size:12px;margin-bottom:7px}
+.study-guide p{margin:0 0 12px}.study-guide button,.study-guide a{display:block;width:100%;font:inherit;text-align:left;border:0;border-radius:5px;padding:8px;background:#1d4c55;color:#c9eee5;cursor:pointer;text-decoration:none}.study-guide a{background:transparent;margin-top:7px;padding-inline:0;color:#89bbb9}
+.layer-provenance{padding:9px 13px;font-size:10px;line-height:1.7;color:#b6c9ce;border-bottom:1px solid #29414c;background:#122a34}
+.application-page{height:100%;overflow:auto;background:#0a151e}.application-page>.ariel-view-container{height:auto;min-height:650px;overflow:visible}
+.application-evidence{padding:27px 30px;background:linear-gradient(115deg,#103b44,#101f2c);border-bottom:1px solid #31535a;color:#d9ebe9}
+.evidence-heading{display:flex;gap:14px;align-items:center}.evidence-heading>svg{color:#76d4b7;flex-shrink:0}.evidence-heading span{font-size:9px;letter-spacing:1.4px;color:#8fbcbd}.evidence-heading h1{font-size:23px;line-height:1.4;font-weight:600;margin:5px 0 0}
+.application-evidence>p{max-width:1000px;font-size:13px;line-height:1.8;color:#abc5c9;margin:15px 0 19px}
+.evidence-metrics{display:flex;flex-wrap:wrap;gap:30px;border-block:1px solid #2a5059;padding:15px 0;margin-bottom:18px}.evidence-metrics>div{min-width:180px;display:flex;flex-direction:column;gap:5px}.evidence-metrics span{font-size:11px;color:#91b3ba}.evidence-metrics strong{font-size:21px;font-weight:500}.evidence-metrics small{font-size:11px;color:#99bdbd}
+.evidence-actions{display:flex;gap:12px;flex-wrap:wrap}.evidence-actions button{display:flex;gap:8px;align-items:center;padding:10px 14px;border:1px solid #41766f;border-radius:6px;background:#21594f;color:#daf4e9;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500}.evidence-actions button+button{background:transparent}
+.scenario-note{font-size:11px;color:#c6bd9e;line-height:1.8;background:#322d204d;border-left:3px solid #9c8553;margin-top:20px;padding:10px 13px}.scenario-note strong{color:#e0c996}.evidence-error{color:#efba9c;padding:10px 0;font-size:12px}.evidence-error button{margin-left:10px;padding:5px 10px;cursor:pointer}
+.ariel-app-shell button:focus-visible,.ariel-app-shell a:focus-visible{outline:2px solid #8ce0c6;outline-offset:3px}
+@media(max-height:820px){.study-guide{padding:10px;margin:7px 12px}.study-guide p{display:none}.study-guide a{font-size:10px}.sidebar-nav{overflow:auto}}
+@media(max-width:760px){.application-evidence{padding:20px 16px}.evidence-heading h1{font-size:19px}.evidence-metrics{gap:16px}.evidence-metrics>div{min-width:130px}}

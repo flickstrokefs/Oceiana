@@ -10,6 +10,7 @@ import { PublicView } from './components/Views/PublicView';
 import { SearchResourcesView } from './components/Views/SearchResourcesView';
 import { HazardAssessmentView } from './components/Views/HazardAssessmentView';
 import { FisheryAdvisoriesView } from './components/Views/FisheryAdvisoriesView';
+import { ReportsView } from './components/Views/ReportsView';
 import { OceanEngine } from './ocean/OceanEngine';
 import { OceanState } from './ocean/OceanState';
 import type { OceanMode, ArielPage } from './types/ocean';
@@ -74,6 +75,7 @@ export const App: React.FC = () => {
           )}
 
           {activePage === 'public-view' && <PublicView />}
+          {activePage === 'reports' && <ReportsView />}
           {activePage === 'data-manager' && <DataManagerView />}
           {activePage === 'settings' && <SettingsView />}
           {activePage === 'search' && <SearchResourcesView />}

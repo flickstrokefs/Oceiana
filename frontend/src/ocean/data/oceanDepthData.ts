@@ -1,10 +1,11 @@
 import type { OceanDepthPoint } from '../../types/ocean';
 
 /**
- * Generates structured ocean depth data across the Arabian Sea / Indian Ocean.
- * Depth bands range from 0m to 2000m.
+ * DEMO / SYNTHETIC — generates mathematically modelled (NOT measured) ocean depth data.
+ * This is NOT real observation data. Use only for explicit demo/testing purposes.
+ * Do NOT call from production paths — see loadOceanDepthData() below.
  */
-export function generateMockOceanDepthPoints(): OceanDepthPoint[] {
+export function generateSyntheticOceanDepthPoints_DEMO(): OceanDepthPoint[] {
   const points: OceanDepthPoint[] = [];
   const depthBands = [0, 25, 50, 75, 100, 150, 200, 300, 400, 500, 600, 750, 1000, 1250, 1500, 1750, 2000];
 
@@ -62,9 +63,9 @@ export function generateMockOceanDepthPoints(): OceanDepthPoint[] {
 }
 
 /**
- * Loads underwater ocean depth points.
- * To swap in a live API response later, change this function:
- * e.g., return await fetch('/api/ocean-depth-points').then(res => res.json());
+ * Loads real ocean depth points from the backend API.
+ * Returns an empty array (renders nothing) if the backend is unavailable.
+ * Per project rule: no synthetic data is served without an explicit DEMO badge.
  */
 export async function loadOceanDepthData(): Promise<OceanDepthPoint[]> {
   try {
@@ -74,7 +75,11 @@ export async function loadOceanDepthData(): Promise<OceanDepthPoint[]> {
       if (Array.isArray(data) && data.length > 0) return data;
     }
   } catch {
-    // Fall back to local calculation if backend is offline
+    console.warn(
+      '[oceanDepthData] Backend unavailable — returning empty dataset. ' +
+      'No synthetic data is substituted. Connect backend to see real profiles.'
+    );
   }
-  return generateMockOceanDepthPoints();
+  // Return empty — the globe will show no depth points rather than fabricated values.
+  return [];
 }

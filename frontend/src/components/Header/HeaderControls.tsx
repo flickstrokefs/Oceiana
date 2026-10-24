@@ -9,7 +9,7 @@ interface HeaderControlsProps {
 
 export const HeaderControls: React.FC<HeaderControlsProps> = ({
   onToggleSidebar,
-  onResetView,
+  onResetView: _onResetView,
 }) => {
   const [viewMode, setViewMode] = useState<
     '3d-ocean' | 'underwater' | 'depth-slice' | 'isosurface'
@@ -88,61 +88,6 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
           <span className="brand-sub-title">Advanced Ocean Intelligence</span>
         </a>
 
-        {/* Desktop Menu Bar (Section 9) */}
-        <nav className="desktop-menu-bar" aria-label="Application Menu">
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() => onResetView?.()}
-            title="File menu"
-          >
-            File
-          </button>
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() => onResetView?.()}
-            title="Reset Camera View"
-          >
-            View
-          </button>
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() => OceanState.getInstance().setActivePage('3d-ocean')}
-            title="Toggle layers"
-          >
-            Layers
-          </button>
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() => OceanState.getInstance().setActivePage('obs-profile')}
-            title="Open Observation Profile Analysis"
-          >
-            Tools
-          </button>
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() => onResetView?.()}
-            title="Window view"
-          >
-            Window
-          </button>
-          <button
-            type="button"
-            className="menu-bar-item"
-            onClick={() =>
-              alert(
-                'ARIEL Ocean Intelligence Platform\nINCOIS / Ministry of Earth Sciences\nProblem Statement: SIH26067'
-              )
-            }
-            title="Help & Reference"
-          >
-            Help
-          </button>
-        </nav>
       </div>
 
       {/* Center Search Bar - Rectangular, restrained */}

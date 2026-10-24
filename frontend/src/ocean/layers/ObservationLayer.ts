@@ -138,13 +138,14 @@ export class ObservationLayer {
           }
           return `● ${argo.stationCode}`;
         }, false),
-        font: '500 10px "IBM Plex Sans", -apple-system, sans-serif',
+        font: '500 11px "IBM Plex Sans", -apple-system, sans-serif',
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        fillColor: Cesium.Color.fromCssColorString('#c7cbd1'),
-        outlineColor: Cesium.Color.fromCssColorString('#1b1e22'),
-        outlineWidth: 2,
+        fillColor: Cesium.Color.fromCssColorString('#f1f5f9'),
+        outlineColor: Cesium.Color.fromCssColorString('#020617'),
+        outlineWidth: 2.5,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -10),
+        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1000000),
       },
       properties: {
         obsType: 'argo',
@@ -233,7 +234,7 @@ export class ObservationLayer {
           outlineWidth: 2.0,
         },
         label: {
-          text: `● ${glider.name}`,
+          text: `● ${glider.name.replace(/\(.*\)/, '').trim()}`,
           font: '600 11px "IBM Plex Sans", -apple-system, sans-serif',
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           fillColor: Cesium.Color.fromCssColorString('#e2e8f0'),
@@ -241,6 +242,7 @@ export class ObservationLayer {
           outlineWidth: 2.5,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -12),
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1200000),
         },
         properties: {
           obsType: 'glider',

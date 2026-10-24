@@ -152,14 +152,17 @@ return {
 
   public setActivePage(page: ArielPage): void {
     if (page === 'obs-profile') {
-      // If no observation is selected, default to the first real glider
+      // If no observation is selected, default to a regional in-situ instrument (Bay of Bengal / Arabian Sea)
       if (!this.selectedObservation) {
-        const candidateGliders =
-          this.gliders.length > 0
-            ? this.gliders
-            : this.provider.getGliderTrajectories();
-        if (candidateGliders.length > 0) {
-          this.selectedObservation = { type: 'glider', data: candidateGliders[0] };
+        const regionalGlider = this.gliders.find(
+          (g) => g.region === 'arabian_sea' || g.region === 'bay_of_bengal' || g.name.includes('Bengal') || g.name.includes('Arabian') || (g.waypoints[0]?.latitude ?? 0) > 0
+        );
+        if (regionalGlider) {
+          this.selectedObservation = { type: 'glider', data: regionalGlider };
+        } else if (this.argoProfiles.length > 0) {
+          this.selectedObservation = { type: 'argo', data: this.argoProfiles[0] };
+        } else if (this.gliders.length > 0) {
+          this.selectedObservation = { type: 'glider', data: this.gliders[0] };
         }
       }
       this.observationModalOpen = true;

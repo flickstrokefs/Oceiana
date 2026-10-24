@@ -133,6 +133,13 @@ export interface UnderwaterRegionPolygon {
 
 export type UnderwaterRegion = UnderwaterRegionDefinition;
 
+export {
+  OCEAN_REGIONS,
+  type OceanRegionConfig,
+  type RegionGridConfig,
+  getOceanRegionConfig,
+} from '../ocean/data/oceanRegions';
+
 export interface UnderwaterDataPoint {
   id: string;
   latitude: number;
@@ -493,6 +500,7 @@ export type ArielPage =
   | '3d-ocean'
   | 'obs-profile'
   | 'data-manager'
+  | 'reports'
   | 'search'
   | 'hazard'
   | 'fishery'

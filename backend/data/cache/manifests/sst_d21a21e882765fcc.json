@@ -1,0 +1,21 @@
+{
+  "source": "NOAA JPL MUR SST v4.1 (L4 analysed satellite SST)",
+  "doi_or_url": "https://podaac.jpl.nasa.gov/MEaSUREs-MUR",
+  "retrieved_at": "2026-10-23T10:32:35.281582+00:00",
+  "bbox": [
+    80.0,
+    5.0,
+    100.0,
+    23.0
+  ],
+  "time_range": [
+    "2020-01-15",
+    "2020-01-16"
+  ],
+  "n_records": 51412,
+  "cache_file": "C:\\Saumya_workspace\\team ariel\\Oceiana\\backend\\data\\cache\\sst_chl\\d21a21e882765fcc_sst.nc",
+  "provenance": "REAL",
+  "dataset_id": "jplMURSST41",
+  "spatial_stride": 10,
+  "variable": "analysed_sst"
+}

@@ -201,7 +201,18 @@ export const DataInstrumentsPanel: React.FC = () => {
                 </label>
 
                 {instruments.gliders && glidersList.length > 0 && (
-                  <div style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px', margin: '4px 0 6px 0' }}>
+                  <div
+                    style={{
+                      paddingLeft: '14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                      margin: '6px 0 8px 0',
+                      maxHeight: '130px',
+                      overflowY: 'auto',
+                      paddingRight: '4px',
+                    }}
+                  >
                     {glidersList.map((g) => {
                       return (
                         <div

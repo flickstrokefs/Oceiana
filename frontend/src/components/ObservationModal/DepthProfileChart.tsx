@@ -30,8 +30,6 @@ function readValue(sample: ProfileDepthSample, variable: ProfileVariable): numbe
 
 /**
  * Scientific depth-vs-variable comparison chart (SVG).
- * No charting library dependency — keeps the existing package footprint.
- *
  * Y-axis: Depth (m) increasing downward (oceanographic convention).
  * X-axis: Selected variable.
  */
@@ -39,11 +37,11 @@ export const DepthProfileChart: React.FC<DepthProfileChartProps> = ({
   variable,
   series,
   width = 520,
-  height = 280,
+  height = 420,
 }) => {
-  const pad = { top: 28, right: 18, bottom: 36, left: 52 };
-  const innerW = width - pad.left - pad.right;
-  const innerH = height - pad.top - pad.bottom;
+  const pad = { top: 32, right: 28, bottom: 48, left: 58 };
+  const innerW = Math.max(100, width - pad.left - pad.right);
+  const innerH = Math.max(100, height - pad.top - pad.bottom);
 
   const { maxDepth, minX, maxX, paths } = useMemo(() => {
     let maxD = 0;
@@ -95,86 +93,99 @@ export const DepthProfileChart: React.FC<DepthProfileChartProps> = ({
   const xTickValues = Array.from({ length: xTicks }, (_, i) => minX + ((maxX - minX) * i) / (xTicks - 1));
 
   return (
-    <svg
-      className="op-chart-svg"
-      viewBox={`0 0 ${width} ${height}`}
-      role="img"
-      aria-label={`${VARIABLE_LABELS[variable]} versus depth`}
-    >
-      <rect x={0} y={0} width={width} height={height} className="op-chart-bg" />
+    <div className="depth-chart-wrapper-box">
+      {/* Top Legend Bar to guarantee no overlap with graph coordinates */}
+      <div className="op-chart-legend-bar">
+        {paths.map((p) => (
+          <div key={p.key} className="op-legend-item">
+            <span className="op-legend-line" style={{ background: p.color }} />
+            <span className="op-legend-label" style={{ color: p.color }}>
+              {p.label}
+            </span>
+          </div>
+        ))}
+      </div>
 
-      {/* Grid */}
-      {depthTicks.map((d) => {
-        const y = pad.top + (d / maxDepth) * innerH;
-        return (
-          <g key={`d-${d}`}>
-            <line
-              x1={pad.left}
-              y1={y}
-              x2={pad.left + innerW}
-              y2={y}
-              className="op-chart-grid"
-            />
-            <text x={pad.left - 8} y={y + 3} textAnchor="end" className="op-chart-axis-label">
-              {d}
-            </text>
-          </g>
-        );
-      })}
-
-      {xTickValues.map((v, i) => {
-        const x = pad.left + (i / (xTicks - 1)) * innerW;
-        return (
-          <g key={`x-${i}`}>
-            <line
-              x1={x}
-              y1={pad.top}
-              x2={x}
-              y2={pad.top + innerH}
-              className="op-chart-grid"
-            />
-            <text x={x} y={height - 10} textAnchor="middle" className="op-chart-axis-label">
-              {v.toFixed(1)}
-            </text>
-          </g>
-        );
-      })}
-
-      {/* Axes labels */}
-      <text
-        x={14}
-        y={pad.top + innerH / 2}
-        textAnchor="middle"
-        className="op-chart-axis-title"
-        transform={`rotate(-90 14 ${pad.top + innerH / 2})`}
+      <svg
+        className="op-chart-svg"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`${VARIABLE_LABELS[variable]} versus depth`}
       >
-        Depth (m)
-      </text>
-      <text
-        x={pad.left + innerW / 2}
-        y={16}
-        textAnchor="middle"
-        className="op-chart-axis-title"
-      >
-        {VARIABLE_LABELS[variable]}
-      </text>
+        <rect x={0} y={0} width={width} height={height} className="op-chart-bg" rx={4} />
 
-      {/* Series */}
-      {paths.map((p) =>
-        p.d ? (
-          <path key={p.key} d={p.d} fill="none" stroke={p.color} strokeWidth={2.2} />
-        ) : null
-      )}
+        {/* Depth Grid Lines (Y-Axis horizontal markers) */}
+        {depthTicks.map((d) => {
+          const y = pad.top + (d / maxDepth) * innerH;
+          return (
+            <g key={`d-${d}`}>
+              <line
+                x1={pad.left}
+                y1={y}
+                x2={pad.left + innerW}
+                y2={y}
+                className="op-chart-grid"
+              />
+              <text x={pad.left - 10} y={y + 4} textAnchor="end" className="op-chart-axis-label">
+                {d}
+              </text>
+            </g>
+          );
+        })}
 
-      {/* Legend */}
-      {paths.map((p, i) => (
-        <g key={`leg-${p.key}`} transform={`translate(${pad.left + i * 90}, ${height - 2})`}>
-          <line x1={0} y1={-14} x2={16} y2={-14} stroke={p.color} strokeWidth={2.2} />
-          <text x={20} y={-11} className="op-chart-legend">
-            {p.label}
-          </text>
-        </g>
-      ))}
-    </svg>
+        {/* Variable Grid Lines (X-Axis vertical markers) */}
+        {xTickValues.map((v, i) => {
+          const x = pad.left + (i / (xTicks - 1)) * innerW;
+          return (
+            <g key={`x-${i}`}>
+              <line
+                x1={x}
+                y1={pad.top}
+                x2={x}
+                y2={pad.top + innerH}
+                className="op-chart-grid"
+              />
+              <text x={x} y={pad.top + innerH + 18} textAnchor="middle" className="op-chart-axis-label">
+                {v.toFixed(1)}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Axes titles */}
+        <text
+          x={16}
+          y={pad.top + innerH / 2}
+          textAnchor="middle"
+          className="op-chart-axis-title"
+          transform={`rotate(-90 16 ${pad.top + innerH / 2})`}
+        >
+          Depth (m)
+        </text>
+        <text
+          x={pad.left + innerW / 2}
+          y={pad.top + innerH + 36}
+          textAnchor="middle"
+          className="op-chart-axis-title"
+        >
+          {VARIABLE_LABELS[variable]}
+        </text>
+
+        {/* Depth Curves Paths */}
+        {paths.map((p) =>
+          p.d ? (
+            <path
+              key={p.key}
+              d={p.d}
+              fill="none"
+              stroke={p.color}
+              strokeWidth={2.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ) : null
+        )}
+      </svg>
+    </div>
   );
 };

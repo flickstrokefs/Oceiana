@@ -1,0 +1,33 @@
+{
+  "source": "Copernicus Marine Service (CMEMS) \u2014 Global Ocean Physics Analysis/Forecast",
+  "doi_or_url": "https://marine.copernicus.eu",
+  "retrieved_at": "2026-10-23T10:54:55.948830+00:00",
+  "bbox": [
+    80.0,
+    5.0,
+    100.0,
+    23.0
+  ],
+  "time_range": [
+    "2020-01-01",
+    "2020-01-07"
+  ],
+  "n_records": 7,
+  "cache_file": "C:\\Saumya_workspace\\team ariel\\Oceiana\\backend\\data\\cache\\cmems\\6906f324e0270b38.nc",
+  "provenance": "SIMULATED",
+  "product_id": "GLOBAL_ANALYSISFORECAST_PHY_001_024",
+  "dataset_id": "cmems_mod_glo_phy_anfc_0.083deg_P1D-m",
+  "variables": [
+    "thetao",
+    "so",
+    "uo",
+    "vo",
+    "zos",
+    "mlotst"
+  ],
+  "depth_range_m": [
+    0.5,
+    500.0
+  ],
+  "note": "External CMEMS operational forecast \u2014 not produced by this project"
+}
